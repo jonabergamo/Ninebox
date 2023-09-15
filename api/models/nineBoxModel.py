@@ -1,5 +1,20 @@
 from django.db import models
-from api.models import UserModel
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+
+
+class UserNineBoxModel(models.Model):
+    user = models.ForeignKey("UserModel", on_delete=models.CASCADE)  # Lazy Reference
+    ninebox = models.ForeignKey(
+        "NineBoxModel", on_delete=models.CASCADE
+    )  # Lazy Reference
+    x_position = models.IntegerField()
+    y_position = models.IntegerField()
+
+    def save(self, *args, **kwargs):
+        if self.user.role != "STUDENT":
+            raise ValidationError("Apenas alunos podem ter NineBoxes associadas.")
+        super(UserNineBoxModel, self).save(*args, **kwargs)
 
 
 class NineBoxModel(models.Model):
@@ -9,12 +24,3 @@ class NineBoxModel(models.Model):
     )
     x_axis = models.CharField(max_length=150)
     y_axis = models.CharField(max_length=150)
-
-
-class PersonalNineBoxModel(models.Model):
-    ninebox = models.ForeignKey(
-        NineBoxModel, related_name="personal_ninebox", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(UserModel, related_name="user", on_delete=models.CASCADE)
-    x_pos = models.IntegerField()
-    y_pos = models.IntegerField()

@@ -2,48 +2,45 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.contrib.auth.models import User
+from api.models import (
+    UserModel,
+)  # Certifique-se de importar o seu modelo de usuário personalizado
 from api.serializers import UserSerializer
 from rest_framework import permissions
 
 
 class CreateTeacherView(viewsets.ViewSet):
-    """
-    This class is exclusively for adding a user.
-    """
-
     @swagger_auto_schema(
-        operation_description="Create a new superuser.",
+        operation_description="Create a new teacher.",
         request_body=UserSerializer,
-        responses={
-            201: "Superuser successfully created.",
-            400: "Invalid request.",
-        },
+        responses={201: "Teacher successfully created.", 400: "Invalid request."},
     )
     @action(detail=False, methods=["POST"])
     def create_teacher(self, request):
-        """
-        Create a new superuser.
+        serializer = UserSerializer(data=request.data)
 
-        Expects a JSON containing 'username', 'email', and 'password'.
-        """
-        username = request.data.get("username")
-        email = request.data.get("email")
-        password = request.data.get("password")
+        if serializer.is_valid():
+            username = serializer.validated_data["username"]
+            email = serializer.validated_data["email"]
+            password = serializer.validated_data["password"]
 
-        if not (username and email and password):
-            return Response(
-                {"error": "All fields are required."},
-                status=status.HTTP_400_BAD_REQUEST,
+            # Create a new user
+            user = UserModel.objects.create_superuser(
+                username=username, email=email, password=password
             )
 
-        try:
-            # Make sure your User model has an 'is_teacher' field if you include it here
-            user = User.objects.create_superuser(username, email, password)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Since this view is for teachers, set role to 'TEACHER'
+            user.role = "TEACHER"
+            user.save()
 
-        return Response(
-            {"message": f"Superuser {user.username} successfully created!"},
-            status=status.HTTP_201_CREATED,
-        )
+            return Response(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "role": "TEACHER",
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

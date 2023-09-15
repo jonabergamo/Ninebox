@@ -1,2 +1,2 @@
+from .nineBoxModel import NineBoxModel, UserNineBoxModel
 from .userModel import UserModel
-from .nineBoxModel import NineBoxModel, PersonalNineBoxModel

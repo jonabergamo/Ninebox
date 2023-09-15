@@ -1,9 +1,8 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from django.contrib.auth.models import User
+from api.models import UserModel
 from rest_framework.permissions import IsAuthenticated
-
 
 class DeleteUserView(viewsets.ViewSet):
     """
@@ -23,17 +22,16 @@ class DeleteUserView(viewsets.ViewSet):
 
         Parameters:
             self (DeleteUserView): The instance of this class.
-            request (HttpRequest): The HTTP request object, not used in this function but present due to standard signature.
+            request (HttpRequest): The HTTP request object.
             pk (int, optional): The primary key (ID) of the user to delete.
 
         Returns:
             Response: A JSON response indicating success or failure.
         """
-
         try:
             # Try to fetch the user instance using the provided primary key (ID)
-            instance = User.objects.get(pk=pk)
-        except User.DoesNotExist:
+            instance = UserModel.objects.get(pk=pk)
+        except UserModel.DoesNotExist:
             # If the user is not found, return a 404 Not Found status and an error message
             return Response(
                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND

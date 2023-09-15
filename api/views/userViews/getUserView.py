@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from django.contrib.auth.models import User
+from api.models import UserModel
 from api.serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 
@@ -21,7 +21,7 @@ class GetUserView(viewsets.ViewSet):
         """
 
         # Fetch all User instances and store them in the variable "queryset"
-        queryset = User.objects.all()
+        queryset = UserModel.objects.all()
 
         # Serialize the queryset (convert to JSON-compatible format)
         serializer = UserSerializer(queryset, many=True)
@@ -44,7 +44,7 @@ class GetUserView(viewsets.ViewSet):
 
         try:
             # Try to fetch the User instance using the provided primary key (ID)
-            user = User.objects.get(pk=pk)
+            user = UserModel.objects.get(pk=pk)
         except User.DoesNotExist:
             # If the user is not found, return a 404 Not Found status and an error message
             return Response(
