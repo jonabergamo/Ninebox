@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 from api import views  # Certifique-se de que suas viewsets estão neste módulo
 
 router = DefaultRouter()
+router.register(r"users", views.CustomUserViewSet)
 router.register(r"professores", views.ProfessorViewSet)
 router.register(r"turmas", views.TurmaViewSet)
 router.register(r"alunos", views.AlunoViewSet)

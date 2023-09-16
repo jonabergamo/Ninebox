@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import (
     Professor,
     Turma,
@@ -9,6 +9,7 @@ from .models import (
     AlunoNineBox,
     Criterio,
     Avaliacao,
+    CustomUser,
 )
 from .serializers import (
     ProfessorSerializer,
@@ -20,9 +21,69 @@ from .serializers import (
     AlunoNineBoxSerializer,
     CriterioSerializer,
     AvaliacaoSerializer,
+    CustomUserSerializer,
 )
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from rest_framework.response import Response
+
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def create(self, request):
+        """
+        Create a new user.
+
+        Parameters:
+            self (AddUserView): The instance of this class.
+            request (HttpRequest): The HTTP request object containing user data.
+
+        Returns:
+            Response: A JSON response indicating success or failure.
+        """
+
+        # Initialize the serializer and populate it with data from the request
+        serializer = CustomUserSerializer(data=request.data)
+
+        # Check if the provided data is valid
+        if serializer.is_valid():
+            if (
+                serializer.data["is_aluno"] == True
+                and serializer.data["is_professor"] == True
+            ):
+                return Response(
+                    {
+                        "detail": {
+                            "error": "Um usuário não pode ser um professor e um aluno simultaneamente"
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user = CustomUser.objects.create_user(
+                serializer.validated_data["username"],
+                serializer.validated_data["email"],
+                serializer.validated_data["password"],
+            )
+            user.is_aluno = serializer.validated_data["is_aluno"]
+            user.is_professor = serializer.validated_data["is_professor"]
+            user.save()
+
+            if user.is_aluno:
+                Aluno.objects.create(user=user)
+            elif user.is_professor:
+                Professor.objects.create(user=user)
+
+            # Return a JSON response with the new user's data and a success status code
+            return Response(
+                {"id": user.id, "username": user.username, "email": user.email},
+                status=status.HTTP_201_CREATED,
+            )
+
+        # If the data is not valid, return a 400 Bad Request status and the validation errors
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfessorViewSet(viewsets.ModelViewSet):
