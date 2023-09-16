@@ -17,6 +17,9 @@ class Professor(models.Model):
 
 class Turma(models.Model):
     nome = models.CharField(max_length=100)
+    unique_id = models.CharField(
+        max_length=6, unique=True, primary_key=True
+    )  # Este é o ID único de 6 dígitos
 
     def __str__(self):
         return self.nome
@@ -30,7 +33,7 @@ class Aluno(models.Model):
     nine_boxes = models.ManyToManyField("NineBox", through="AlunoNineBox")
 
     def __str__(self):
-        return self.nome
+        return self.user.email
 
 
 class Disciplina(models.Model):
@@ -49,6 +52,9 @@ class Atividade(models.Model):
     disciplinas = models.ManyToManyField(Disciplina, related_name="atividades")
     nine_boxes = models.ManyToManyField("NineBox")
     criterios = models.ManyToManyField("Criterio")
+    turma = models.ForeignKey(
+        "Turma", related_name="atividades", on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.nome

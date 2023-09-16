@@ -20,12 +20,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "username",
+            "first_name",
+            "last_name",
             "email",
             "is_aluno",
             "is_professor",
             "password",
         )
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            "password": {"write_only": True},
+        }
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
@@ -44,12 +48,6 @@ class ProfessorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TurmaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Turma
-        fields = "__all__"
-
-
 class AlunoSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
 
@@ -58,15 +56,26 @@ class AlunoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class DisciplinaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Disciplina
-        fields = "__all__"
-
-
 class AtividadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Atividade
+        fields = "__all__"
+
+
+class TurmaSerializer(serializers.ModelSerializer):
+    alunos = AlunoSerializer(many=True, read_only=True)
+    professores = ProfessorSerializer(many=True, read_only=True)
+    atividades = AtividadeSerializer(many=True, read_only=True, source="atividades.all")
+
+    class Meta:
+        model = Turma
+        fields = ("unique_id", "nome", "alunos", "professores", "atividades")
+        read_only_fields = ("unique_id",)
+
+
+class DisciplinaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disciplina
         fields = "__all__"
 
 
