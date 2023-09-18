@@ -9,14 +9,14 @@ from .models import (
     AlunoNineBox,
     Criterio,
     Avaliacao,
-    CustomUser,
+    User,
 )
 from django.contrib.auth.hashers import make_password
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             "id",
             "username",
@@ -41,7 +41,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class ProfessorSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = Professor
@@ -49,7 +49,7 @@ class ProfessorSerializer(serializers.ModelSerializer):
 
 
 class AlunoSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = Aluno

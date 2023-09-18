@@ -2,14 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class CustomUser(User):
+class User(User):
     is_aluno = models.BooleanField(default=False)
     is_professor = models.BooleanField(default=False)
 
 
 class Professor(models.Model):
     user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="professor_profile"
+        User, on_delete=models.CASCADE, related_name="professor_profile"
     )
     # Outros campos relevantes
     turmas = models.ManyToManyField("Turma", related_name="professores")
@@ -27,7 +27,7 @@ class Turma(models.Model):
 
 class Aluno(models.Model):
     user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="student_profile"
+        User, on_delete=models.CASCADE, related_name="student_profile"
     )
     turmas = models.ManyToManyField(Turma, related_name="alunos")
     nine_boxes = models.ManyToManyField("NineBox", through="AlunoNineBox")

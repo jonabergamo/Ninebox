@@ -1,14 +1,14 @@
 from django.contrib import admin
 from api.models import (
-    Turma,
-    Atividade,
-    Aluno,
-    Professor,
-    CustomUser,
-    Criterio,
+    Activity,
+    Class,
+    Criteria,
+    Evaluation,
     NineBox,
-    Disciplina,
-    AlunoNineBox,
+    StudentNineBox,
+    Subject,
+    Teacher,
+    User,
 )
 
-admin.site.register(Turma)
+admin.site.register(Activity)

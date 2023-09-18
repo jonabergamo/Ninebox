@@ -4,19 +4,31 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.routers import DefaultRouter
-from api import views  # Certifique-se de que suas viewsets estão neste módulo
+from api.views import (
+    UserViewSet,
+    ActivityViewSet,
+    ClassViewSet,
+    CriteriaViewSet,
+    EvaluationViewSet,
+    NineBoxViewSet,
+    StudentViewSet,
+    StudentNineBoxViewSet,
+    SubjectViewSet,
+    TeacherViewSet,
+)
+
 
 router = DefaultRouter()
-router.register(r"users", views.CustomUserViewSet)
-router.register(r"professores", views.ProfessorViewSet)
-router.register(r"turmas", views.TurmaViewSet)
-router.register(r"alunos", views.AlunoViewSet)
-router.register(r"disciplinas", views.DisciplinaViewSet)
-router.register(r"atividades", views.AtividadeViewSet)
-router.register(r"nineboxes", views.NineBoxViewSet)
-router.register(r"alunonineboxes", views.AlunoNineBoxViewSet)
-router.register(r"criterios", views.CriterioViewSet)
-router.register(r"avaliacoes", views.AvaliacaoViewSet)
+router.register("users", UserViewSet)
+router.register("teachers", TeacherViewSet)
+router.register("classes", ClassViewSet)
+router.register("students", StudentViewSet)
+router.register("subjects", SubjectViewSet)
+router.register("activities", ActivityViewSet)
+router.register("nineboxes", NineBoxViewSet)
+router.register("studentnineboxes", StudentNineBoxViewSet)
+router.register("criterias", CriteriaViewSet)
+router.register("evaluates", EvaluationViewSet)
 
 
 # Initialize the schema view for the Swagger documentation

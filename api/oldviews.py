@@ -9,7 +9,7 @@ from .models import (
     AlunoNineBox,
     Criterio,
     Avaliacao,
-    CustomUser,
+    User,
 )
 from .serializers import (
     ProfessorSerializer,
@@ -21,7 +21,7 @@ from .serializers import (
     AlunoNineBoxSerializer,
     CriterioSerializer,
     AvaliacaoSerializer,
-    CustomUserSerializer,
+    UserSerializer,
 )
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -33,9 +33,9 @@ from drf_yasg import openapi
 from rest_framework import serializers
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 def create(self, request):
@@ -43,7 +43,7 @@ def create(self, request):
     Create a new user.
 
     Parameters:
-        self (CustomUserViewSet): The instance of this class.
+        self (UserViewSet): The instance of this class.
         request (HttpRequest): The HTTP request object containing user data.
 
     Returns:
@@ -51,7 +51,7 @@ def create(self, request):
     """
 
     # Initialize the serializer and populate it with data from the request
-    serializer = CustomUserSerializer(data=request.data)
+    serializer = UserSerializer(data=request.data)
 
     # Check if the provided data is valid
     if serializer.is_valid():
@@ -69,7 +69,7 @@ def create(self, request):
             )
 
         # Create the user
-        user = CustomUser.objects.create_user(
+        user = User.objects.create_user(
             serializer.validated_data["username"],
             serializer.validated_data["email"],
             serializer.validated_data["password"],
