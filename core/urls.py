@@ -15,6 +15,7 @@ from api.views import (
     StudentNineBoxViewSet,
     SubjectViewSet,
     TeacherViewSet,
+    StudentActivityViewSet,
 )
 
 
@@ -23,10 +24,11 @@ router.register("users", UserViewSet)
 router.register("teachers", TeacherViewSet)
 router.register("classes", ClassViewSet)
 router.register("students", StudentViewSet)
+router.register("student_activities", StudentActivityViewSet)
 router.register("subjects", SubjectViewSet)
 router.register("activities", ActivityViewSet)
 router.register("nineboxes", NineBoxViewSet)
-router.register("studentnineboxes", StudentNineBoxViewSet)
+router.register("student_nineboxes", StudentNineBoxViewSet)
 router.register("criterias", CriteriaViewSet)
 router.register("evaluates", EvaluationViewSet)
 

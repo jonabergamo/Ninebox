@@ -8,3 +8,4 @@ from .studentNineBox import StudentNineBox
 from .criteria import Criteria
 from .evaluation import Evaluation
 from .user import User
+from .studentActivity import StudentActivity

@@ -1,19 +1,32 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save
-from api.models import Student, NineBox, StudentNineBox
-
-
-@receiver(post_save, sender=Student)
-def create_nine_boxes_for_aluno(sender, instance, created, **kwargs):
-    if created:
-        all_nine_boxes = NineBox.objects.all()
-        for nine_box in all_nine_boxes:
-            StudentNineBox.objects.create(student=instance, nine_box=nine_box)
+from django.db.models.signals import post_save, m2m_changed
+from api.models import (
+    Student,
+    NineBox,
+    StudentNineBox,
+    Activity,
+    StudentActivity,
+    Class,
+    Evaluation,
+)
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @receiver(post_save, sender=NineBox)
-def create_nine_box_for_all_alunos(sender, instance, created, **kwargs):
+def create_nine_box_for_all_students(sender, instance, created, **kwargs):
     if created:
-        all_students = Student.objects.all()
-        for student in all_students:
+        class_obj = instance.class_obj
+        students_of_class = Student.objects.filter(classes=class_obj)
+        for student in students_of_class:
             StudentNineBox.objects.create(student=student, nine_box=instance)
+
+
+@receiver(post_save, sender=Activity)
+def create_activity_for_all_students(sender, instance, created, **kwargs):
+    if created:
+        class_obj = instance.class_obj
+        students_of_class = Student.objects.filter(classes=class_obj)
+        for student in students_of_class:
+            StudentActivity.objects.create(
+                student=student, activity=instance, class_obj=class_obj
+            )

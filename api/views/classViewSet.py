@@ -1,9 +1,17 @@
 from rest_framework import viewsets, serializers, status
-from api.models import Class, Student
+from api.models import (
+    Class,
+    Student,
+    Activity,
+    StudentActivity,
+    NineBox,
+    StudentNineBox,
+)
 from api.serializers import ClassSerializer
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from datetime import datetime
 
 
 class AddStudentBody(serializers.Serializer):
@@ -32,16 +40,33 @@ class ClassViewSet(viewsets.ModelViewSet):
 
         try:
             student = Student.objects.get(user__email=student_email)
-        except student.DoesNotExist:
+        except Student.DoesNotExist:
             return Response(
-                {"error": "student com este e-mail não encontrado"},
+                {"error": "Student com este e-mail não encontrado"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Adicionando o aluno à classe
         class_model.students.add(student)
+
+        # Adicionando atividades
+        current_date = datetime.now()
+        activities_of_class = Activity.objects.filter(
+            class_obj=class_model,
+        )
+        for activity in activities_of_class:
+            StudentActivity.objects.create(
+                student=student, activity=activity, class_obj=class_model
+            )
+
+        # Adicionando NineBox, se necessário
+        nine_boxes_of_class = NineBox.objects.filter(class_obj=class_model)
+        for nine_box in nine_boxes_of_class:
+            StudentNineBox.objects.create(student=student, nine_box=nine_box)
+
         class_model.save()
 
         return Response(
-            {"status": f"student com e-mail {student_email} foi adicionado à class"},
+            {"status": f"Student com e-mail {student_email} foi adicionado à class"},
             status=status.HTTP_200_OK,
         )

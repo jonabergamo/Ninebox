@@ -8,3 +8,4 @@ from .studentNineBoxSerializer import StudentNineBoxSerializer
 from .subjectSerializer import SubjectSerializer
 from .teacherSerializer import TeacherSerializer
 from .classSerializer import ClassSerializer
+from .studentActivitySerializer import StudentActivitySerializer

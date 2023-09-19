@@ -8,4 +8,5 @@ from .studentViewSet import StudentViewSet
 from .studentNineBoxViewSet import StudentNineBoxViewSet
 from .subjectViewSet import SubjectViewSet
 from .teacherViewSet import TeacherViewSet
+from .studentActivityViewSet import StudentActivityViewSet
 from . import receivers

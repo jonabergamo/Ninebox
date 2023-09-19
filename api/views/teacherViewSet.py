@@ -135,7 +135,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     def create_activity(self, request, pk=None):
         teacher = self.get_object()
         name = request.data.get("name", "")
-        level = request.data.get("level", None)
+        level = request.data.get("level", 0)
         subjects = request.data.get("subjects", [])
         nine_boxes = request.data.get("nine_boxes", [])
         criteria_descriptions = request.data.get("criteria_descriptions", [])
