@@ -1,5 +1,5 @@
 from rest_framework import viewsets, serializers, status
-from api.models import StudentActivity, Activity, Evaluation, Student
+from api.models import StudentActivity, Activity, Evaluation, Student, StudentNineBox
 from api.serializers import StudentActivitySerializer
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -35,6 +35,9 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
             student_activity = StudentActivity.objects.get(id=pk)
             activity = student_activity.activity
             student = student_activity.student
+            student_ninebox_instance = StudentNineBox.objects.get(
+                student=student, nine_box=activity.nine_boxes.first()
+            )
         except StudentActivity.DoesNotExist:
             return Response(
                 {"error": "Atividade ou aluno não encontrado."},
@@ -68,6 +71,7 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
         student_activity.evaluations.set(evaluations)
         student_activity.correction_date = timezone.now()
         student_activity.update_final_grade()  # Adicione essa linha
+        student_ninebox_instance.update_student_ninebox(student_activity.final_grade)
         student_activity.save()
 
         return Response(

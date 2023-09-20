@@ -32,8 +32,8 @@ class StudentActivity(models.Model):
         grade_to_number = {
             "E": 100,
             "G": 75,
-            "A": 65,
-            "P": 50,
+            "A": 50,
+            "P": 25,
         }
         return grade_to_number.get(grade, 0)
 
