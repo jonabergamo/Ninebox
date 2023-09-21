@@ -122,10 +122,22 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     items=openapi.Schema(type=openapi.TYPE_INTEGER),
                     description="NineBoxes associadas à atividade",
                 ),
-                "criteria_descriptions": openapi.Schema(
+                "criteria": openapi.Schema(
                     type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(type=openapi.TYPE_STRING),
-                    description="Descrições dos critérios associados à atividade",
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "description": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="Descrição do critério",
+                            ),
+                            "weight": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="Peso do critério",
+                            ),
+                        },
+                    ),
+                    description="Critérios associados à atividade",
                 ),
                 "class_id": openapi.Schema(
                     type=openapi.TYPE_STRING,
@@ -141,12 +153,12 @@ class TeacherViewSet(viewsets.ModelViewSet):
         level = request.data.get("level", 0)
         subjects = request.data.get("subjects", [])
         nine_boxes = request.data.get("nine_boxes", [])
-        criteria_descriptions = request.data.get("criteria_descriptions", [])
+        criteria_data = request.data.get(
+            "criteria", []
+        )  # Agora é uma lista de dicionários
         class_id = request.data.get("class_id", "")
 
-        if not all(
-            [name, level, subjects, nine_boxes, criteria_descriptions, class_id]
-        ):
+        if not all([name, level, subjects, nine_boxes, criteria_data, class_id]):
             return Response(
                 {"error": "Todos os campos são necessários"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -163,10 +175,11 @@ class TeacherViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Turma não encontrada"}, status=status.HTTP_404_NOT_FOUND
             )
-
         criteria_objects = [
-            Criteria.objects.get_or_create(description=desc)[0]
-            for desc in criteria_descriptions
+            Criteria.objects.get_or_create(
+                description=crit["description"], weight=crit["weight"]
+            )[0]
+            for crit in criteria_data
         ]
         subjects_objects = Subject.objects.filter(id__in=subjects)
         nine_boxes_objects = NineBox.objects.filter(id__in=nine_boxes)

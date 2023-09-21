@@ -39,16 +39,22 @@ class StudentActivity(models.Model):
 
     def update_final_grade(self):
         evaluations = self.evaluations.all()
-        total_grade = 0.0
-        total_evaluations = evaluations.count()
+        total_weighted_grade = 0.0
+        total_weight = 0
 
-        if total_evaluations == 0:
+        if evaluations.count() == 0:
             self.final_grade = None
         else:
             for evaluation in evaluations:
                 numerical_grade = self.convert_grade_to_number(evaluation.grade)
-                total_grade += numerical_grade
+                weight = (
+                    evaluation.criteria.weight
+                )  # Assume que o campo 'weight' está no modelo Evaluation
+                total_weighted_grade += numerical_grade * weight
+                total_weight += weight
 
-            self.final_grade = total_grade / total_evaluations
+            self.final_grade = (
+                total_weighted_grade / total_weight if total_weight > 0 else None
+            )
 
         self.save()

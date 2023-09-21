@@ -7,82 +7,77 @@ class StudentNineBox(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     nine_box = models.ForeignKey(NineBox, on_delete=models.CASCADE)
     level = models.IntegerField(default=0)
-    x = models.IntegerField(default=1)
+    x = models.IntegerField(default=2)
     y = models.IntegerField(default=1)
     last_rank_fail_count = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.student)
 
-    def update_student_ninebox(self, final_grade):
+    def update_student_ninebox(self, final_grade, activity_level):
         print("=== Início da função update_student_ninebox ===")  # Debug
 
-        # ranks para cada coordenada (x, y)
-        ranks = [(1, 1), (2, 1), (3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
-        current_rank = ranks.index((self.x, self.y))
+        # Mapeando x,y para ranks
+        rank_map = {
+            (1, 1): 1,
+            (2, 1): 2,
+            (3, 1): 3,
+            (1, 2): 4,
+            (2, 2): 5,
+            (3, 2): 6,
+            (1, 3): 7,
+            (2, 3): 8,
+            (3, 3): 9,
+        }
 
-        print(
-            f"Rank atual: {current_rank}, Coordenadas atuais: ({self.x}, {self.y}), Nível atual: {self.level}"
-        )  # Debug
+        # Definindo transições
+        transition_map = {
+            1: {"up": 2, "down": 1},
+            2: {"up": 3, "down": 1},
+            3: {"up": 5, "down": 2},
+            4: {"up": 5, "down": 3},
+            5: {"up": 6, "down": 4},
+            6: {"up": 8, "down": 5},
+            7: {"up": 8, "down": 6},
+            8: {"up": 9, "down": 7},
+            9: {"up": "level_up", "down": 8},
+        }
+
+        current_rank = rank_map[(self.x, self.y)]
+        next_rank = current_rank
 
         if final_grade < 50:
-            print("Nota abaixo de 50.")  # Debug
-            deficit_points = 50 - final_grade
-            ranks_to_decrease = int(
-                deficit_points // 16
-            )  # Ajuste esse valor para mudar o "peso" da queda
-
-            print(f"deficit_points: {deficit_points}")  # Debug
-            print(f"ranks_to_decrease: {ranks_to_decrease}")  # Debug
-
-            if current_rank == 0:
-                print("Está no primeiro rank.")  # Debug
-                self.last_rank_fail_count += 1  # Incrementar as falhas
-
-                if self.last_rank_fail_count >= 2 and self.level > 0:
-                    print(
-                        "Falhou duas vezes no primeiro rank e nível é maior que 0."
-                    )  # Debug
+            self.last_rank_fail_count += 1
+            if self.last_rank_fail_count >= 2:
+                if current_rank == 1 and self.level > 0:
                     self.level -= 1
-                    self.last_rank_fail_count = 0  # Resetar contador de falhas
-                    current_rank = (
-                        len(ranks) - 1
-                    )  # Vai para o último rank do nível anterior
-
-            else:
-                print("Reduzindo o rank.")  # Debug
-                new_rank = max(current_rank - ranks_to_decrease, 0)
-                current_rank = new_rank
-
+                    next_rank = len(transition_map)
+                else:
+                    next_rank = transition_map[current_rank]["down"]
+                self.last_rank_fail_count = (
+                    0  # Resetar contador de falhas ao cair de rank
+                )
         else:
-            print("Nota 50 ou mais.")  # Debug
             self.last_rank_fail_count = 0  # Resetar contador de falhas
-            extra_points = final_grade - 50
-            ranks_to_increase = extra_points // 20
+            if final_grade >= 90 and activity_level > self.level:
+                next_rank = transition_map[current_rank]["up"]
+                if next_rank == "level_up":
+                    self.level += 1
+                    next_rank = 2  # Voltar para o rank inicial quando subir de nível
+                next_rank = transition_map[next_rank]["up"]
+            elif final_grade >= 75 and activity_level >= self.level:
+                next_rank = transition_map[current_rank]["up"]
+                if next_rank == "level_up":
+                    self.level += 1
+                    next_rank = 2  # Voltar para o rank inicial quando subir de nível
 
-            print(f"extra_points: {extra_points}")  # Debug
-            print(f"ranks_to_increase: {ranks_to_increase}")  # Debug
+        # Atualiza as coordenadas x e y com base no próximo rank
+        self.x, self.y = [k for k, v in rank_map.items() if v == next_rank][0]
 
-            if current_rank == len(ranks) - 1 and final_grade > 75:
-                print(
-                    "Está no último rank e nota maior que 75, subindo de nível."
-                )  # Debug
-                self.level += 1
-                current_rank = 0  # Voltar ao primeiro rank
-            elif ranks_to_increase > 0:
-                new_rank = current_rank + int(ranks_to_increase)
-                print(f"Novo rank calculado: {new_rank}")  # Debug
-
-                if new_rank >= len(ranks):
-                    new_rank = len(ranks) - 1  # Ficar no último rank
-
-                current_rank = new_rank  # Atualizar o rank
-
-        self.x, self.y = ranks[current_rank]
         print(
             f"Novas coordenadas após alteração de rank ou nível: ({self.x}, {self.y})"
         )  # Debug
-        print(f"Nivel {self.level}")
+        print(f"Nível {self.level}")
 
         self.save()
         print("=== Fim da função update_student_ninebox ===")  # Debug
