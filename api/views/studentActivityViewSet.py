@@ -35,8 +35,8 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
             student_activity = StudentActivity.objects.get(id=pk)
             activity = student_activity.activity
             student = student_activity.student
-            student_ninebox_instance = StudentNineBox.objects.get(
-                student=student, nine_box=activity.nine_boxes.first()
+            student_ninebox_instances = StudentNineBox.objects.filter(
+                student=student, nine_box__in=activity.nine_boxes.all()
             )
         except StudentActivity.DoesNotExist:
             return Response(
@@ -71,10 +71,17 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
         student_activity.evaluations.set(evaluations)
         student_activity.correction_date = timezone.now()
         student_activity.update_final_grade()  # Adicione essa linha
-        student_ninebox_instance.update_student_ninebox(student_activity.final_grade)
+        # Atualizando todas as StudentNineBoxes associadas
+        for student_ninebox_instance in student_ninebox_instances:
+            student_ninebox_instance.update_student_ninebox(
+                student_activity.final_grade, activity.level
+            )
         student_activity.save()
 
         return Response(
-            {"status": "Prova corrigida com sucesso."},
+            {
+                "status": "Prova corrigida com sucesso.",
+                "grade": student_activity.final_grade,
+            },
             status=status.HTTP_200_OK,
         )
