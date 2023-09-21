@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "drf_yasg",
+    "django_filters",
     "rest_framework",
     "api",
 ]
@@ -84,8 +85,12 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "tramp355_ninebox",
+        "USER": "tramp355_admin",
+        "PASSWORD": "Api@32282045",
+        "HOST": "108.167.132.33",
+        "PORT": "3306",
     }
 }
 

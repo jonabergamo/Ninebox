@@ -30,8 +30,8 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
         request_body=CorrectStudentActivityInput,
         operation_description="Corrige a atividade de um aluno.",
     )
-    @action(detail=True, methods=["POST"], url_path="corrigir_prova")
-    def corrigir_prova(self, request, pk=None):
+    @action(detail=True, methods=["POST"], url_path="grade_exam")
+    def grade_exam(self, request, pk=None):
         grades = request.data.get("grades", [])
 
         try:

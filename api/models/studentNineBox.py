@@ -35,10 +35,10 @@ class StudentNineBox(models.Model):
             1: {"up": 2, "down": 1},
             2: {"up": 3, "down": 1},
             3: {"up": 5, "down": 2},
-            4: {"up": 5, "down": 3},
+            4: {"up": 5, "down": 2},
             5: {"up": 6, "down": 4},
             6: {"up": 8, "down": 5},
-            7: {"up": 8, "down": 6},
+            7: {"up": 8, "down": 5},
             8: {"up": 9, "down": 7},
             9: {"up": "level_up", "down": 8},
         }

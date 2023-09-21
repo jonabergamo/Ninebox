@@ -19,6 +19,9 @@ from api.views import (
 )
 
 
+
+
+
 router = DefaultRouter()
 router.register("users", UserViewSet)
 router.register("teachers", TeacherViewSet)
@@ -65,3 +68,5 @@ urlpatterns = [
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("", include(router.urls)),
 ]
+
+

@@ -1,5 +1,14 @@
 from rest_framework import viewsets, status, serializers
-from api.models import Teacher, Class, Criteria, Subject, NineBox, Activity
+from api.models import (
+    Teacher,
+    Class,
+    Criteria,
+    Subject,
+    NineBox,
+    Activity,
+    Student,
+    StudentActivity,
+)
 from drf_yasg.utils import swagger_auto_schema
 from api.serializers import TeacherSerializer, ClassSerializer
 from rest_framework.decorators import action
@@ -8,6 +17,7 @@ from drf_yasg import openapi
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters import rest_framework as filters
+from django.core.exceptions import ValidationError
 
 
 class JoinTurmaRequest(serializers.Serializer):
@@ -93,6 +103,15 @@ class TeacherViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    # def create_activity_for_all_students(self, sender, instance, created):
+    #     if created:
+    #         class_obj = instance.class_obj
+    #         students_of_class = Student.objects.filter(classes=class_obj)
+    #         for student in students_of_class:
+    #             StudentActivity.objects.create(
+    #                 student=student, activity=instance, class_obj=class_obj
+    #             )
+
     @swagger_auto_schema(
         operation_description="Cria uma nova atividade e a associa a uma turma específica, também cria ou recupera os critérios associados.",
         request_body=openapi.Schema(
@@ -143,6 +162,11 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     type=openapi.TYPE_STRING,
                     description="ID da turma à qual a atividade pertencerá",
                 ),
+                "student_ids": openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                    description="IDs dos estudantes para os quais a atividade será criada",
+                ),
             },
         ),
     )
@@ -153,10 +177,9 @@ class TeacherViewSet(viewsets.ModelViewSet):
         level = request.data.get("level", 0)
         subjects = request.data.get("subjects", [])
         nine_boxes = request.data.get("nine_boxes", [])
-        criteria_data = request.data.get(
-            "criteria", []
-        )  # Agora é uma lista de dicionários
+        criteria_data = request.data.get("criteria", [])
         class_id = request.data.get("class_id", "")
+        student_ids = request.data.get("student_ids", [])
 
         if not all([name, level, subjects, nine_boxes, criteria_data, class_id]):
             return Response(
@@ -175,12 +198,27 @@ class TeacherViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Turma não encontrada"}, status=status.HTTP_404_NOT_FOUND
             )
+
+        # Validação dos IDs dos Estudantes
+        if student_ids:
+            valid_students = Student.objects.filter(
+                user__in=student_ids
+            )  # Mudei 'id' para 'user'
+            if len(valid_students) != len(student_ids):
+                return Response(
+                    {"error": "Um ou mais IDs de estudantes fornecidos são inválidos"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            valid_students = Student.objects.filter(classes=class_instance)
+
         criteria_objects = [
             Criteria.objects.get_or_create(
                 description=crit["description"], weight=crit["weight"]
             )[0]
             for crit in criteria_data
         ]
+
         subjects_objects = Subject.objects.filter(id__in=subjects)
         nine_boxes_objects = NineBox.objects.filter(id__in=nine_boxes)
 
@@ -191,6 +229,11 @@ class TeacherViewSet(viewsets.ModelViewSet):
         new_activity.nine_boxes.set(nine_boxes_objects)
         new_activity.criteria.set(criteria_objects)
         new_activity.save()
+
+        for student in valid_students:
+            StudentActivity.objects.create(
+                student=student, activity=new_activity, class_obj=class_instance
+            )
 
         return Response(
             {"message": "Atividade criada com sucesso"}, status=status.HTTP_201_CREATED

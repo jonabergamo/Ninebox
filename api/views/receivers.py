@@ -21,12 +21,12 @@ def create_nine_box_for_all_students(sender, instance, created, **kwargs):
             StudentNineBox.objects.create(student=student, nine_box=instance)
 
 
-@receiver(post_save, sender=Activity)
-def create_activity_for_all_students(sender, instance, created, **kwargs):
-    if created:
-        class_obj = instance.class_obj
-        students_of_class = Student.objects.filter(classes=class_obj)
-        for student in students_of_class:
-            StudentActivity.objects.create(
-                student=student, activity=instance, class_obj=class_obj
-            )
+# @receiver(post_save, sender=Activity)
+# def create_activity_for_all_students(sender, instance, created, **kwargs):
+#     if created and not hasattr(instance, "skip_signal"):
+#         class_obj = instance.class_obj
+#         students_of_class = Student.objects.filter(classes=class_obj)
+#         for student in students_of_class:
+#             StudentActivity.objects.create(
+#                 student=student, activity=instance, class_obj=class_obj
+#             )
