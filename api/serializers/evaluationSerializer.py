@@ -4,6 +4,16 @@ from api.serializers import StudentSerializer, ActivitySerializer, CriteriaSeria
 
 
 class EvaluationSerializer(serializers.ModelSerializer):
+    activity_name = serializers.CharField(source="activity.name")
+    criteria_description = serializers.CharField(source="criteria.description")
+
     class Meta:
         model = Evaluation
-        fields = ["id", "student", "activity", "criteria", "grade"]
+        fields = [
+            "student",
+            "activity",
+            "activity_name",
+            "criteria_description",
+            "criteria",
+            "grade",
+        ]

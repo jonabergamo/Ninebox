@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from django_filters import rest_framework as filters
 
 
 class GradeInputSerializer(serializers.Serializer):
@@ -21,6 +22,8 @@ class CorrectStudentActivityInput(serializers.Serializer):
 class StudentActivityViewSet(viewsets.ModelViewSet):
     queryset = StudentActivity.objects.all()
     serializer_class = StudentActivitySerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "__all__"
 
     @swagger_auto_schema(
         method="post",

@@ -2,11 +2,14 @@ from rest_framework import viewsets, status
 from api.serializers import UserSerializer
 from api.models import User, Student, Teacher
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "__all__"
 
     def create(self, request):
         """

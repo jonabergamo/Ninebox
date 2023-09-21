@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
+from django_filters import rest_framework as filters
 
 
 class AddStudentBody(serializers.Serializer):
@@ -21,6 +22,8 @@ class AddStudentBody(serializers.Serializer):
 class ClassViewSet(viewsets.ModelViewSet):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "__all__"
 
     @swagger_auto_schema(
         method="post",

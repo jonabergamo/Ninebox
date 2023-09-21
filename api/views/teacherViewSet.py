@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from drf_yasg import openapi
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
+from django_filters import rest_framework as filters
 
 
 class JoinTurmaRequest(serializers.Serializer):
@@ -16,6 +17,8 @@ class JoinTurmaRequest(serializers.Serializer):
 class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = "__all__"
 
     @swagger_auto_schema(
         operation_description="Cria uma nova turma e associa o teacher a ela.",
