@@ -85,12 +85,12 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "tramp355_ninebox",
-        "USER": "tramp355_admin",
-        "PASSWORD": "Api@32282045",
-        "HOST": "108.167.132.33",
-        "PORT": "3306",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "mjpywfpx",
+        "USER": "mjpywfpx",
+        "PASSWORD": "vtwlpvv1bJKGIFpiIc7-cJEqB1rFIQH9",
+        "HOST": "silly.db.elephantsql.com",  # or the IP where your DB is hosted
+        "PORT": "5432",  # default PostgreSQL port
     }
 }
 
