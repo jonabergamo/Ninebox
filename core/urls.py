@@ -17,9 +17,7 @@ from api.views import (
     TeacherViewSet,
     StudentActivityViewSet,
 )
-
-
-
+from rest_framework.authtoken.views import obtain_auth_token
 
 
 router = DefaultRouter()
@@ -53,7 +51,7 @@ schema_view = get_schema_view(
 
 # Defining the URL patterns for the project
 urlpatterns = [
-    # The admin panel will be accessible via the '/admin/' URL
+    path("token-auth/", obtain_auth_token, name="api_token_auth"),
     path("admin/", admin.site.urls),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
@@ -68,5 +66,3 @@ urlpatterns = [
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("", include(router.urls)),
 ]
-
-
