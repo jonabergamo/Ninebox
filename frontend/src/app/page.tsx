@@ -8,6 +8,7 @@ import StudentScreen from "@/screens/studentScreen";
 import TeacherScreen from "@/screens/teacherScreen";
 import AsideBar from "@/components/asideBar";
 import UserInfo from "@/components/userInfo";
+import ClassSwitch from "@/components/classSwitch";
 
 export default function Home({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Home({ children }: { children: React.ReactNode }) {
     <div>
       <AsideBar />
       <UserInfo />
+      <ClassSwitch/>
       {children}
     </div>
   );
