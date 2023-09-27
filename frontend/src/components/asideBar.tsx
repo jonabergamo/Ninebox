@@ -39,7 +39,7 @@ export default function AsideBar() {
         {asideIconsMap[role]?.map((icon, index) => (
           <div
             key={index}
-            className="text-3xl cursor-pointer"
+            className="text-3xl cursor-pointer hover:bg-blue-900 p-2 rounded-full transition-all hover:scale-105"
             onClick={() => {
               router.push(icon.to);
             }}>
