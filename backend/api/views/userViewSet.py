@@ -1,9 +1,11 @@
 from rest_framework import viewsets, status
 from api.serializers import UserSerializer
 from api.models import User, Student, Teacher
+from api.serializers import TeacherSerializer, StudentSerializer
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -11,6 +13,8 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "__all__"
+    permission_classes = [IsAuthenticated]
+
 
     def create(self, request):
         """
@@ -30,8 +34,8 @@ class UserViewSet(viewsets.ModelViewSet):
         # Check if the provided data is valid
         if serializer.is_valid():
             if (
-                serializer.validated_data["is_aluno"] == True
-                and serializer.validated_data["is_professor"] == True
+                serializer.validated_data["is_student"] == True
+                and serializer.validated_data["is_teacher"] == True
             ):
                 return Response(
                     {
@@ -44,26 +48,21 @@ class UserViewSet(viewsets.ModelViewSet):
 
             # Create the user
             user = User.objects.create_user(
-                serializer.validated_data["username"],
-                serializer.validated_data["email"],
-                serializer.validated_data["password"],
-                first_name=serializer.validated_data["first_name"],
-                last_name=serializer.validated_data["last_name"],
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
             )
-            user.is_aluno = serializer.validated_data["is_aluno"]
-            user.is_professor = serializer.validated_data[
-                "is_professor"
-            ]  # fixed this line
+            user.is_student = serializer.validated_data["is_student"]  # Mudança aqui
+            user.is_teacher = serializer.validated_data["is_teacher"]
+            user.name = serializer.validated_data.get("name", "")
             user.save()
-
-            if user.is_aluno:
+            if user.is_student:
                 Student.objects.create(user=user)
-            elif user.is_professor:
+            elif user.is_teacher:
                 Teacher.objects.create(user=user)
 
             # Return a JSON response with the new user's data and a success status code
             return Response(
-                {"id": user.id, "username": user.username, "email": user.email},
+                {"id": user.id, "name": user.name, "email": user.email},
                 status=status.HTTP_201_CREATED,
             )
 
