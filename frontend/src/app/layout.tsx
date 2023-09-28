@@ -2,7 +2,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { UserProvider } from "../context/UserContext";
-import Overlay from "./overlay";
+import AsideBar from "@/components/asideBar";
+import UserInfo from "@/components/userInfo";
+import ClassSwitch from "@/components/classSwitch";
+import Header from "@/components/header";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,15 +19,25 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+  }) {
+  
   return (
     <html lang="en">
-      <UserProvider>
-        <body className={inter.className}>
-          <Overlay />
-          {children}
-        </body>
-      </UserProvider>
+    <UserProvider>
+      <body className={`${inter.className} flex flex-row h-screen bg-gray-300`}>
+        <aside className="flex-none">
+          <AsideBar />
+        </aside>
+        <div className="flex flex-col flex-grow">
+          <header className="flex-none px-5">
+            <Header />
+          </header>
+          <main className="flex-grow p-12">
+            {children}
+          </main>
+        </div>
+      </body>
+    </UserProvider>
     </html>
   );
 }

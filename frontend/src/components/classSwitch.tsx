@@ -21,8 +21,8 @@ export default function ClassSwitch() {
     setSelectedClass(selected || null);
   };
 
-  return (
-    <div className="absolute left-14 h-16 flex items-center justify-end px-5 gap-2 ">
+  return user?.info && (
+    <div className="flex items-center justify-end px-5 gap-2 max-w-4xl">
       <select
         onChange={handleSelectChange}
         id="countries"

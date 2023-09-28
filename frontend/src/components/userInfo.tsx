@@ -1,11 +1,12 @@
+'use client'
 import React from "react";
 import { useUser } from "@/context/UserContext";
 
 export default function UserInfo() {
   const { user } = useUser();
   const user_info = user?.info;
-  return (
-    <header className="absolute left-0 h-16 w-full flex items-center justify-end px-5 space-x-10 ">
+  return user?.info && (
+    <header className="flex items-center justify-end px-5 space-x-10">
       <div className="flex flex-shrink-0 items-center space-x-4 text-black">
         <div className="flex flex-col items-end ">
           <div className="text-md font-medium ">{user_info?.name}</div>

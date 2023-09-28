@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { useRouter } from "next/navigation";
 type User = {
   id: number;
   name: string;
@@ -25,7 +25,10 @@ type UserContextType = {
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
   selectedClass: Class | null;
   setSelectedClass: React.Dispatch<React.SetStateAction<Class | null>>;
-  handleSubmit: () => void;
+  handleSubmit: (email: string, password: string) => void;
+  error: string | null;
+  userRole: string | null;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 };
 
 type UserProviderProps = {
@@ -51,68 +54,70 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [tempUser, setTempUser] = useState<User | null>(null);
   const [user, setUser] = useState<FullUser | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [error, setError] = useState("");
+  const router = useRouter()
 
-  const handleSubmit = (email: string, password: string) => {
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
-        username: email,
-        password: password,
-      })
-      .then((response) => {
-        const data_token = response.data.token;
-        setToken(data_token);
-        Cookies.set("token", data_token, {
-          secure: true,
-          sameSite: "strict",
-        });
+const handleSubmit = (email: string, password: string) => {
+    axios.post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
+      username: email,
+      password: password,
+    })
+    .then(authResponse => {
+      const data_token = authResponse.data.token;
+      setToken(data_token);
+      Cookies.set("token", data_token, { secure: true, sameSite: "strict" });
 
-        return axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
-          {
-            headers: { Authorization: `Token ${data_token}` },
-          }
-        );
-      })
-      .then((response) => {
-        const user_data = response.data[0];
-        Cookies.set("user", JSON.stringify(user_data), {
-          secure: true,
-          sameSite: "strict",
-        });
-        setUser(user_data);
-        console.log(user_data);
-      })
-      .catch((err) => {
-        // Verifica se é um erro 400
-        if (err.response && err.response.status === 400) {
-          return "Email ou senha inválidos.";
-        } else {
-          // Para outros erros, você pode querer ser mais genérico
-          return "Ocorreu um erro. Tente novamente.";
-        }
+      return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`, {
+        headers: { Authorization: `Token ${data_token}` }
       });
-  };
+    })
+    .then(userResponse => {
+      const stored_user: User = userResponse.data[0];
+      const user_role = stored_user?.is_teacher ? "teachers" : stored_user?.is_student ? "students" : "";
+      setUserRole(user_role)
+      return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${stored_user.id}`, {
+        headers: { Authorization: `Token ${Cookies.get("token")}` }
+      });
+    })
+    .then(roleResponse => {
+      const { classes, user } = roleResponse.data;
+      const user_structured = { classes: classes, info: user };
+      setUser(user_structured);
+      Cookies.set("user", JSON.stringify(user_structured), { secure: true, sameSite: "strict" });
+      setError('')
+    })
+    .catch((err: unknown) => {
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 400) {
+          setError("Email ou senha inválidos.");
+        } else {
+          setError("Ocorreu um erro. Tente novamente.");
+        }
+      } else {
+        setError("Ocorreu um erro desconhecido.");
+      }
+    });
+};
 
   const fetchUser = () => {
     const storedUser = Cookies.get("user");
     const storedToken = Cookies.get("token");
 
     if (storedUser && storedToken) {
-      const parsed_user: User = JSON.parse(storedUser);
-      const user_role = parsed_user?.is_teacher
+      const parsed_user: FullUser = JSON.parse(storedUser);
+      const user_role = parsed_user?.info.is_teacher
         ? "teachers"
-        : parsed_user?.is_student
-        ? "students"
-        : "";
-      axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${parsed_user.id}`,
-          {
-            headers: { Authorization: `Token ${storedToken}` },
-          }
-        )
+        : parsed_user?.info.is_student
+          ? "students"
+          : "";
+      setUserRole(user_role)
+      console.log(parsed_user)
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${parsed_user.info.id}`, {
+        headers: { Authorization: `Token ${storedToken}` }
+      })
         .then((res) => {
           const { classes, user } = res.data;
           const user_structure = { classes: classes, info: user };
@@ -128,21 +133,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-    // Recuperar o token do cookie ao montar o componente
-    const storedToken = Cookies.get("token");
-    const storedUser = Cookies.get("user");
-
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      setToken(null);
-    }
-    if (storedUser) {
-      const parsed_user = JSON.parse(storedUser);
-      setTempUser(parsed_user);
-    } else {
-      setTempUser(null);
-    }
   }, []);
 
   return (
@@ -155,6 +145,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         selectedClass,
         setSelectedClass,
         handleSubmit,
+        error,
+        setError,
+        userRole
       }}>
       {children}
     </UserContext.Provider>

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function AsideBar() {
-  const [role, setRole] = useState<string>("");
   const { user } = useUser();
   const router = useRouter();
 
@@ -33,22 +32,15 @@ export default function AsideBar() {
     ],
   };
 
-  useEffect(() => {
-    if (user?.info) {
-      setRole(
-        user?.info.is_teacher
-          ? "teacher"
-          : user?.info.is_student
-          ? "student"
-          : "error"
-      );
-    }
-  }, []);
 
-  return (
-    <div className="fixed h-screen w-full bg-white flex overflow-hidden">
-      <aside className="h-full w-14 flex flex-col space-y-10 items-center justify-center relative text-white">
-        {asideIconsMap[role]?.map((icon, index) => (
+  return user?.info&&(
+    <div className="h-screen flex overflow-hidden px-2">
+      <aside className="h-full flex flex-col gap-5 items-center justify-center text-white">
+        {asideIconsMap[user.info?.is_teacher
+              ? "teacher"
+              : user.info?.is_student
+              ? "student"
+              : ""]?.map((icon, index) => (
           <div
             key={index}
             className="text-3xl cursor-pointer bg-blue-500 hover:bg-blue-900 p-2 rounded-full transition-all hover:scale-105"
@@ -59,7 +51,6 @@ export default function AsideBar() {
           </div>
         ))}
       </aside>
-      <div className="w-full h-full flex flex-col justify-between"></div>
     </div>
   );
 }

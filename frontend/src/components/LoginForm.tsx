@@ -1,3 +1,4 @@
+'use client'
 import React from "react";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -6,18 +7,19 @@ import { IoAlertCircleSharp } from "react-icons/io5";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const { setToken, token, setUser, user, handleSubmit } = useUser();
+ 
+  const { setToken, token, setUser, user, handleSubmit, error } = useUser();
+  const router = useRouter()
 
-  const Login = () => {
-    setError("");
-    handleSubmit(email, password);
-  };
+const Login = async () => {
+  handleSubmit(email, password);
+};
 
   return (
     <div className="md:w-1/3 max-w-sm">
@@ -29,6 +31,7 @@ export default function LoginForm() {
         onChange={(e) => {
           setEmail(e.target.value);
         }}
+        autoComplete="new-password"
       />
       <div className="relative w-full container mx-auto mt-5">
         <input
@@ -38,6 +41,7 @@ export default function LoginForm() {
           onChange={(e) => {
             setPassword(e.target.value);
           }}
+          autoComplete="new-password"
         />
         <div
           className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 cursor-pointer"

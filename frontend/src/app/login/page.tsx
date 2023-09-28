@@ -9,13 +9,13 @@ import Logo27Box from '@/assets/27box_logo.svg'
 
 export default function page() {
   const router = useRouter();
-  const { token } = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
-    if (token || Cookies.get("token")) {
+    if (user || Cookies.get("user")) {
       router.push("/"); // Redireciona para a página inicial se o token existir
     }
-  }, [token]);
+  }, [user]);
 
   return (
     <section className="h-screen flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0">
@@ -30,7 +30,6 @@ export default function page() {
           className="w-72"
         />
       </div>
-
       <LoginForm />
     </section>
   );
