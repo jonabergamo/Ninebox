@@ -12,48 +12,11 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const { setToken, token, setUser, user } = useUser();
+  const { setToken, token, setUser, user, handleSubmit } = useUser();
 
-  const handleSubmit = () => {
+  const Login = () => {
     setError("");
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
-        username: email,
-        password: password,
-      })
-      .then((response) => {
-        const data_token = response.data.token;
-        setToken(data_token);
-        Cookies.set("token", data_token, {
-          secure: true,
-          sameSite: "strict",
-        });
-
-        return axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
-          {
-            headers: { Authorization: `Token ${data_token}` },
-          }
-        );
-      })
-      .then((response) => {
-        const user_data = response.data[0];
-        Cookies.set("user", JSON.stringify(user_data), {
-          secure: true,
-          sameSite: "strict",
-        });
-        setUser(user_data);
-        console.log(user_data);
-      })
-      .catch((err) => {
-        // Verifica se é um erro 400
-        if (err.response && err.response.status === 400) {
-          setError("Email ou senha inválidos.");
-        } else {
-          // Para outros erros, você pode querer ser mais genérico
-          setError("Ocorreu um erro. Tente novamente.");
-        }
-      });
+    handleSubmit(email, password);
   };
 
   return (
@@ -102,7 +65,7 @@ export default function LoginForm() {
         <button
           className="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
           type="submit"
-          onClick={handleSubmit}>
+          onClick={Login}>
           Entrar
         </button>
       </div>

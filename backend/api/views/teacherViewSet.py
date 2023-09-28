@@ -18,6 +18,7 @@ from django.utils.crypto import get_random_string
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters import rest_framework as filters
 from django.core.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 
 
 class JoinTurmaRequest(serializers.Serializer):
@@ -29,6 +30,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "__all__"
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description="Cria uma nova turma e associa o teacher a ela.",

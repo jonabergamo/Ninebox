@@ -3,8 +3,10 @@ import React, { ReactNode } from "react";
 import { useUser } from "@/context/UserContext";
 import { AiFillHome, AiFillAlipayCircle } from "react-icons/ai";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function AsideBar() {
+  const [role, setRole] = useState<string>("");
   const { user } = useUser();
   const router = useRouter();
 
@@ -31,15 +33,25 @@ export default function AsideBar() {
     ],
   };
 
-  const role = user?.is_teacher ? "teacher" : user?.is_student ? "student" : "";
+  useEffect(() => {
+    if (user?.info) {
+      setRole(
+        user?.info.is_teacher
+          ? "teacher"
+          : user?.info.is_student
+          ? "student"
+          : "error"
+      );
+    }
+  }, []);
 
   return (
     <div className="fixed h-screen w-full bg-white flex overflow-hidden">
-      <aside className="h-full w-14 flex flex-col space-y-10 items-center justify-center relative bg-blue-800 text-white">
+      <aside className="h-full w-14 flex flex-col space-y-10 items-center justify-center relative text-white">
         {asideIconsMap[role]?.map((icon, index) => (
           <div
             key={index}
-            className="text-3xl cursor-pointer hover:bg-blue-900 p-2 rounded-full transition-all hover:scale-105"
+            className="text-3xl cursor-pointer bg-blue-500 hover:bg-blue-900 p-2 rounded-full transition-all hover:scale-105"
             onClick={() => {
               router.push(icon.to);
             }}>

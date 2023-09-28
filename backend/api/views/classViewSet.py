@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
 from django_filters import rest_framework as filters
+from rest_framework.permissions import IsAuthenticated
 
 
 class AddStudentBody(serializers.Serializer):
@@ -24,6 +25,7 @@ class ClassViewSet(viewsets.ModelViewSet):
     serializer_class = ClassSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "__all__"
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
         method="post",

@@ -10,9 +10,9 @@ import AsideBar from "@/components/asideBar";
 import UserInfo from "@/components/userInfo";
 import ClassSwitch from "@/components/classSwitch";
 
-export default function Home({ children }: { children: React.ReactNode }) {
+export default function Home() {
   const router = useRouter();
-  const { token, user } = useUser();
+  const { token, user, selectedClass } = useUser();
 
   useEffect(() => {
     if (!token && !Cookies.get("token")) {
@@ -20,12 +20,5 @@ export default function Home({ children }: { children: React.ReactNode }) {
     }
   }, [token]);
 
-  return (
-    <div>
-      <AsideBar />
-      <UserInfo />
-      <ClassSwitch/>
-      {children}
-    </div>
-  );
+  return <div></div>;
 }
