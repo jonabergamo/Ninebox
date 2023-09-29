@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -13,13 +13,13 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
- 
-  const { setToken, token, setUser, user, handleSubmit, error } = useUser();
-  const router = useRouter()
 
-const Login = async () => {
-  handleSubmit(email, password);
-};
+  const { setToken, token, setUser, user, handleSubmit, error } = useUser();
+  const router = useRouter();
+
+  const Login = async () => {
+    handleSubmit(email, password);
+  };
 
   return (
     <div className="md:w-1/3 max-w-sm">
@@ -31,7 +31,6 @@ const Login = async () => {
         onChange={(e) => {
           setEmail(e.target.value);
         }}
-        autoComplete="new-password"
       />
       <div className="relative w-full container mx-auto mt-5">
         <input
@@ -41,7 +40,6 @@ const Login = async () => {
           onChange={(e) => {
             setPassword(e.target.value);
           }}
-          autoComplete="new-password"
         />
         <div
           className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 cursor-pointer"

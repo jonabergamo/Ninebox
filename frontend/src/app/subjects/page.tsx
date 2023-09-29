@@ -8,5 +8,5 @@ const { token, user, selectedClass } = useUser();
 
   return user?.info ? (
     <div>page</div>
-  ) : <LoadingScreen/>
+  ): LoadingScreen
 }
