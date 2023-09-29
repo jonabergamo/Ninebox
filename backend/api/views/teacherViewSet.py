@@ -68,9 +68,13 @@ class TeacherViewSet(viewsets.ModelViewSet):
         class_instance = Class.objects.create(unique_id=unique_id, name=name_class)
         class_instance.teachers.add(teacher)
         class_instance.save()
+        created_class = ClassSerializer(class_instance)
 
         return Response(
-            {"message": f"Turma {name_class} criada com o ID {unique_id}"},
+            {
+                "message": f"Turma {name_class} criada com o ID {unique_id}",
+                "object": created_class.data,
+            },
             status=status.HTTP_201_CREATED,
         )
 
@@ -164,11 +168,11 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     type=openapi.TYPE_STRING,
                     description="ID da turma à qual a atividade pertencerá",
                 ),
-                "student_ids": openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
-                    description="IDs dos estudantes para os quais a atividade será criada",
-                ),
+                # "student_ids": openapi.Schema(
+                #     type=openapi.TYPE_ARRAY,
+                #     items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                #     description="IDs dos estudantes para os quais a atividade será criada",
+                # ),
             },
         ),
     )

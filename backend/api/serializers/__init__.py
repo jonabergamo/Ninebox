@@ -1,4 +1,5 @@
 from .userSerializer import UserSerializer
+from .classSerializer import ClassSerializer
 from .studentSerializer import StudentSerializer
 from .activitySerializer import ActivitySerializer
 from .criteriaSerializer import CriteriaSerializer
@@ -6,6 +7,5 @@ from .evaluationSerializer import EvaluationSerializer
 from .nineBoxSerializer import NineBoxSerializer
 from .studentNineBoxSerializer import StudentNineBoxSerializer
 from .subjectSerializer import SubjectSerializer
-from .classSerializer import ClassSerializer
 from .teacherSerializer import TeacherSerializer
 from .studentActivitySerializer import StudentActivitySerializer
