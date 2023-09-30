@@ -40,6 +40,19 @@ interface ApiResponse {
   aggregate_nineboxes: NineBoxData;
 }
 
+const calculateStdDevOfThree = (level: number, x: number, y: number) => {
+  var avg = (level * 2 + x / 2 + y / 2) / 3;
+  avg = Math.sqrt(avg);
+  return parseFloat(avg.toFixed(2));
+};
+
+const describeStdDev = (stdDev: number) => {
+  if (stdDev < 0.2) return "Turma Muito Equilibrada";
+  if (stdDev < 0.5) return "Turma Equilibrada";
+  if (stdDev < 1) return "Moderadamente Desequilibrada";
+  return "Turma Muito Desequilibrada";
+};
+
 export default function Home() {
   const router = useRouter();
   const { token, user, selectedClass } = useUser();
@@ -57,14 +70,26 @@ export default function Home() {
   const [selectedPercentil, setSelectedPercentil] = useState<
     "0" | "25" | "50" | "75" | "100"
   >("50");
+  const [std_dev, setStd_dev] = useState<number>(0.5);
 
   useEffect(() => {
+    if (classNineBoxData?.level && classNineBoxData?.x && classNineBoxData?.y) {
+      setStd_dev(
+        calculateStdDevOfThree(
+          classNineBoxData?.level.std_dev,
+          classNineBoxData?.x.std_dev,
+          classNineBoxData?.y.std_dev
+        )
+      );
+    }
+
     if (classNineBoxData) {
       switch (selectedStat) {
         case "avg":
           setChosenXValue(classNineBoxData.x.avg);
           setChosenYValue(classNineBoxData.y.avg);
           setChosenLevelValue(Math.round(classNineBoxData.level.avg));
+
           break;
         case "median":
           setChosenXValue(classNineBoxData.x.median);
@@ -134,22 +159,25 @@ export default function Home() {
             <span className="text-2xl ml-2 text-gray-700">
               #{selectedClass?.unique_id}
             </span>
+            <h1 className="text-sm">Desvio Padrão: {std_dev}</h1>
+            <h2 className="text-sm">{describeStdDev(std_dev)}</h2>
           </h1>
 
-          <div className="flex gap-5 w-screen flex-wrap justify-center align-middle">
+          <div className="flex gap-5 flex-wrap justify-center align-middle items-center">
             <div className="flex flex-col">
-              <h1 className="text-2xl text-black">Desempenho da Turma:</h1>
-              <h2 className="text-xl font-medium">
-                Level:{" "}
-                <label className="text-blue-500">{chosenLevelValue}</label>
-              </h2>
+              <div className="w-full text-center mb-2">
+                <h1 className="text-2xl text-black">Desempenho da Turma:</h1>
+                <h2 className="text-xl font-medium">
+                  Level:{" "}
+                  <label className="text-blue-500">{chosenLevelValue}</label>
+                </h2>
+              </div>
               <div className="flex  gap-2">
-                <NineBox x={chosenXValue} y={chosenYValue} size={100} />
-                <div>
+                <div className="flex flex-col gap-2">
                   <label>
                     <select
                       value={selectedStat}
-                      className="bg-gray-50  border w-[200px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       onChange={(e) =>
                         setSelectedStat(
                           e.target.value as "avg" | "median" | "percentiles"
@@ -163,7 +191,7 @@ export default function Home() {
                   {selectedStat == "percentiles" && (
                     <label>
                       <select
-                        className="bg-gray-50  border w-[200px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         value={selectedPercentil}
                         onChange={(e) =>
                           setSelectedPercentil(
@@ -179,6 +207,7 @@ export default function Home() {
                     </label>
                   )}
                 </div>
+                <NineBox x={chosenXValue} y={chosenYValue} size={90} />
               </div>
             </div>
           </div>

@@ -51,7 +51,9 @@ export default function NineBox({ x, y, size = 120, gap = 5 }: NineBoxProps) {
   };
 
   return (
-    <div className="grid grid-cols-3" style={gridStyle}>
+    <div
+      className="grid grid-cols-3 cursor-default select-none transition-all duration-300"
+      style={gridStyle}>
       {[3, 2, 1].map((row) => {
         return [1, 2, 3].map((col) => (
           <div
@@ -60,14 +62,14 @@ export default function NineBox({ x, y, size = 120, gap = 5 }: NineBoxProps) {
             className={`border ${getColor(
               row,
               col
-            )} flex items-center justify-center ${
+            )} flex items-center justify-center transition-all duration-300 ${
               row === clampedX && col === clampedY
                 ? "ring-2 ring-black saturate-100"
                 : "saturate-50 brightness-75 hover:saturate-100 hover:brightness-100"
             }`}>
             <span
               style={{ fontSize: `${size * 0.13}px` }}
-              className="text-white text-center leading-5">
+              className="text-white text-center leading-5 select-none">
               {getText(row, col)}
             </span>
           </div>
