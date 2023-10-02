@@ -63,6 +63,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [error, setError] = useState("");
   const router = useRouter();
 
+    useEffect(() => {
+    if (!token && !Cookies.get("token")) {
+      router.push("/login"); // Redireciona para a página de login se o token não existir
+    }
+  }, [token]);
+
   const handleSubmit = (email: string, password: string) => {
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
