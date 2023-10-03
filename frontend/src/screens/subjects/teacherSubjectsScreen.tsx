@@ -34,6 +34,7 @@ export default function TeacherSubjectsScreen() {
           </div>
         ))}
       </div>
+      
     </div>
   );
 }
