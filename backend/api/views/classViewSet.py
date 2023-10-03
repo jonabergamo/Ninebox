@@ -133,13 +133,33 @@ class ClassViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @swagger_auto_schema(
+        operation_description="Obtém informações agregadas de nineboxes.",
+        manual_parameters=[
+            openapi.Parameter(
+                "ninebox",
+                openapi.IN_QUERY,
+                description="Nome opcional da ninebox para filtrar os resultados.",
+                type=openapi.TYPE_STRING,
+            ),
+        ],
+        responses={200: "Sucesso"},
+    )
     @action(detail=True, methods=["GET"], url_path="get_aggregate_nineboxes")
     def get_aggregate_nineboxes(self, request, pk=None):
         class_model = self.get_object()
 
+        ninebox_filter = request.query_params.get(
+            "ninebox", None
+        )  # Pega o parâmetro opcional
+
         students = Student.objects.filter(classes__unique_id=class_model.unique_id)
         student_nineboxes = StudentNineBox.objects.filter(student__in=students)
 
+        if ninebox_filter:
+            student_nineboxes = student_nineboxes.filter(
+                nine_box=ninebox_filter
+            )  # Filtra se o parâmetro foi fornecido
         # Calculando médias e desvios padrão.
         aggregate_data = student_nineboxes.aggregate(
             avg_level=Avg("level"),

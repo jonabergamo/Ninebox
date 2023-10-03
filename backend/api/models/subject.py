@@ -1,11 +1,10 @@
 from django.db import models
-from .class_model import Class
 
 
 class Subject(models.Model):
     name = models.CharField(max_length=100)
     class_obj = models.ForeignKey(
-        Class, related_name="subjects", on_delete=models.CASCADE
+        'Class', related_name="subjects", on_delete=models.CASCADE
     )
 
     def __str__(self):

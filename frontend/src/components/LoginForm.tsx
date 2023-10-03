@@ -22,10 +22,12 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="md:w-1/3 max-w-sm">
-      <div className="text-center md:text-left"></div>
+    <div className="md:w-1/3 max-w-sm text-black">
+      <div className="text-2xl text-black dark:text-white text-center md:text-left mb-5">
+        Entrar
+      </div>
       <input
-        className="w-full px-4 py-2 rounded outline-none focus:ring-blue-500 focus:border-blue-500 focus:ring-1 border-gray-500 border-[0.5px]"
+        className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
         type="text"
         placeholder="Email"
         onChange={(e) => {
@@ -34,7 +36,7 @@ export default function LoginForm() {
       />
       <div className="relative w-full container mx-auto mt-5">
         <input
-          className="w-full px-4 py-2 rounded outline-none focus:ring-blue-500 focus:border-blue-500 focus:ring-1 border-gray-500 border-[0.5px]"
+          className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
           type={showPassword ? "text" : "password"}
           placeholder="Password"
           onChange={(e) => {
@@ -42,7 +44,7 @@ export default function LoginForm() {
           }}
         />
         <div
-          className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 cursor-pointer"
+          className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 dark:text-black cursor-pointer"
           onClick={() => {
             setShowPassword(!showPassword);
           }}>
@@ -58,14 +60,14 @@ export default function LoginForm() {
       )}
       <div className="mt-4 flex justify-between font-semibold text-sm">
         <a
-          className="text-blue-600 hover:text-blue-700 hover:underline hover:underline-offset-4"
+          className="text-secondary-color-light hover:text-secondary-color-light hover:underline hover:underline-offset-4"
           href="#">
           Esqueceu a senha?
         </a>
       </div>
       <div className="text-center md:text-left">
         <button
-          className="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
+          className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
           type="submit"
           onClick={Login}>
           Entrar

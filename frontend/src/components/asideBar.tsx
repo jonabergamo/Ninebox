@@ -1,7 +1,7 @@
 "use client";
 import React, { ReactNode } from "react";
 import { useUser } from "@/context/UserContext";
-import { AiFillHome, AiFillAlipayCircle } from "react-icons/ai";
+import { PiStudentFill } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { MdSpaceDashboard, MdSubject } from "react-icons/md";
@@ -46,6 +46,12 @@ export default function AsideBar() {
         to: "/nineboxes",
         title: "NineBoxes",
       },
+      {
+        iconName: "students",
+        iconImage: <PiStudentFill />,
+        to: "/students",
+        title: "Estudantes",
+      },
     ],
     student: [
       {
@@ -88,7 +94,7 @@ export default function AsideBar() {
           ]?.map((icon, index) => (
             <div
               key={index}
-              className="text-3xl cursor-pointer bg-blue-500 hover:bg-blue-900 p-2 rounded-full transition-all hover:scale-105"
+              className="text-3xl cursor-pointer bg-secondary-color-light hover:bg-secondary-color-dark p-2 rounded-full transition-all hover:scale-105"
               onClick={() => {
                 router.push(icon.to);
               }}

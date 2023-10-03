@@ -9,7 +9,7 @@ export default function Header() {
 
   return (
     user?.info && (
-      <header className="flex justify-between items-start flex-wrap-reverse md:justify-around md:gap-10">
+      <header className="flex justify-between mb-5 items-start flex-wrap-reverse md:justify-around md:gap-10">
         <ClassSwitch />
         <UserInfo />
       </header>

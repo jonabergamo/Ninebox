@@ -63,8 +63,8 @@ export default function NineBox({ x, y, size = 120, gap = 5 }: NineBoxProps) {
               row,
               col
             )} flex items-center justify-center transition-all duration-300 ${
-              row === clampedX && col === clampedY
-                ? "ring-2 ring-black saturate-100"
+              col === clampedX && row === clampedY
+                ? "ring-2 ring-primary-color-dark dark:ring-primary-color-light saturate-100"
                 : "saturate-50 brightness-75 hover:saturate-100 hover:brightness-100"
             }`}>
             <span

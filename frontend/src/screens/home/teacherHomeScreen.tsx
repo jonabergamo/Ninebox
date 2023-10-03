@@ -11,6 +11,8 @@ import { FaBookOpen } from "react-icons/fa";
 import axios from "axios";
 import NineBox from "@/components/nineBox";
 import LoadingScreen from "@/app/loadingScreen";
+import { BiCopy } from "react-icons/bi";
+import toast from "react-hot-toast";
 
 interface Percentiles {
   "0": number;
@@ -69,6 +71,7 @@ export default function TeacherHomeScreen() {
     "0" | "25" | "50" | "75" | "100"
   >("50");
   const [std_dev, setStd_dev] = useState<number>(0.5);
+  const [selectedNineBox, setSelectedNineBox] = useState<string | null>(null);
 
   useEffect(() => {
     if (classNineBoxData?.level && classNineBoxData?.x && classNineBoxData?.y) {
@@ -125,7 +128,11 @@ export default function TeacherHomeScreen() {
       setLoading(true);
       try {
         const response = await axios.get<ApiResponse>(
-          `${process.env.NEXT_PUBLIC_API_URL}/classes/${selectedClass?.unique_id}/get_aggregate_nineboxes/`,
+          `${process.env.NEXT_PUBLIC_API_URL}/classes/${
+            selectedClass?.unique_id
+          }/get_aggregate_nineboxes/${
+            selectedNineBox && "?ninebox=" + selectedNineBox
+          }`,
           {
             headers: { Authorization: `Token ${Cookies.get("token")}` },
           }
@@ -145,37 +152,75 @@ export default function TeacherHomeScreen() {
     if (selectedClass) {
       fetchData();
     }
-  }, [selectedClass]);
+  }, [selectedClass, selectedNineBox]);
 
   return user?.info ? (
-    <div className="text-xl text-gray-700">
+    <div className="text-xl text-primary-color-dark dark:text-primary-color-light">
       {user?.classes && user.classes.length > 0 ? (
         <div>
           <p>Turma Atual</p>
-          <h1 className="text-3xl text-black">
+          <h1 className="text-3xl">
             {selectedClass?.name}
-            <span className="text-2xl ml-2 text-gray-700">
+            <span className="flex text-3xl ml-2 text-secondary-color-light gap-2">
               #{selectedClass?.unique_id}
+              <button
+                className="text-2xl hover:brightness-90 transition-all duration-300"
+                title="Copiar"
+                onClick={async () => {
+                  if (selectedClass?.unique_id) {
+                    try {
+                      await navigator.clipboard.writeText(
+                        selectedClass.unique_id
+                      );
+                      toast("Copiado para a área de transferencia", {
+                        icon: "📌",
+                      });
+                    } catch (err) {
+                      toast.error("Falha ao copiar texto");
+                    }
+                  }
+                }}>
+                <BiCopy />
+              </button>
             </span>
-            <h1 className="text-sm">Desvio Padrão: {std_dev}</h1>
-            <h2 className="text-sm">{describeStdDev(std_dev)}</h2>
           </h1>
-
           <div className="flex gap-5 flex-wrap justify-center align-middle items-center">
-            <div className="flex flex-col">
               <div className="w-full text-center mb-2">
-                <h1 className="text-2xl text-black">Ninebox geral:</h1>
+                <h1 className="text-2xl ">Ninebox:</h1>
                 <h2 className="text-xl font-medium">
                   Level:{" "}
-                  <label className="text-blue-500">{chosenLevelValue}</label>
+                  <label className="text-secondary-color-light">
+                    {chosenLevelValue}
+                  </label>
                 </h2>
+                <h1 className="text-sm">Desvio Padrão: {std_dev}</h1>
+                <h2 className="text-sm mb-5">{describeStdDev(std_dev)}</h2>
               </div>
-              <div className="flex  gap-2">
+            <div className="flex">
+              <div className="flex gap-2">
                 <div className="flex flex-col gap-2">
-                  <label>
+                  <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Escopo
+                    <select
+                      value={selectedNineBox || ""}
+                      className="bg-gray-50 border h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
+                      onChange={(e) => setSelectedNineBox(e.target.value)}>
+                      <option value="" className="">
+                        Todas
+                      </option>
+                      {selectedClass?.nineboxes &&
+                        selectedClass?.nineboxes.map((ninebox, index) => (
+                          <option key={index} value={ninebox.id}>
+                            {ninebox.description}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Medida estátistica
                     <select
                       value={selectedStat}
-                      className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
                       onChange={(e) =>
                         setSelectedStat(
                           e.target.value as "avg" | "median" | "percentiles"
@@ -185,11 +230,13 @@ export default function TeacherHomeScreen() {
                       <option value="median">Mediana</option>
                       <option value="percentiles">Percentis</option>
                     </select>
-                  </label>
+                  </div>
+
                   {selectedStat == "percentiles" && (
-                    <label>
+                    <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Percentil
                       <select
-                        className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        className="bg-gray-50  border w-[250px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
                         value={selectedPercentil}
                         onChange={(e) =>
                           setSelectedPercentil(
@@ -202,7 +249,7 @@ export default function TeacherHomeScreen() {
                         <option value="75">75%</option>
                         <option value="100">100%</option>
                       </select>
-                    </label>
+                    </div>
                   )}
                 </div>
                 <NineBox x={chosenXValue} y={chosenYValue} size={90} />

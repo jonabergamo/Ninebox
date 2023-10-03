@@ -8,6 +8,7 @@ import ClassSwitch from "@/components/classSwitch";
 import Header from "@/components/header";
 import { ModalProvider } from "@/context/ModalContext"; // Importando o ModalProvider
 import Modal from "@/components/modals/modals";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,8 +27,9 @@ export default function RootLayout({
       <UserProvider>
         <ModalProvider>
           <body
-            className={`${inter.className} flex flex-row h-screen bg-gray-300`}>
+            className={`${inter.className} flex flex-row h-screen bg-primary-color-light dark:bg-primary-color-dark text-primary-color-dark dark:text-primary-color-light`}>
             <Modal />
+            <Toaster />
             <aside className="flex-none">
               <AsideBar />
             </aside>
