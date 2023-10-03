@@ -36,6 +36,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
 ]
 
+# E-mail settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "ninebox27@gmail.com"
+EMAIL_HOST_PASSWORD = "vpai rzfe rokk anme"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -60,10 +68,10 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = "api.User"
 
 AUTHENTICATION_BACKENDS = [
-    'api.backends.EmailAuthBackend',
+    "api.backends.EmailAuthBackend",
 ]
 
 SWAGGER_SETTINGS = {

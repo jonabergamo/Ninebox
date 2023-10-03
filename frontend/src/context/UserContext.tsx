@@ -9,6 +9,8 @@ import React, {
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
 type User = {
   id: number;
   name: string;
@@ -43,7 +45,20 @@ type Class = {
   students?: any[]; // Substitua "any" pelo tipo exato se você tiver a estrutura dos estudantes
   teachers?: number[];
   activities?: any[]; // Substitua "any" pelo tipo exato se você tiver a estrutura das atividades
-  nineboxes?: any[]; // Substitua "any" pelo tipo exato se você tiver a estrutura dos nineboxes
+  nineboxes?: nine_boxes[] | null; // Substitua "any" pelo tipo exato se você tiver a estrutura dos nineboxes
+  subjects?: subject[];
+};
+
+type subject = {
+  id: number;
+  name: string;
+  class_obj: string;
+};
+
+type nine_boxes = {
+  id: number;
+  description: string;
+  class_obj: string;
 };
 
 type FullUser = {
@@ -63,13 +78,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [error, setError] = useState("");
   const router = useRouter();
 
-    useEffect(() => {
+  useEffect(() => {
     if (!token && !Cookies.get("token")) {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
   }, [token]);
 
   const handleSubmit = (email: string, password: string) => {
+    setError("");
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
         username: email,
@@ -116,6 +132,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           sameSite: "strict",
         });
         setError("");
+        toast.success("Login bem sucedido");
       })
       .catch((err: unknown) => {
         if (axios.isAxiosError(err) && err.response) {

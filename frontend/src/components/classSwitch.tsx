@@ -6,6 +6,7 @@ import axios from "axios";
 import { AiOutlinePlus } from "react-icons/ai";
 import { RxEnter, RxHalf1 } from "react-icons/rx";
 import { useModal } from "@/context/ModalContext";
+import toast from "react-hot-toast";
 
 export default function ClassSwitch() {
   const { user, token, setSelectedClass, selectedClass, userRole } = useUser();
@@ -17,7 +18,7 @@ export default function ClassSwitch() {
       (classItem) => classItem.unique_id === selectedUniqueId
     );
     setSelectedClass(selected || null);
-    console.log("ativou");
+    toast.success("Você mudou para a turma " + selected?.name);
   };
 
   return (
@@ -39,7 +40,7 @@ export default function ClassSwitch() {
           <select
             id="classes"
             placeholder="no"
-            className="bg-gray-50 h-10 border w-[200px] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            className="bg-gray-50 h-10 border w-[200px] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark">
             <option>
               <h1>Sem turmas</h1>
             </option>
@@ -47,7 +48,7 @@ export default function ClassSwitch() {
         )}
         {user?.info.is_teacher && (
           <div
-            className="flex text-md  p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-blue-500 transition-all hover:scale-105 items-center text-white justify-center align-middle"
+            className="flex text-md  p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light dark:bg-secondary-color-dark transition-all hover:scale-105 items-center text-white justify-center align-middle"
             title="Nova Turma"
             onClick={() => {
               toggleModal("NewClass");
@@ -57,7 +58,7 @@ export default function ClassSwitch() {
           </div>
         )}
         <div
-          className="flex text-md p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-blue-500 transition-all hover:scale-105 items-center text-white justify-center align-middle"
+          className="flex text-md p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
           title="Entrar em uma turma"
           onClick={() => {
             toggleModal("JoinClass");

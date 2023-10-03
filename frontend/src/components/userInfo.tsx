@@ -9,7 +9,7 @@ export default function UserInfo() {
   return (
     user?.info && (
       <header className="flex items-center justify-end px-5 space-x-10">
-        <div className="flex flex-shrink-0 items-center space-x-4 text-black">
+        <div className="flex flex-shrink-0 items-center space-x-4 ">
           <div className="flex flex-col items-end ">
             <div className="text-md font-medium ">{user_info?.name}</div>
             <div className="text-sm font-regular">
@@ -22,7 +22,7 @@ export default function UserInfo() {
           </div>
 
           <div
-            className="flex text-2xl text-gray-400 h-10 w-10 rounded-full items-center justify-center cursor-pointer bg-gray-200 border-2 border-blue-400"
+            className="flex text-2xl text-gray-400 h-10 w-10 rounded-full items-center justify-center cursor-pointer bg-primary-color-light dark:bg-primary-color-dark border-2 border-secondary-color-light"
             onClick={Logout}>
             <BiSolidUser />
           </div>

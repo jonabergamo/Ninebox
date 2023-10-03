@@ -3,7 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: #f7f7f7;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --primary-color: #ececec;
+  --secondary-color: #2b99f9;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-color: red;
+}
+
+body::selection {
+  background-color: red;
+  color: white;
 }

@@ -1,5 +1,7 @@
 "use client";
+import Modal from "@/components/modals/modals";
 import React, { createContext, useState, useContext, ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
 
 interface IModalContext {
   showModal: boolean;
