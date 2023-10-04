@@ -6,8 +6,8 @@ import { Toaster } from "react-hot-toast";
 interface IModalContext {
   showModal: boolean;
   modalType: string | null;
-  modalId: string | number | null;
-  toggleModal: (type?: string, id?: string | number) => void;
+  modalId: number | null;
+  toggleModal: (type?: string, id?: number) => void;
   closeModal: () => void;
 }
 
@@ -28,9 +28,9 @@ interface ModalProviderProps {
 export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<string | null>(null);
-  const [modalId, setModalId] = useState<string | number | null>(null);
+  const [modalId, setModalId] = useState<number | null>(null);
 
-  const toggleModal = (type?: string, id?: number | string) => {
+  const toggleModal = (type?: string, id?: number) => {
     setShowModal(!showModal);
     setModalType(type || null);
     if (id) {

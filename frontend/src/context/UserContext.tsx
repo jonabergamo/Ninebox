@@ -10,16 +10,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  is_active: boolean;
-  is_student: boolean;
-  is_teacher: boolean;
-  first_access: boolean;
-};
+import { User, Class, FullUser } from "../types";
 
 type UserContextType = {
   user: FullUser | null;
@@ -38,38 +29,6 @@ type UserContextType = {
 
 type UserProviderProps = {
   children: ReactNode;
-};
-
-type Class = {
-  unique_id?: string;
-  name?: string;
-  students?: any[]; // Substitua "any" pelo tipo exato se você tiver a estrutura dos estudantes
-  teachers?: number[];
-  activities?: any[]; // Substitua "any" pelo tipo exato se você tiver a estrutura das atividades
-  nineboxes?: nine_boxes[] | null; // Substitua "any" pelo tipo exato se você tiver a estrutura dos nineboxes
-  subjects?: subject[];
-};
-
-type subject = {
-  activities: number[];
-  id: number;
-  name: string;
-  class_obj: string;
-  average_activity_grade: number;
-  std_dev_activity_grade: number;
-};
-
-type nine_boxes = {
-  id: number;
-  description: string;
-  class_obj: string;
-};
-
-type FullUser = {
-  classes: Class[];
-  info: User;
-  nine_boxes?: any[];
-  subjects?: number[];
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

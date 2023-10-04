@@ -7,6 +7,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Alert } from "@material-tailwind/react";
 import toast from "react-hot-toast";
+import { Teacher } from "@/types";
 
 const Modal: React.FC = () => {
   const { showModal, modalType, closeModal, modalId } = useModal();
@@ -17,8 +18,9 @@ const Modal: React.FC = () => {
   const [newSubjectName, setNewSubjectName] = useState<string | null>("");
   const [newStudentName, setNewStudentName] = useState<string | null>("");
   const [newStudentEmail, setNewStudentEmail] = useState<string | null>("");
-  const [teacherEmail, setTeacherEmail] = useState<string | null>("");
+  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [newNineboxName, setNewNineBoxName] = useState<string | null>("");
+  const [teacherClass, setTeachersClass] = useState<Teacher[] | null>(null);
 
   const handleJoinClass = async () => {
     try {
@@ -248,7 +250,7 @@ const Modal: React.FC = () => {
     }
   };
 
-const handleDeleteNinebox = async (id: string | number) => {
+  const handleDeleteNinebox = async (id: string | number) => {
     toast.loading("Deletando...");
     try {
       const response = await axios.delete(
@@ -277,49 +279,59 @@ const handleDeleteNinebox = async (id: string | number) => {
   };
 
   const handleAddTeacher = async (id: string | number) => {
-    toast.loading("Adicionando...");
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}/add_to_teacher/`,
-        {
-          email: teacherEmail,
-          class_id: selectedClass?.unique_id,
-        },
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
+    if (!selectedTeachers) return; // Se selectedTeachers é undefined, a função retornará imediatamente.
+    for (const email of selectedTeachers) {
+      toast.loading(`Adicionando ${email}...`);
 
-      if (response.status === 200) {
-        fetchUser();
-
-        // Fechar o modal após a criação bem-sucedida da classe.
-        toast.remove();
-        closeModal();
-        toast.success("Professor adicionado com sucesso");
-      } else if (response.status === 404) {
-        toast.remove();
-        toast.error(
-          "O professor especificado não existe, ou não pertence a turma atual"
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}/add_to_teacher/`,
+          {
+            email: email,
+            class_id: selectedClass?.unique_id,
+          },
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
         );
-      } else {
-        // Lidar com outros códigos de status aqui.
-      }
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const e = error as { response: { status: number } };
-        if (e.response.status == 404) {
+
+        if (response.status === 200) {
+          fetchUser();
           toast.remove();
-          toast.error("O professor especificado não existe");
-        } else if ((e.response.status = 403)) {
+          toast.success(`Professor ${email} adicionado com sucesso`);
+        } else if (response.status === 404) {
           toast.remove();
-          toast.error("O professor especificado não pertence a turma atual");
+          toast.error(
+            `O professor ${email} especificado não existe, ou não pertence à turma atual`
+          );
         } else {
-          toast.remove();
-          toast.error("Ocorreu um erro desconhecido ao adicionar o professor.");
+          // Lidar com outros códigos de status aqui.
+        }
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const e = error as { response: { status: number } };
+          if (e.response.status == 404) {
+            toast.remove();
+            toast.error(`O professor ${email} especificado não existe`);
+          } else if ((e.response.status = 403)) {
+            toast.remove();
+            toast.error(
+              `O professor ${email} especificado não pertence à turma atual`
+            );
+          } else {
+            toast.remove();
+            toast.error(
+              "Ocorreu um erro desconhecido ao adicionar o professor."
+            );
+          }
         }
       }
     }
+    closeModal();
   };
 
   const handleRemoveStudent = async (email: any) => {
@@ -352,6 +364,62 @@ const handleDeleteNinebox = async (id: string | number) => {
     }
   };
 
+  const handleNewPassword = async (id: any) => {
+    toast.loading("Gerando nova senha...");
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/reset_password/`,
+        {},
+        {
+          headers: { Authorization: `Token ${Cookies.get("token")}` },
+        }
+      );
+
+      if (response.status === 200) {
+        fetchUser();
+        // Fechar o modal após a criação bem-sucedida da classe.
+        toast.remove();
+        closeModal();
+        toast.success("Senha atualizada e enviada com sucesso");
+      } else {
+        // Lidar com outros códigos de status aqui.
+      }
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const e = error as { response: { status: number } };
+        toast.remove();
+        console.error(error);
+        toast.error("Ocorreu um erro desconhecido ao gerar uma nova senha.");
+      }
+    }
+  };
+
+  const fetchTeachers = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/teachers/?classes=${selectedClass?.unique_id}`,
+        {
+          headers: { Authorization: `Token ${Cookies.get("token")}` },
+        }
+      );
+      setTeachersClass(response.data);
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const e = error as { response: { status: number } };
+        if (e.response.status === 400) {
+          toast.remove();
+          toast(`Professores não encontrados na turma ${selectedClass?.name}`, {
+            icon: "ℹ️",
+          });
+        } else {
+          toast.error(
+            "Ocorreu um erro desconhecido ao carregar os professores."
+          );
+        }
+      }
+    }
+  };
+
   const renderModalContent = () => {
     switch (modalType) {
       case "NewClass":
@@ -374,11 +442,18 @@ const handleDeleteNinebox = async (id: string | number) => {
                 {error}
               </Alert>
             )}
-            <button
-              className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={handleNewClass}>
-              Criar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={handleNewClass}>
+                Criar
+              </button>
+              <button
+                className=" bg-gray-500 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "JoinClass":
@@ -401,11 +476,18 @@ const handleDeleteNinebox = async (id: string | number) => {
                 {error}
               </Alert>
             )}
-            <button
-              className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={handleJoinClass}>
-              Entrar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={handleJoinClass}>
+                Entrar
+              </button>
+              <button
+                className=" bg-gray-500 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "NewSubject":
@@ -428,11 +510,18 @@ const handleDeleteNinebox = async (id: string | number) => {
                 {error}
               </Alert>
             )}
-            <button
-              className="mt-4 bg-secondary-color-light hover:hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={handleNewSubject}>
-              Criar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={handleNewSubject}>
+                Criar
+              </button>
+              <button
+                className=" bg-gray-500 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "NewStudent":
@@ -466,11 +555,18 @@ const handleDeleteNinebox = async (id: string | number) => {
                 {error}
               </Alert>
             )}
-            <button
-              className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={handleNewStudent}>
-              Criar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={handleNewStudent}>
+                Criar
+              </button>
+              <button
+                className=" bg-gray-500 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "ConfirmDeleteSubject":
@@ -480,27 +576,30 @@ const handleDeleteNinebox = async (id: string | number) => {
             <p className="text-red-700 font-bold text-center">
               ALERTA!! Dados importantes podem ser perdidos
             </p>
-            <button
-              className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
-              onClick={() => {
-                if (modalId) {
-                  handleDeleteSubject(modalId);
-                }
-              }}>
-              Confirmar
-            </button>
-            <button
-              className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={closeModal}>
-              Cancelar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
+                onClick={() => {
+                  if (modalId) {
+                    handleDeleteSubject(modalId);
+                  }
+                }}>
+                Confirmar
+              </button>
+              <button
+                className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "AddTeacherToSubject":
+        fetchTeachers();
         return (
           <div className="flex flex-col gap-2 px-5 text-primary-color-dark">
             <h1 className="text-1xl">Adicionar Professor</h1>
-            <input
+            {/* <input
               className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
               type="text"
               placeholder="Email do Professor"
@@ -508,16 +607,51 @@ const handleDeleteNinebox = async (id: string | number) => {
                 setTeacherEmail(e.target.value);
               }}
               autoComplete="new-password"
-            />
-            <button
-              className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={() => {
-                if (modalId) {
-                  handleAddTeacher(modalId);
-                }
-              }}>
-              Adicionar
-            </button>
+            /> */}
+            <div className="w-80 ">
+              <label
+                htmlFor="countries_multiple"
+                className="inline-flex  text-sm font-medium text-gray-900 ">
+                Selecione o professor que deseja adicionar
+              </label>
+              <select
+                multiple
+                onChange={(e) => {
+                  const selectedOptions = Array.from(e.target.options)
+                    .filter((option) => option.selected)
+                    .map((option) => option.value);
+
+                  setSelectedTeachers(selectedOptions);
+                }}
+                id="countries_multiple"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                {modalId &&
+                  teacherClass &&
+                  teacherClass
+                    .filter((teacher) => !teacher.subjects.includes(modalId))
+                    .map((teacher, index) => (
+                      <option key={index} value={teacher.user.email}>
+                        {teacher.user.name}
+                      </option>
+                    ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  if (modalId) {
+                    handleAddTeacher(modalId);
+                  }
+                }}>
+                Adicionar
+              </button>
+              <button
+                className=" bg-gray-500 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "RemoveStudentFromClass":
@@ -527,20 +661,22 @@ const handleDeleteNinebox = async (id: string | number) => {
             <p className="text-red-700 font-bold text-center">
               ALERTA!! Dados importantes podem ser perdidos
             </p>
-            <button
-              className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
-              onClick={() => {
-                if (modalId) {
-                  handleRemoveStudent(modalId);
-                }
-              }}>
-              Confirmar
-            </button>
-            <button
-              className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={closeModal}>
-              Cancelar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
+                onClick={() => {
+                  if (modalId) {
+                    handleRemoveStudent(modalId);
+                  }
+                }}>
+                Confirmar
+              </button>
+              <button
+                className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "NewNinebox":
@@ -556,11 +692,18 @@ const handleDeleteNinebox = async (id: string | number) => {
               }}
               autoComplete="new-password"
             />
-            <button
-              className="mt-4 bg-secondary-color-light hover:hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={handleNewNinebox}>
-              Criar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className="mt-4 bg-secondary-color-light hover:hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={handleNewNinebox}>
+                Criar
+              </button>
+              <button
+                className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       case "ConfirmDeleteNinebox":
@@ -570,20 +713,47 @@ const handleDeleteNinebox = async (id: string | number) => {
             <p className="text-red-700 font-bold text-center">
               ALERTA!! Dados importantes podem ser perdidos
             </p>
-            <button
-              className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
-              onClick={() => {
-                if (modalId) {
-                  handleDeleteNinebox(modalId);
-                }
-              }}>
-              Confirmar
-            </button>
-            <button
-              className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-              onClick={closeModal}>
-              Cancelar
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
+                onClick={() => {
+                  if (modalId) {
+                    handleDeleteNinebox(modalId);
+                  }
+                }}>
+                Confirmar
+              </button>
+              <button
+                className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        );
+      case "SendNewPassword":
+        return (
+          <div className="flex flex-col gap-5 px-5 text-primary-color-dark items-center justify-center">
+            <h1 className="text-2xl">Confirme sua ação</h1>
+            <p className="text-red-700 font-bold text-center">
+              A nova senha será enviada para o email do usuário
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
+                onClick={() => {
+                  if (modalId) {
+                    handleNewPassword(modalId);
+                  }
+                }}>
+                Confirmar
+              </button>
+              <button
+                className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+                onClick={closeModal}>
+                Cancelar
+              </button>
+            </div>
           </div>
         );
       default:
@@ -598,16 +768,6 @@ const handleDeleteNinebox = async (id: string | number) => {
       }`}>
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex gap-5 bg-primary-color  rounded-lg p-4 w-92 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border-spacing-1 border-gray-500">
-          {modalType !== "ConfirmDeleteSubject" &&
-            modalType !== "RemoveStudentFromClass" &&  modalType !== 'ConfirmDeleteNinebox' &&(
-              <div className="flex items-start justify-center text-4xl text-secondary-color-light  ">
-                <div
-                  className="hover:scale-110 transition-all cursor-pointer"
-                  onClick={closeModal}>
-                  <IoArrowBackCircleOutline />
-                </div>
-              </div>
-            )}
           {renderModalContent()}
         </div>
       </div>

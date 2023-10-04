@@ -219,3 +219,52 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # Se os dados não forem válidos, retorne um status 400 Bad Request e os erros de validação
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+        operation_description="Atualiza a senha do usuário especificado para uma senha aleatória e envia por e-mail.",
+        request_body=None,  # Nenhum corpo é esperado
+        responses={200: "Senha atualizada com sucesso e e-mail enviado", 400: "Requisição inválida", 404: "Usuário não encontrado"},
+    )
+    @action(detail=True, methods=["POST"])
+    def reset_password(self, request, pk=None):
+        # Usamos o ID (pk) fornecido na URL para buscar o usuário
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Usuário não encontrado"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Gera uma nova senha aleatória
+        random_password = secrets.token_hex(8)  # Senha de 16 caracteres
+
+        # Atualiza a senha do usuário
+        user.set_password(random_password)
+        user.save()
+
+        # Carrega o template de e-mail e preenche com as credenciais
+        html_content = render_to_string(
+            "reset_password.html", {"email": user.email, "password": random_password}
+        )
+
+        # Configura o e-mail
+        subject, from_email, to = (
+            "Sua nova senha",
+            "from_email@example.com",
+            user.email,
+        )
+        text_content = f"Olá, sua nova senha é: {random_password}"
+
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+
+        # Anexa a versão HTML do e-mail
+        msg.attach_alternative(html_content, "text/html")
+
+        # Envia o e-mail
+        msg.send()
+
+        return Response(
+            {"message": "Senha atualizada com sucesso e e-mail enviado"},
+            status=status.HTTP_200_OK,
+        )
