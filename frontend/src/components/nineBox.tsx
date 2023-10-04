@@ -5,6 +5,7 @@ interface NineBoxProps {
   y: number;
   size?: number;
   gap?: number;
+  dark?:boolean
 }
 const getColor = (row: number, col: number) => {
   if (row === 1 && col === 1) return "bg-red-500";
@@ -35,7 +36,7 @@ const getText = (row: number, col: number) => {
   return "";
 };
 
-export default function NineBox({ x, y, size = 120, gap = 5 }: NineBoxProps) {
+export default function NineBox({ x, y, size = 120, gap = 5, dark=false }: NineBoxProps) {
   const clampedX = Math.min(Math.max(Math.round(x), 1), 3);
   const clampedY = Math.min(Math.max(Math.round(y), 1), 3);
 
@@ -64,7 +65,7 @@ export default function NineBox({ x, y, size = 120, gap = 5 }: NineBoxProps) {
               col
             )} flex items-center justify-center transition-all duration-300 ${
               col === clampedX && row === clampedY
-                ? "ring-2 ring-primary-color-dark dark:ring-primary-color-light saturate-100"
+                ? `ring-2 ${dark ? "ring-primary-color-dark dark:ring-primary-color-light" : "ring-primary-color-dark"} saturate-100`
                 : "saturate-50 brightness-75 hover:saturate-100 hover:brightness-100"
             }`}>
             <span

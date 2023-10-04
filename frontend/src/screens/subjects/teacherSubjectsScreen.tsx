@@ -24,7 +24,7 @@ export default function TeacherSubjectsScreen() {
           <AiOutlinePlus />
         </div>
       </div>
-      <div className="flex flex-col mt-2 text-2xl gap-4">
+      <div className="flex flex-wrap mt-2 text-2xl gap-4">
         {selectedClass?.subjects?.map((subject, index) => (
           <SubjectAccordion
             key={index}

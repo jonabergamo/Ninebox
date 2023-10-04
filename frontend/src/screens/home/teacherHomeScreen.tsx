@@ -126,7 +126,6 @@ export default function TeacherHomeScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const response = await axios.get<ApiResponse>(
           `${process.env.NEXT_PUBLIC_API_URL}/classes/${
@@ -145,8 +144,6 @@ export default function TeacherHomeScreen() {
         } else {
           setError("An unexpected error occurred");
         }
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -187,7 +184,7 @@ export default function TeacherHomeScreen() {
           </h1>
           {selectedClass?.nineboxes && selectedClass?.nineboxes?.length > 0 ? (
             <div className="flex gap-5 flex-wrap justify-center align-middle items-center">
-              <div className="w-full text-center mb-2">
+              <div className="w-full sm:text-left sm:mt-5 text-center  mb-2">
                 <h1 className="text-2xl ">Ninebox:</h1>
                 <h2 className="text-xl font-medium">
                   Level:{" "}
@@ -196,10 +193,10 @@ export default function TeacherHomeScreen() {
                   </label>
                 </h2>
                 <h1 className="text-sm">Desvio Padrão: {std_dev}</h1>
-                <h2 className="text-sm mb-5">{describeStdDev(std_dev)}</h2>
+                <h2 className="text-sm">{describeStdDev(std_dev)}</h2>
               </div>
-              <div className="flex">
-                <div className="flex gap-2">
+              <div className="flex flex-row md:flex-col">
+                <div className="flex flex-wrap md:flex-col gap-2">
                   <div className="flex flex-col gap-2">
                     <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Escopo
