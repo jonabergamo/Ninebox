@@ -13,6 +13,7 @@ import NineBox from "@/components/nineBox";
 import LoadingScreen from "@/app/loadingScreen";
 import { BiCopy } from "react-icons/bi";
 import toast from "react-hot-toast";
+import { IoAlert } from "react-icons/io5";
 
 interface Percentiles {
   "0": number;
@@ -131,7 +132,7 @@ export default function TeacherHomeScreen() {
           `${process.env.NEXT_PUBLIC_API_URL}/classes/${
             selectedClass?.unique_id
           }/get_aggregate_nineboxes/${
-            selectedNineBox && "?ninebox=" + selectedNineBox
+            selectedNineBox ? "?ninebox=" + selectedNineBox : ""
           }`,
           {
             headers: { Authorization: `Token ${Cookies.get("token")}` },
@@ -184,7 +185,8 @@ export default function TeacherHomeScreen() {
               </button>
             </span>
           </h1>
-          <div className="flex gap-5 flex-wrap justify-center align-middle items-center">
+          {selectedClass?.nineboxes && selectedClass?.nineboxes?.length > 0 ? (
+            <div className="flex gap-5 flex-wrap justify-center align-middle items-center">
               <div className="w-full text-center mb-2">
                 <h1 className="text-2xl ">Ninebox:</h1>
                 <h2 className="text-xl font-medium">
@@ -196,66 +198,84 @@ export default function TeacherHomeScreen() {
                 <h1 className="text-sm">Desvio Padrão: {std_dev}</h1>
                 <h2 className="text-sm mb-5">{describeStdDev(std_dev)}</h2>
               </div>
-            <div className="flex">
-              <div className="flex gap-2">
-                <div className="flex flex-col gap-2">
-                  <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Escopo
-                    <select
-                      value={selectedNineBox || ""}
-                      className="bg-gray-50 border h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
-                      onChange={(e) => setSelectedNineBox(e.target.value)}>
-                      <option value="" className="">
-                        Todas
-                      </option>
-                      {selectedClass?.nineboxes &&
-                        selectedClass?.nineboxes.map((ninebox, index) => (
-                          <option key={index} value={ninebox.id}>
-                            {ninebox.description}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Medida estátistica
-                    <select
-                      value={selectedStat}
-                      className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
-                      onChange={(e) =>
-                        setSelectedStat(
-                          e.target.value as "avg" | "median" | "percentiles"
-                        )
-                      }>
-                      <option value="avg">Média</option>
-                      <option value="median">Mediana</option>
-                      <option value="percentiles">Percentis</option>
-                    </select>
-                  </div>
-
-                  {selectedStat == "percentiles" && (
+              <div className="flex">
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-2">
                     <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Percentil
+                      Escopo
                       <select
-                        className="bg-gray-50  border w-[250px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
-                        value={selectedPercentil}
-                        onChange={(e) =>
-                          setSelectedPercentil(
-                            e.target.value as "0" | "25" | "50" | "75" | "100"
-                          )
-                        }>
-                        <option value="0">0%</option>
-                        <option value="25">25%</option>
-                        <option value="50">50%</option>
-                        <option value="75">75%</option>
-                        <option value="100">100%</option>
+                        value={selectedNineBox || ""}
+                        className="bg-gray-50 border h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
+                        onChange={(e) => setSelectedNineBox(e.target.value)}>
+                        <option value="" className="">
+                          Todas
+                        </option>
+                        {selectedClass?.nineboxes &&
+                          selectedClass?.nineboxes.map((ninebox, index) => (
+                            <option key={index} value={ninebox.id}>
+                              {ninebox.description}
+                            </option>
+                          ))}
                       </select>
                     </div>
-                  )}
+                    <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Medida estátistica
+                      <select
+                        value={selectedStat}
+                        className="bg-gray-50  border w-[120px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
+                        onChange={(e) =>
+                          setSelectedStat(
+                            e.target.value as "avg" | "median" | "percentiles"
+                          )
+                        }>
+                        <option value="avg">Média</option>
+                        <option value="median">Mediana</option>
+                        <option value="percentiles">Percentis</option>
+                      </select>
+                    </div>
+
+                    {selectedStat == "percentiles" && (
+                      <div className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Percentil
+                        <select
+                          className="bg-gray-50  border w-[250px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary-color-light focus:border-secondary-color-light block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-color-dark dark:focus:border-secondary-color-dark"
+                          value={selectedPercentil}
+                          onChange={(e) =>
+                            setSelectedPercentil(
+                              e.target.value as "0" | "25" | "50" | "75" | "100"
+                            )
+                          }>
+                          <option value="0">0%</option>
+                          <option value="25">25%</option>
+                          <option value="50">50%</option>
+                          <option value="75">75%</option>
+                          <option value="100">100%</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  <NineBox x={chosenXValue} y={chosenYValue} size={90} />
                 </div>
-                <NineBox x={chosenXValue} y={chosenYValue} size={90} />
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="inline-flex text-white bg-secondary-color-light py-1 px-2 items-center justify-center text-sm">
+              <label className="text-xl">
+                <IoAlert />
+              </label>
+              <label>
+                Sua turma não possui nineboxes, clique{" "}
+                <label
+                  onClick={() => {
+                    router.push("/nineboxes");
+                  }}
+                  className="font-bold underline-offset-auto cursor-pointer ">
+                  aqui
+                </label>{" "}
+                para criar{" "}
+              </label>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex w-full h-full items-center align-middle justify-center">

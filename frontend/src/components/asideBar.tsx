@@ -35,16 +35,16 @@ export default function AsideBar() {
         title: "Disciplinas",
       },
       {
-        iconName: "activities",
-        iconImage: <FaBookOpen />,
-        to: "/activities",
-        title: "Atividades",
-      },
-      {
         iconName: "nineboxes",
         iconImage: <Image src={Ninebox_Icon} alt="" width={30} />,
         to: "/nineboxes",
         title: "NineBoxes",
+      },
+      {
+        iconName: "activities",
+        iconImage: <FaBookOpen />,
+        to: "/activities",
+        title: "Atividades",
       },
       {
         iconName: "students",
@@ -67,16 +67,16 @@ export default function AsideBar() {
         title: "Disciplinas",
       },
       {
-        iconName: "activities",
-        iconImage: <FaBookOpen />,
-        to: "/activities",
-        title: "Atividades",
-      },
-      {
         iconName: "nineboxes",
         iconImage: <Image src={Ninebox_Icon} alt="" width={30} />,
         to: "/nineboxes",
         title: "NineBoxes",
+      },
+      {
+        iconName: "activities",
+        iconImage: <FaBookOpen />,
+        to: "/activities",
+        title: "Atividades",
       },
     ],
   };

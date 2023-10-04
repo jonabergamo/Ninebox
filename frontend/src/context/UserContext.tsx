@@ -18,6 +18,7 @@ type User = {
   is_active: boolean;
   is_student: boolean;
   is_teacher: boolean;
+  first_access: boolean;
 };
 
 type UserContextType = {
@@ -50,9 +51,12 @@ type Class = {
 };
 
 type subject = {
+  activities: number[];
   id: number;
   name: string;
   class_obj: string;
+  average_activity_grade: number;
+  std_dev_activity_grade: number;
 };
 
 type nine_boxes = {
@@ -65,6 +69,7 @@ type FullUser = {
   classes: Class[];
   info: User;
   nine_boxes?: any[];
+  subjects?: number[];
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -119,11 +124,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         );
       })
       .then((roleResponse) => {
-        const { classes, user, nine_boxes } = roleResponse.data;
+        const { classes, user, nine_boxes, subjects } = roleResponse.data;
         const user_structured = {
           classes: classes,
           info: user,
           nine_boxes,
+          subjects,
         };
         setUser(user_structured);
         setSelectedClass(user_structured.classes[0]);
@@ -169,11 +175,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           }
         )
         .then((res) => {
-          const { classes, user, nine_boxes } = res.data;
+          console.log(res.data);
+          const { classes, user, nine_boxes, subjects } = res.data;
+          console.log(subjects);
           const user_structure = {
             classes: classes,
             info: user,
             nine_boxes,
+            subjects,
           };
           setUser(user_structure);
           if (
@@ -193,7 +202,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           console.log(stored_class);
         })
         .catch((error) => {
-          Logout();
+          console.log(user);
+          console.error(error);
         });
     } else {
     }
@@ -224,7 +234,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     for (let cookieName in cookies) {
       Cookies.remove(cookieName);
     }
+    toast.loading("Saindo da conta...");
     router.push("/login");
+    toast.remove();
+    toast.success("Logout bem sucedido");
   };
 
   return (

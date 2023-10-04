@@ -1,10 +1,16 @@
+"use client";
+import { useModal } from "@/context/ModalContext";
 import React from "react";
 import toast from "react-hot-toast";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { MdDeleteForever } from "react-icons/md";
+import { PiPasswordFill } from "react-icons/pi";
+import { HiUserRemove } from "react-icons/hi";
 import { Table, Column, Cell, HeaderCell } from "rsuite-table";
 import "rsuite-table/dist/css/rsuite-table.css";
 
 export default function TableComponent({ data }: any) {
+  const { toggleModal } = useModal();
   return (
     <div className="text-primary-color-dark dark:text-primary-color-dark ">
       <Table data={data} height={400} fillHeight={true} hover={true}>
@@ -30,17 +36,27 @@ export default function TableComponent({ data }: any) {
               return (
                 <span className="flex gap-2">
                   <div
-                    className="flex text-md p-2 gap-2 w-8 h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
-                    title="Criar uma disciplina"
+                    className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
+                    title="Enviar nova senha"
                     onClick={() => {
-                      toast(rowData.id);
+                      toggleModal("SendNewPassword");
                     }}>
-                    <AiOutlinePlusCircle />
+                    <PiPasswordFill />
+                    Nova senha
                   </div>
                   <div
-                    className="flex text-md p-2 gap-2 w-8 h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
-                    title="Criar uma disciplina">
-                    <AiOutlinePlusCircle />
+                    className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
+                    title="Remover estudante"
+                    onClick={() => {
+                      if (rowData.user) {
+                        toggleModal(
+                          "RemoveStudentFromClass",
+                          rowData.user.email
+                        );
+                      }
+                    }}>
+                    <HiUserRemove />
+                    Remover
                   </div>
                 </span>
               );

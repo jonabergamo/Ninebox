@@ -1,13 +1,13 @@
 "use client";
 import { useUser } from "@/context/UserContext";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Table } from "rsuite-table";
+import React, { useEffect, useState, Suspense } from "react";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-import TableComponent from "@/components/table";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useModal } from "@/context/ModalContext";
+
+const TableComponent = React.lazy(() => import("@/components/table"));
 
 export default function TeacherStudentsScreen() {
   const { user, selectedClass, token } = useUser();
@@ -44,7 +44,9 @@ export default function TeacherStudentsScreen() {
         <AiOutlinePlus />
         <p>Cadastrar Estudante</p>
       </button>
-      <TableComponent data={studentsData} />
+      <Suspense fallback={<div>Carregando...</div>}>
+        <TableComponent data={studentsData} />
+      </Suspense>
     </div>
   );
 }

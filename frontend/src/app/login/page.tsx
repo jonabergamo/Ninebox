@@ -12,7 +12,7 @@ export default function page() {
   const { user } = useUser();
 
   useEffect(() => {
-    if (user || Cookies.get("user")) {
+    if (user?.info || Cookies.get("user")) {
       router.push("/"); // Redireciona para a página inicial se o token existir
     }
   }, [user]);
