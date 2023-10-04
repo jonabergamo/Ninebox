@@ -39,7 +39,7 @@ export default function TableComponent({ data }: any) {
                     className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
                     title="Enviar nova senha"
                     onClick={() => {
-                      toggleModal("SendNewPassword");
+                      toggleModal("SendNewPassword", rowData.user.id);
                     }}>
                     <PiPasswordFill />
                     Nova senha

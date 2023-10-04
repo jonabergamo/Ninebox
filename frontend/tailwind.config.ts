@@ -14,7 +14,7 @@ const config: Config = withMT({
         "primary-color": {
           light: "#f7f7f7",
           DEFAULT: "#f7f7f7",
-          dark: "#2C3333",
+          dark: "#161616",
         },
         "secondary-color": {
           light: "#CD1818",
