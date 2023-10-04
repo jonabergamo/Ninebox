@@ -1,15 +1,22 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useUser } from "@/context/UserContext";
 import LoadingScreen from "../loadingScreen";
-import TeacherSubjectsScreen from "@/screens/subjects/teacherSubjectsScreen";
-import StudentSubjectsScreen from "@/screens/subjects/studentSubjectsScreen";
+
+const TeacherSubjectsScreen = React.lazy(
+  () => import("@/screens/subjects/teacherSubjectsScreen")
+);
+const StudentSubjectsScreen = React.lazy(
+  () => import("@/screens/subjects/studentSubjectsScreen")
+);
 
 export default function page() {
   const { token, user, selectedClass } = useUser();
 
   return user?.info.is_teacher ? (
-    <TeacherSubjectsScreen />
+    <Suspense fallback={<div>Carregando...</div>}>
+      <TeacherSubjectsScreen />
+    </Suspense>
   ) : user?.info.is_student ? (
     <StudentSubjectsScreen />
   ) : (

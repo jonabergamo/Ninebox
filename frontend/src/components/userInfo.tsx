@@ -1,10 +1,12 @@
 "use client";
 import React from "react";
 import { useUser } from "@/context/UserContext";
-import { BiSolidUser } from "react-icons/bi";
+import { BiRefresh, BiSolidUser } from "react-icons/bi";
+import toast from "react-hot-toast";
+import { MdRefresh } from "react-icons/md";
 
 export default function UserInfo() {
-  const { user, Logout } = useUser();
+  const { user, Logout, fetchUser } = useUser();
   const user_info = user?.info;
   return (
     user?.info && (
@@ -26,6 +28,14 @@ export default function UserInfo() {
             onClick={Logout}>
             <BiSolidUser />
           </div>
+          <button
+            onClick={() => {
+              fetchUser();
+              toast.success("Recarregamento de página concluido");
+            }}
+            className="text-3xl text-secondary-color-light hover:animate-spin">
+            <MdRefresh />
+          </button>
         </div>
       </header>
     )

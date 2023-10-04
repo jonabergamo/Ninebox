@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useModal } from "@/context/ModalContext";
 import { MdDelete } from "react-icons/md";
 import { useRouter } from "next/navigation";
+import SubjectAccordion from "@/components/subjectAccordion";
 
 export default function TeacherSubjectsScreen() {
   const { user, selectedClass } = useUser();
@@ -23,18 +24,23 @@ export default function TeacherSubjectsScreen() {
           <AiOutlinePlus />
         </div>
       </div>
-      <div className="flex mt-2 text-2xl gap-4 flex-wrap">
+      <div className="flex flex-col mt-2 text-2xl gap-4">
         {selectedClass?.subjects?.map((subject, index) => (
-          <div
-            className="hover:underline cursor-pointer bg-white dark:bg-black text-black p-2.5 rounded-md"
-            onClick={() => {
-              router.push(`/subjects/${subject.name}`);
-            }}>
-            <p>{subject.name}</p>
-          </div>
+          <SubjectAccordion
+            key={index}
+            title={subject.name}
+            std_dev={subject.std_dev_activity_grade}
+            avg={subject.average_activity_grade}
+            activities={subject.activities.length}
+            id={subject.id}
+            permission={
+              user?.subjects
+                ? user.subjects.some((s) => s === subject.id)
+                : false
+            }
+          />
         ))}
       </div>
-      
     </div>
   );
 }
