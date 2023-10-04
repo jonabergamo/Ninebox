@@ -280,6 +280,7 @@ const Modal: React.FC = () => {
 
   const handleAddTeacher = async (id: string | number) => {
     if (!selectedTeachers) return; // Se selectedTeachers é undefined, a função retornará imediatamente.
+    var emails = [];
     for (const email of selectedTeachers) {
       toast.loading(`Adicionando ${email}...`);
 
@@ -299,6 +300,7 @@ const Modal: React.FC = () => {
           fetchUser();
           toast.remove();
           toast.success(`Professor ${email} adicionado com sucesso`);
+          emails.push(email);
         } else if (response.status === 404) {
           toast.remove();
           toast.error(
@@ -331,6 +333,13 @@ const Modal: React.FC = () => {
         }
       }
     }
+    toast.remove();
+    toast.success(
+      `Professores ${emails.map(
+        (email) => " " + email + " "
+      )}adicionados a disciplina`,
+      { duration: 8000 }
+    );
     closeModal();
   };
 
@@ -599,15 +608,6 @@ const Modal: React.FC = () => {
         return (
           <div className="flex flex-col gap-2 px-5 text-primary-color-dark">
             <h1 className="text-1xl">Adicionar Professor</h1>
-            {/* <input
-              className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
-              type="text"
-              placeholder="Email do Professor"
-              onChange={(e) => {
-                setTeacherEmail(e.target.value);
-              }}
-              autoComplete="new-password"
-            /> */}
             <div className="w-80 ">
               <label
                 htmlFor="countries_multiple"
@@ -625,15 +625,23 @@ const Modal: React.FC = () => {
                 }}
                 id="countries_multiple"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                {modalId &&
-                  teacherClass &&
-                  teacherClass
-                    .filter((teacher) => !teacher.subjects.includes(modalId))
-                    .map((teacher, index) => (
-                      <option key={index} value={teacher.user.email}>
-                        {teacher.user.name}
-                      </option>
-                    ))}
+                {modalId && teacherClass ? (
+                  teacherClass.filter(
+                    (teacher) => !teacher.subjects.includes(modalId)
+                  ).length > 0 ? (
+                    teacherClass
+                      .filter((teacher) => !teacher.subjects.includes(modalId))
+                      .map((teacher, index) => (
+                        <option key={index} value={teacher.user.email}>
+                          {teacher.user.name}
+                        </option>
+                      ))
+                  ) : (
+                    <option disabled>Nenhum professor encontrado</option>
+                  )
+                ) : (
+                  <option disabled>Carregando...</option>
+                )}
               </select>
             </div>
             <div className="flex flex-col gap-2">
