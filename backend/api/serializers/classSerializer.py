@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Class, Subject
+from api.models import Class, Subject, Teacher
 from api.serializers.subjectSerializer import SubjectSerializer
 from api.serializers.activitySerializer import ActivitySerializer
 from api.serializers.nineBoxSerializer import NineBoxSerializer
