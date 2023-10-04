@@ -1,3 +1,4 @@
+import NineboxAccordion from "@/components/nineboxAccordion";
 import { useModal } from "@/context/ModalContext";
 import { useUser } from "@/context/UserContext";
 import React from "react";
@@ -19,9 +20,11 @@ export default function TeacherNineboxesScreen() {
           <AiOutlinePlus />
         </div>
       </div>
-      <div className="flex flex-col mt-2 text-2xl gap-4">
+      <div className="flex flex-wrap mt-2 text-2xl gap-4">
         {selectedClass?.nineboxes?.map((ninebox, index) => (
-          <h1>{ninebox.description}</h1>
+          <div key={index}>
+            <NineboxAccordion title={ninebox.description} id={ninebox.id}/>
+          </div>
         ))}
       </div>
     </div>

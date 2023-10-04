@@ -248,6 +248,34 @@ const Modal: React.FC = () => {
     }
   };
 
+const handleDeleteNinebox = async (id: string | number) => {
+    toast.loading("Deletando...");
+    try {
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/nineboxes/${id}`,
+        {
+          headers: { Authorization: `Token ${Cookies.get("token")}` },
+        }
+      );
+
+      if (response.status === 204) {
+        fetchUser();
+
+        // Fechar o modal após a criação bem-sucedida da classe.
+        toast.remove();
+        closeModal();
+        toast.success("Ninebox deletada com sucesso");
+      } else {
+        // Lidar com outros códigos de status aqui.
+      }
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const e = error as { response: { status: number } };
+        toast.error("Ocorreu um erro desconhecido ao deletar a disciplina.");
+      }
+    }
+  };
+
   const handleAddTeacher = async (id: string | number) => {
     toast.loading("Adicionando...");
     try {
@@ -535,6 +563,29 @@ const Modal: React.FC = () => {
             </button>
           </div>
         );
+      case "ConfirmDeleteNinebox":
+        return (
+          <div className="flex flex-col gap-5 px-5 text-primary-color-dark items-center justify-center">
+            <h1 className="text-2xl">Confirme sua ação</h1>
+            <p className="text-red-700 font-bold text-center">
+              ALERTA!! Dados importantes podem ser perdidos
+            </p>
+            <button
+              className=" bg-gray-300 hover:brightness-90 font-medium py-2 px-4 rounded"
+              onClick={() => {
+                if (modalId) {
+                  handleDeleteNinebox(modalId);
+                }
+              }}>
+              Confirmar
+            </button>
+            <button
+              className=" bg-red-700 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+              onClick={closeModal}>
+              Cancelar
+            </button>
+          </div>
+        );
       default:
         return null;
     }
@@ -548,7 +599,7 @@ const Modal: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex gap-5 bg-primary-color  rounded-lg p-4 w-92 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border-spacing-1 border-gray-500">
           {modalType !== "ConfirmDeleteSubject" &&
-            modalType !== "RemoveStudentFromClass" && (
+            modalType !== "RemoveStudentFromClass" &&  modalType !== 'ConfirmDeleteNinebox' &&(
               <div className="flex items-start justify-center text-4xl text-secondary-color-light  ">
                 <div
                   className="hover:scale-110 transition-all cursor-pointer"
