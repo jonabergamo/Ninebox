@@ -56,6 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 email=serializer.validated_data["email"],
                 password=serializer.validated_data["password"],
             )
+            
             user.is_student = serializer.validated_data["is_student"]  # Mudança aqui
             user.is_teacher = serializer.validated_data["is_teacher"]
             user.name = serializer.validated_data.get("name", "")

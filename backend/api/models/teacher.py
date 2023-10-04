@@ -8,3 +8,4 @@ class Teacher(models.Model):
     )
     # Other relevant fields
     classes = models.ManyToManyField("Class", related_name="teachers")
+    subjects = models.ManyToManyField("Subject", related_name="subjects")

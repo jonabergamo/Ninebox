@@ -7,6 +7,7 @@ from api.models import (
     NineBox,
     StudentNineBox,
     User,
+    Teacher,
 )
 from api.serializers import ClassSerializer
 from drf_yasg.utils import swagger_auto_schema
@@ -62,14 +63,14 @@ class ClassViewSet(viewsets.ModelViewSet):
             # Adicionar todas as atividades da classe ao estudante
             activities = Activity.objects.filter(class_obj=class_model)
             for activity in activities:
-                StudentActivity.objects.create(
+                StudentActivity.objects.get_or_create(
                     student=student, activity=activity, class_obj=class_model
                 )
 
             # Adicionar todas as NineBox da classe ao estudante
             nine_boxes = NineBox.objects.filter(class_obj=class_model)
             for nine_box in nine_boxes:
-                StudentNineBox.objects.create(
+                StudentNineBox.objects.get_or_create(
                     student=student,
                     nine_box=nine_box,
                     level=0,
@@ -133,6 +134,34 @@ class ClassViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    def calculate_stats(self, values, avg, std_dev):
+        if not values:  # Se a lista estiver vazia
+            return {
+                "avg": 0,
+                "median": 0,
+                "std_dev": 0,
+                "percentiles": {
+                    "0": 0,
+                    "25": 0,
+                    "50": 0,
+                    "75": 0,
+                    "100": 0,
+                },
+            }
+
+        return {
+            "avg": avg,
+            "median": np.median(values),
+            "std_dev": std_dev,
+            "percentiles": {
+                "0": np.percentile(values, 0),  # Valor mínimo
+                "25": np.percentile(values, 25),
+                "50": np.percentile(values, 50),
+                "75": np.percentile(values, 75),
+                "100": np.percentile(values, 100),  # Valor máximo
+            },
+        }
+
     @swagger_auto_schema(
         operation_description="Obtém informações agregadas de nineboxes.",
         manual_parameters=[
@@ -175,31 +204,17 @@ class ClassViewSet(viewsets.ModelViewSet):
         xs = list(student_nineboxes.values_list("x", flat=True))
         ys = list(student_nineboxes.values_list("y", flat=True))
 
-        def calculate_stats(values, avg, std_dev):
-            return {
-                "avg": avg,
-                "median": np.median(values),
-                "std_dev": std_dev,
-                "percentiles": {
-                    "0": np.percentile(values, 0),  # Valor mínimo
-                    "25": np.percentile(values, 25),
-                    "50": np.percentile(values, 50),
-                    "75": np.percentile(values, 75),
-                    "100": np.percentile(values, 100),  # Valor máximo
-                },
-            }
-
         # Monta a resposta.
         response_data = {
             "status": "Sucesso",
             "aggregate_nineboxes": {
-                "level": calculate_stats(
+                "level": self.calculate_stats(
                     levels, aggregate_data["avg_level"], aggregate_data["std_level"]
                 ),
-                "x": calculate_stats(
+                "x": self.calculate_stats(
                     xs, aggregate_data["avg_x"], aggregate_data["std_x"]
                 ),
-                "y": calculate_stats(
+                "y": self.calculate_stats(
                     ys, aggregate_data["avg_y"], aggregate_data["std_y"]
                 ),
             },
