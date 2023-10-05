@@ -48,7 +48,7 @@ export default function ClassSwitch() {
         )}
         {user?.info.is_teacher && (
           <div
-            className="flex text-md  p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light dark:bg-secondary-color-dark transition-all hover:scale-105 items-center text-white justify-center align-middle"
+            className="flex text-sm  p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light dark:bg-secondary-color-dark transition-all hover:scale-105 items-center text-white justify-center align-middle"
             title="Nova Turma"
             onClick={() => {
               toggleModal("NewClass");
@@ -58,7 +58,7 @@ export default function ClassSwitch() {
           </div>
         )}
         <div
-          className="flex text-md p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
+          className="flex text-sm p-2 gap-2 w-[200px] h-10 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
           title="Entrar em uma turma"
           onClick={() => {
             toggleModal("JoinClass");

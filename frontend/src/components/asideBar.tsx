@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { MdSpaceDashboard, MdSubject } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
-import Ninebox_Icon from "@/assets/ninebox_icon.svg";
 import Image from "next/image";
+import { CgMenuGridR } from "react-icons/cg";
 
 export default function AsideBar() {
   const { user } = useUser();
@@ -36,7 +36,7 @@ export default function AsideBar() {
       },
       {
         iconName: "nineboxes",
-        iconImage: <Image src={Ninebox_Icon} alt="" width={30} />,
+        iconImage: <CgMenuGridR />,
         to: "/nineboxes",
         title: "NineBoxes",
       },
@@ -68,7 +68,7 @@ export default function AsideBar() {
       },
       {
         iconName: "nineboxes",
-        iconImage: <Image src={Ninebox_Icon} alt="" width={30} />,
+        iconImage: <CgMenuGridR />,
         to: "/nineboxes",
         title: "NineBoxes",
       },

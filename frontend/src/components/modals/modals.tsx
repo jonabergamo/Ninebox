@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useModal } from "@/context/ModalContext"; // Certifique-se de importar o useModal do arquivo correto
 import { IoAlertCircleSharp, IoArrowBackCircleOutline } from "react-icons/io5";
 import { useUser } from "@/context/UserContext";
@@ -12,6 +12,7 @@ import { TextField } from "@mui/material";
 import { MdDelete } from "react-icons/md";
 import { AiOutlinePlus } from "react-icons/ai";
 import NewActivityModal from "./newActivityModal";
+import SettingsModal from "./settingsModal";
 
 type Criterion = {
   description: string;
@@ -802,6 +803,8 @@ const Modal: React.FC = () => {
         );
       case "NewActvity":
         return <NewActivityModal />;
+      case "Settings":
+        return <SettingsModal />;
       default:
         return null;
     }
