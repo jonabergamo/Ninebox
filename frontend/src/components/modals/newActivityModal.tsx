@@ -60,7 +60,7 @@ export default function NewActivityModal() {
     setCriteria(updatedCriteria);
   };
 
-  const fechStudents = async () => {
+  const fetchStudents = async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/students/?classes=${selectedClass?.unique_id}`,
@@ -86,7 +86,7 @@ export default function NewActivityModal() {
     }
   };
 
-  const fechNineboxes = async () => {
+  const fetchNineboxes = async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/nineboxes/?class_obj=${selectedClass?.unique_id}`,
@@ -112,7 +112,7 @@ export default function NewActivityModal() {
     }
   };
 
-  const fechSubjects = async () => {
+  const fetchSubjects = async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/subjects/?class_obj=${selectedClass?.unique_id}`,
@@ -122,7 +122,15 @@ export default function NewActivityModal() {
           },
         }
       );
-      setSubjectsData(response.data);
+
+      // Filtrando as disciplinas
+      const filteredSubjects = user?.subjects
+        ? response.data.filter((subject: Subject) =>
+            user.subjects!.includes(subject.id)
+          )
+        : [];
+
+      setSubjectsData(filteredSubjects);
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "response" in error) {
         const e = error as { response: { status: number } };
@@ -141,9 +149,9 @@ export default function NewActivityModal() {
   };
 
   useEffect(() => {
-    fechStudents();
-    fechNineboxes();
-    fechSubjects();
+    fetchStudents();
+    fetchNineboxes();
+    fetchSubjects();
   }, []);
 
   interface RequestBody {
@@ -156,6 +164,24 @@ export default function NewActivityModal() {
     class_id?: string;
     student_ids?: number[];
   }
+
+  window.addEventListener("beforeunload", (e) => {
+    if (
+      description.length >= 1 ||
+      activityName.length >= 1 ||
+      selectedStudents.length >= 1 ||
+      selectedNineboxes.length >= 1 ||
+      selectedSubjects.length >= 1
+    ) {
+      e.preventDefault();
+      e.returnValue =
+        "Você tem alterações não salvas. Tem certeza de que deseja sair?";
+    }
+  });
+
+  window.addEventListener("popstate", function (event) {
+    closeModal();
+  });
 
   const handleAddActivity = async () => {
     toast.loading("Enviando atividade para os alunos...");
@@ -300,6 +326,7 @@ export default function NewActivityModal() {
       </label>
       <label>
         Disciplinas:
+        <p className="text-sm">Somente as disciplinas a qual você pertence.</p>
         <CustomSubjectsSelect
           subjectsData={subjectsData}
           setSelectedSubjects={setSelectedSubjects}

@@ -69,6 +69,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       })
       .then((userResponse) => {
         const stored_user: User = userResponse.data[0];
+        console.log(stored_user);
         const user_role = stored_user?.is_teacher
           ? "teachers"
           : stored_user?.is_student
@@ -90,9 +91,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           nine_boxes,
           subjects,
         };
+        const simple_user_structured = {
+          info: user,
+        };
+        console.log(user_structured);
         setUser(user_structured);
         setSelectedClass(user_structured.classes[0]);
-        Cookies.set("user", JSON.stringify(user_structured), {
+        Cookies.set("user", JSON.stringify(simple_user_structured), {
           secure: true,
           sameSite: "strict",
         });
@@ -150,6 +155,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             )
           ) {
             setSelectedClass(
+              user_structure.classes.find(
+                (obj: Class) => obj.unique_id === stored_class
+              )
+            );
+            console.log(
               user_structure.classes.find(
                 (obj: Class) => obj.unique_id === stored_class
               )

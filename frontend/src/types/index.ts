@@ -4,3 +4,5 @@ export type { FullUser } from "./fullUser";
 export type { Nine_box } from "./nine_box";
 export type { Subject } from "./subject";
 export type { Teacher } from "./teacher";
+export type { Criteria } from "./criteria";
+export type { Activity } from "./activity";
