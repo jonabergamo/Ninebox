@@ -21,6 +21,21 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = "__all__"
     permission_classes = [IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        # Se a senha estiver sendo atualizada, criptografe-a corretamente.
+        if 'password' in request.data:
+            password = request.data.pop('password')
+            user.set_password(password)
+
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Retorna uma resposta indicando sucesso.
+        return Response(serializer.data)
+
     def create(self, request):
         """
         Create a new user.

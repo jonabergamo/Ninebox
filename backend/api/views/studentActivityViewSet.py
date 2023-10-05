@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import OrderingFilter
+
 
 
 class GradeInputSerializer(serializers.Serializer):
@@ -23,7 +25,7 @@ class CorrectStudentActivityInput(serializers.Serializer):
 class StudentActivityViewSet(viewsets.ModelViewSet):
     queryset = StudentActivity.objects.all()
     serializer_class = StudentActivitySerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,OrderingFilter)
     filterset_fields = "__all__"
     permission_classes = [IsAuthenticated]
 

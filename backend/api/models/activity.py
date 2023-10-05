@@ -12,6 +12,8 @@ class Activity(models.Model):
         "Class", related_name="activities", on_delete=models.CASCADE
     )
     description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)  # Campo de data de criação
+
 
     def __str__(self):
         return self.name
