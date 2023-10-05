@@ -8,6 +8,15 @@ import Cookies from "js-cookie";
 import { Alert } from "@material-tailwind/react";
 import toast from "react-hot-toast";
 import { Teacher } from "@/types";
+import { TextField } from "@mui/material";
+import { MdDelete } from "react-icons/md";
+import { AiOutlinePlus } from "react-icons/ai";
+import NewActivityModal from "./newActivityModal";
+
+type Criterion = {
+  description: string;
+  weight: number;
+};
 
 const Modal: React.FC = () => {
   const { showModal, modalType, closeModal, modalId } = useModal();
@@ -21,6 +30,33 @@ const Modal: React.FC = () => {
   const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [newNineboxName, setNewNineBoxName] = useState<string | null>("");
   const [teacherClass, setTeachersClass] = useState<Teacher[] | null>(null);
+
+  // Activities
+  const [activityName, setActivityName] = useState("");
+  const [level, setLevel] = useState(0);
+  const [criteria, setCriteria] = useState<Criterion[]>([
+    { description: "", weight: 0 },
+  ]);
+  const [ninebox, setNinebox] = useState<string[]>([]);
+  const [discipline, setDiscipline] = useState<string[]>([]);
+
+  const addCriterion = () => {
+    setCriteria([...criteria, { description: "", weight: 0 }]);
+  };
+
+  const handleDelete = (criterionIndex: number) => {
+    if (criteria.length <= 1) {
+      toast.error("Você deve ter ao menos 1 critério");
+      return;
+    }
+
+    // Cria uma cópia do array original, removendo o item no índice especificado
+    const updatedCriteria = criteria.filter(
+      (_, index) => index !== criterionIndex
+    );
+    // Atualiza o estado com o novo array
+    setCriteria(updatedCriteria);
+  };
 
   const handleJoinClass = async () => {
     try {
@@ -764,6 +800,8 @@ const Modal: React.FC = () => {
             </div>
           </div>
         );
+      case "NewActvity":
+        return <NewActivityModal />;
       default:
         return null;
     }

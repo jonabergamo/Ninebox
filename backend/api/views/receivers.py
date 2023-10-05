@@ -8,8 +8,14 @@ from api.models import (
     StudentActivity,
     Class,
     Evaluation,
+    Activity,
 )
+from django.core.mail import EmailMessage
 from django.core.exceptions import ObjectDoesNotExist
+from io import BytesIO
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 
 
 @receiver(post_save, sender=NineBox)
