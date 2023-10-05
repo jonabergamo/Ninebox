@@ -158,6 +158,7 @@ export default function NewActivityModal() {
   }
 
   const handleAddActivity = async () => {
+    toast.loading("Enviando atividade para os alunos...");
     try {
       const subjectIds = selectedSubjects.map((subject) => subject.id);
       const nineboxIds = selectedNineboxes.map((ninebox) => ninebox.id);
@@ -191,7 +192,10 @@ export default function NewActivityModal() {
 
         // Fechar o modal após a criação bem-sucedida da classe.
         closeModal();
-        toast.success("Atividade " + activityName + " criada com sucesso");
+        toast.remove();
+        toast.success(
+          "Atividade " + activityName + " criada e enviada com sucesso"
+        );
       } else {
         // Lidar com outros códigos de status aqui.
       }
@@ -227,7 +231,7 @@ export default function NewActivityModal() {
           </label>
         </div>
         <label className="flex flex-col w-full">
-          Descrição:
+          Descrição da atividade:
           <textarea
             rows={4}
             className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500  dark:focus:ring-blue-500 dark:focus:border-blue-500"
