@@ -25,7 +25,11 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.colors import black
-
+from docx import Document
+import os
+from docx.shared import Inches, RGBColor
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 class JoinTurmaRequest(serializers.Serializer):
     unique_id = serializers.CharField()
@@ -38,75 +42,79 @@ class TeacherViewSet(viewsets.ModelViewSet):
     filterset_fields = "__all__"
     permission_classes = [IsAuthenticated]
 
-    def generate_pdf(self, activity):
-        buffer = BytesIO()
+    def generate_word(self, activity):
+        doc = Document()
 
-        # Configurações iniciais
-        width, height = landscape(letter)
-        c = canvas.Canvas(buffer, pagesize=landscape(letter))
+        # Ajustando as margens do documento
+        section = doc.sections[0]
+        section.top_margin = Inches(0.5)
+        section.bottom_margin = Inches(0.5)
+        section.left_margin = Inches(0.5)
+        section.right_margin = Inches(0.5)
+
+        # Adicionando uma tabela de 1x2
+        table = doc.add_table(rows=1, cols=2)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False  # Isso permite definir manualmente a largura da tabela
+
+        # Centralizando verticalmente o conteúdo das células da tabela
+        for row in table.rows:
+            for cell in row.cells:
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+        # Adicione suas imagens às células da tabela
+        cell_1 = table.cell(0, 0)
+        cell_2 = table.cell(0, 1)
+
+        # Define a largura das células
+        cell_width = Inches(2.5)
+        cell_1.width = cell_width
+        cell_2.width = cell_width
+
+        # Insere as logos
+        cell_1.paragraphs[0].add_run().add_picture('logo_senai.jpg', width=Inches(2))
+        cell_2.paragraphs[0].add_run().add_picture('logo_27box.jpg', width=Inches(2))
+
+        for paragraph in cell_1.paragraphs:
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        for paragraph in cell_2.paragraphs:
+            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+        # Adiciona espaço antes da próxima seção
+        doc.add_paragraph()
+
 
         # Título
-        c.setFont("Helvetica-Bold", 20)
-        c.drawCentredString(width / 2, height - 50, activity.name)
+        doc.add_heading(activity.name, level=0)
 
         # Descrição da Atividade
-        y_position = height - 100
-        text = c.beginText(50, y_position)
-        text.setFont("Helvetica", 14)
-        text.textLines(activity.description)
-        c.drawText(text)
-        y_position -= 25 * len(
-            activity.description.split("\n")
-        )  # Atualizar a posição y
+        doc.add_paragraph(activity.description)
 
         # Detalhes da atividade
-        c.setFont("Helvetica", 14)
-        c.drawString(50, y_position, f"Nível: {activity.level}")
-        y_position -= 30
+        doc.add_paragraph(f"Nível: {activity.level}")
 
         # Subjects
-        y_position -= 10  # Espaço
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, y_position, "Disciplinas:")
-        y_position -= 25
+        doc.add_heading('Disciplinas:', level=1)
         for subject in activity.subjects.all():
-            text = c.beginText(70, y_position)
-            text.setFont("Helvetica", 14)
-            text.textLines(subject.name)
-            c.drawText(text)
-            y_position -= 25 * len(subject.name.split("\n"))
+            doc.add_paragraph(subject.name)
 
         # Nine boxes
-        y_position -= 10  # Espaço
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, y_position, "Nine Boxes:")
-        y_position -= 25
+        doc.add_heading('Nine Boxes:', level=1)
         for box in activity.nine_boxes.all():
-            text = c.beginText(70, y_position)
-            text.setFont("Helvetica", 14)
-            text.textLines(f"{box.description} (ID: {box.id})")
-            c.drawText(text)
-            y_position -= 25 * len(box.description.split("\n"))
+            doc.add_paragraph(f"{box.description}")
 
-        # Criterias
-        y_position -= 10  # Espaço
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, y_position, "Critérios avaliativos:")
-        y_position -= 25
+        doc.add_heading('Critérios avaliativos:', level=1)
         for criterion in activity.criteria.all():
-            text = c.beginText(70, y_position)
-            text.setFont("Helvetica", 14)
-            text.textLines(
-                f"{criterion.description} (ID: {criterion.id}, Peso: {criterion.weight})"
+            p = doc.add_paragraph(
+                f"{criterion.description} (Peso: {criterion.weight})"
             )
-            c.drawText(text)
-            y_position -= 25 * len(criterion.description.split("\n"))
+            p.style = 'ListNumber'  # Definindo o estilo para uma lista numerada
 
-        # Salvando e retornando
-        c.showPage()
-        c.save()
-        buffer.seek(0)
-        return buffer.read()
+
+        file_path = "activity.docx"
+        doc.save(file_path)
+        
+        return file_path
 
     @swagger_auto_schema(
         operation_description="Cria uma nova turma e associa o teacher a ela.",
@@ -321,8 +329,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
                 student=student, activity=new_activity, class_obj=class_instance
             )
 
-        # Geração do PDF após a criação das instâncias de StudentActivity.
-        pdf_file = self.generate_pdf(new_activity)
+        file_path = self.generate_word(new_activity)
 
         for student_activity in valid_students:
             # Obter o e-mail do estudante.
@@ -335,8 +342,14 @@ class TeacherViewSet(viewsets.ModelViewSet):
                 "from_email@example.com",
                 [student_email],  # Enviar para o e-mail do estudante
             )
-            mail.attach("activity.pdf", pdf_file, "application/pdf")
+            
+            with open(file_path, 'rb') as f:
+                mail.attach("activity.docx", f.read(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
             mail.send()
+
+        # Após o envio do e-mail, considere remover o arquivo para economizar espaço no servidor.
+        os.remove(file_path)
 
         return Response(
             {"message": "Atividade criada com sucesso"}, status=status.HTTP_201_CREATED
