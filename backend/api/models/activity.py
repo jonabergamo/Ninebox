@@ -11,6 +11,7 @@ class Activity(models.Model):
     class_obj = models.ForeignKey(
         "Class", related_name="activities", on_delete=models.CASCADE
     )
+    description = models.TextField()
 
     def __str__(self):
         return self.name
