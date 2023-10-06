@@ -132,7 +132,7 @@ function CriteriaSelector({ index, c, onChange }: CriteriaSelectorProps) {
           <p className="font-bold">{index + 1}</p>
         </div>
         <label className="flex flex-col">
-          <div className="block p-2.5 w-full break-all text-lg text-gray-900 bg-white  focus:ring-blue-500 focus:border-blue-500  dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <div className="block p-2.5 w-full break-words text-lg text-gray-900 bg-white  focus:ring-blue-500 focus:border-blue-500  dark:focus:ring-blue-500 dark:focus:border-blue-500">
             {c.description}
           </div>
         </label>
