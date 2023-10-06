@@ -25,23 +25,23 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_average_grade(self, obj):
         grades = [sa.final_grade for sa in obj.activity_student_activities.all() if sa.final_grade is not None]
-        return np.mean(grades) if grades else None
+        return np.round(np.mean(grades), 2) if grades else None
 
     def get_median_grade(self, obj):
         grades = [sa.final_grade for sa in obj.activity_student_activities.all() if sa.final_grade is not None]
-        return np.median(grades) if grades else None
+        return np.round(np.median(grades), 2) if grades else None
 
     def get_percentile_25(self, obj):
         grades = [sa.final_grade for sa in obj.activity_student_activities.all() if sa.final_grade is not None]
-        return np.percentile(grades, 25) if grades else None
+        return np.round(np.percentile(grades, 25),2) if grades else None
 
     def get_percentile_75(self, obj):
         grades = [sa.final_grade for sa in obj.activity_student_activities.all() if sa.final_grade is not None]
-        return np.percentile(grades, 75) if grades else None
+        return np.round(np.percentile(grades, 75),2) if grades else None
 
     def get_std_dev_grade(self, obj):
         grades = [sa.final_grade for sa in obj.activity_student_activities.all() if sa.final_grade is not None]
-        return np.std(grades) if grades else None
+        return np.round(np.std(grades),2) if grades else None
 
     def get_total_students_with_activity(self, obj):
         return obj.activity_student_activities.count()

@@ -13,6 +13,7 @@ from rest_framework.filters import OrderingFilter
 
 
 
+
 class GradeInputSerializer(serializers.Serializer):
     criteria_id = serializers.IntegerField()
     grade = serializers.ChoiceField(choices=["E", "G", "A", "P"])

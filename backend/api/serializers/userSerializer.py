@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import User, Student, Teacher
+from api.models import User, Student, Teacher, StudentActivity
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,3 +19,10 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True},
         }
+
+class StudentActivityWithStudentSerializer(serializers.ModelSerializer):
+    student = UserSerializer(source='student.user')  # Aqui é onde a mágica acontece. Estamos pegando o user através do student.
+
+    class Meta:
+        model = StudentActivity
+        fields = ('id', 'activity', 'class_obj', 'evaluations', 'post_date', 'correction_date', 'final_grade', 'student')

@@ -1,4 +1,4 @@
-from .userSerializer import UserSerializer
+from .userSerializer import UserSerializer, StudentActivityWithStudentSerializer
 from .classSerializer import ClassSerializer
 from .studentSerializer import StudentSerializer
 from .activitySerializer import ActivitySerializer

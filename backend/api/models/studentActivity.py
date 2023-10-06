@@ -6,7 +6,7 @@ from api.models import (
     Evaluation,
 )  # Importa seus outros modelos aqui
 from django.utils import timezone
-
+import numpy as np
 
 class StudentActivity(models.Model):
     student = models.ForeignKey(
@@ -53,8 +53,8 @@ class StudentActivity(models.Model):
                 total_weighted_grade += numerical_grade * weight
                 total_weight += weight
 
-            self.final_grade = (
+            self.final_grade = np.round((
                 total_weighted_grade / total_weight if total_weight > 0 else None
-            )
+            ), 2)
 
         self.save()
