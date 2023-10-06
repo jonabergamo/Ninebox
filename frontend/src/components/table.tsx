@@ -13,28 +13,33 @@ export default function TableComponent({ data }: any) {
   const { toggleModal } = useModal();
   return (
     <div className="text-primary-color-dark dark:text-primary-color-dark ">
-      <Table data={data} height={400} fillHeight={true} hover={true}>
-        <Column align="center" resizable width={200} flexGrow={1}>
+      <Table
+        data={data}
+        height={420}
+        cellBordered
+        fillHeight={true}
+        hover={true}>
+        <Column align="center" resizable width={50}>
           <HeaderCell>ID</HeaderCell>
           <Cell dataKey="user.id" />
         </Column>
-        <Column align="center" resizable width={200} flexGrow={1}>
+        <Column align="center" flexGrow={1}>
           <HeaderCell>Name</HeaderCell>
           <Cell dataKey="user.name" />
         </Column>
-        <Column align="center" resizable width={200} flexGrow={1}>
+        <Column align="center" flexGrow={1}>
           <HeaderCell>Email</HeaderCell>
           <Cell dataKey="user.email" />
         </Column>
-        <Column align="center" width={200} flexGrow={1}>
-          <HeaderCell>Action</HeaderCell>
+        <Column align="center" width={250} >
+          <HeaderCell> </HeaderCell>
           <Cell align="center">
             {(rowData) => {
               function handleAction() {
                 alert(`id:${rowData.id}`);
               }
               return (
-                <span className="flex gap-2">
+                <span className="flex gap-2 items-center justify-center">
                   <div
                     className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
                     title="Enviar nova senha"
