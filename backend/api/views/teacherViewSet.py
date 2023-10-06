@@ -251,6 +251,14 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     ),
                     description="Critérios associados à atividade",
                 ),
+                "send_to_students": openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    description="Indica se deve enviar o e-mail para os estudantes ou não"
+                ),
+                "send_to_teacher": openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    description="Indica se deve enviar o e-mail para o professor que está criando a atividade ou não"
+                ),
                 "class_id": openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description="ID da turma à qual a atividade pertencerá",
@@ -274,6 +282,8 @@ class TeacherViewSet(viewsets.ModelViewSet):
         criteria_data = request.data.get("criteria", [])
         class_id = request.data.get("class_id", "")
         student_ids = request.data.get("student_ids", [])
+        send_to_students = request.data.get("send_to_students", False)
+        send_to_teacher = request.data.get("send_to_teacher", False)
 
         if not all([name, level, subjects, nine_boxes, criteria_data, class_id]):
             return Response(
@@ -323,34 +333,57 @@ class TeacherViewSet(viewsets.ModelViewSet):
         new_activity.nine_boxes.set(nine_boxes_objects)
         new_activity.criteria.set(criteria_objects)
         new_activity.save()
-
-        for student in valid_students:
-            StudentActivity.objects.create(
-                student=student, activity=new_activity, class_obj=class_instance
-            )
-
+        
         file_path = self.generate_word(new_activity)
+        
+        try:
+            if send_to_students:
+                for student in valid_students:
+                    StudentActivity.objects.create(
+                        student=student, activity=new_activity, class_obj=class_instance
+                    )
 
-        for student_activity in valid_students:
-            # Obter o e-mail do estudante.
-            student_email = student_activity.user.email
+                # Coletando e-mails dos estudantes em uma lista.
+                student_emails = [student.user.email for student in valid_students]
 
-            # Configurar e enviar e-mail.
-            mail = EmailMessage(
-                "Nova Atividade Criada",
-                "Uma nova atividade foi criada. Veja o anexo para mais detalhes.",
-                "from_email@example.com",
-                [student_email],  # Enviar para o e-mail do estudante
-            )
+                # Configurar e enviar e-mail.
+                mail = EmailMessage(
+                    "Nova Atividade Criada",
+                    "Uma nova atividade foi criada. Veja o anexo para mais detalhes.",
+                    "from_email@example.com",
+                    student_emails,  # Enviar para a lista de e-mails dos estudantes
+                )
+
+                with open(file_path, 'rb') as f:
+                    mail.attach("activity.docx", f.read(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+                mail.send()
+
+                # Após o envio do e-mail, considere remover o arquivo para economizar espaço no servidor.
+                
+                
+            if send_to_teacher:
+                teacher_email = request.user.email  # Assumindo que o usuário fazendo a requisição é o professor
+
+                # Configurar e enviar e-mail.
+                mail = EmailMessage(
+                    "Nova Atividade Criada",
+                    "Você criou uma nova atividade. Veja o anexo para mais detalhes.",
+                    "from_email@example.com",
+                    [teacher_email],  # Enviar para o e-mail do professor
+                )
+                
+                with open(file_path, 'rb') as f:
+                    mail.attach("activity.docx", f.read(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+                mail.send()
+        except ConnectionAbortedError:
+            return Response(
+                {"error": "O envio de e-mail foi bloqueado, possivelmente pelo seu Wi-Fi. Verifique sua conexão ou tente novamente mais tarde."},
+                status=status.HTTP_408_REQUEST_TIMEOUT,
+    )
             
-            with open(file_path, 'rb') as f:
-                mail.attach("activity.docx", f.read(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-
-            mail.send()
-
-        # Após o envio do e-mail, considere remover o arquivo para economizar espaço no servidor.
         os.remove(file_path)
-
         return Response(
             {"message": "Atividade criada com sucesso"}, status=status.HTTP_201_CREATED
         )
