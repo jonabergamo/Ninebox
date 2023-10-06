@@ -54,7 +54,7 @@ export default function UserInfo() {
             }}>
             <BiSolidUser />
             {expand && (
-              <div className="absolute w-auto min-w-[100px] top-16 text-sm p-2  bg-white rounded-md text-black flex flex-col gap-2">
+              <div className="absolute w-auto min-w-[100px] z-50 top-16 text-sm shadow-lg p-2  bg-white rounded-md text-black flex flex-col gap-2">
                 <p
                   className="hover:bg-red-500 hover:text-white p-2 rounded-sm"
                   onClick={() => {

@@ -2,7 +2,12 @@ import { useModal } from "@/context/ModalContext";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
-import { MdDelete, MdRemove } from "react-icons/md";
+import {
+  MdDelete,
+  MdMarkEmailRead,
+  MdOutlineEmail,
+  MdRemove,
+} from "react-icons/md";
 import { User, Class, Nine_box, Subject } from "@/types";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -10,6 +15,7 @@ import { useUser } from "@/context/UserContext";
 import { CustomUserSelect } from "../customUserSelect";
 import { CustomNineboxSelect } from "../customNineboxSelect";
 import { CustomSubjectsSelect } from "../customSubjectSelect";
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 type Criterion = {
   description: string;
@@ -45,6 +51,9 @@ export default function NewActivityModal() {
 
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
   const [studentsData, setStudentsData] = useState<Student[]>([]);
+  const [sendEmailToStudents, setSetSendEmailToStudents] =
+    useState<boolean>(false);
+  const [sendEmailToTeacher, setSendEmailToTeacher] = useState<boolean>(true);
 
   const handleDelete = (criterionIndex: number) => {
     if (criteria.length <= 1) {
@@ -163,6 +172,8 @@ export default function NewActivityModal() {
     criteria: Criterion[];
     class_id?: string;
     student_ids?: number[];
+    send_to_students: boolean;
+    send_to_teacher: boolean;
   }
 
   window.addEventListener("beforeunload", (e) => {
@@ -185,6 +196,7 @@ export default function NewActivityModal() {
 
   const handleAddActivity = async () => {
     toast.loading("Enviando atividade para os alunos...");
+    closeModal();
     try {
       const subjectIds = selectedSubjects.map((subject) => subject.id);
       const nineboxIds = selectedNineboxes.map((ninebox) => ninebox.id);
@@ -198,6 +210,8 @@ export default function NewActivityModal() {
         nine_boxes: nineboxIds,
         criteria: criteria,
         class_id: selectedClass?.unique_id,
+        send_to_students: sendEmailToStudents,
+        send_to_teacher: sendEmailToTeacher,
       };
       if (studentsIds.length) {
         requestBody.student_ids = studentsIds;
@@ -217,7 +231,6 @@ export default function NewActivityModal() {
         fetchUser();
 
         // Fechar o modal após a criação bem-sucedida da classe.
-        closeModal();
         toast.remove();
         toast.success(
           "Atividade " + activityName + " criada e enviada com sucesso"
@@ -228,7 +241,16 @@ export default function NewActivityModal() {
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "response" in error) {
         const e = error as { response: { status: number } };
-        toast.error("Ocorreu um erro desconhecido.");
+        fetchUser();
+        if (e.response.status === 500) {
+          toast.remove();
+          toast.error(
+            "Os emails não foram enviados, verifique seu provedor de internet."
+          );
+        } else {
+          toast.remove();
+          toast.error("Ocorreu um erro desconhecido.");
+        }
       }
     }
   };
@@ -274,7 +296,7 @@ export default function NewActivityModal() {
           key={index}
           className="flex  p-3 rounded-sm justify-evenly w-full flex-wap gap-3">
           <div className="flex flex-col justify-between items-center text-white p-2 bg-secondary-color-light rounded-sm">
-            <p className="font-bold">{index}</p>
+            <p className="font-bold">{index + 1}</p>
             <div
               className="w-full cursor-pointer hover:scale-110 transition-all duration-300"
               onClick={() => handleDelete(index)}>
@@ -342,6 +364,41 @@ export default function NewActivityModal() {
         studentData={studentsData}
         selectedStudents={selectedStudents}
         setSelectedStudents={setSelectedStudents}
+      />
+      <FormControlLabel
+        label="Enviar documento da atividade para os estudantes."
+        control={
+          <Checkbox
+            checked={sendEmailToStudents}
+            onChange={() => {
+              setSetSendEmailToStudents(!sendEmailToStudents);
+            }}
+            sx={{
+              color: "red",
+              "&.Mui-checked": {
+                color: "red",
+              },
+            }}
+          />
+        }
+      />
+      <FormControlLabel
+        className="mt-[-15px]"
+        label="Enviar documento da atividade para mim."
+        control={
+          <Checkbox
+            checked={sendEmailToTeacher}
+            onChange={() => {
+              setSendEmailToTeacher(!sendEmailToTeacher);
+            }}
+            sx={{
+              color: "red",
+              "&.Mui-checked": {
+                color: "red",
+              },
+            }}
+          />
+        }
       />
       <div className="flex flex-col gap-2">
         <button

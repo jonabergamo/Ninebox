@@ -19,7 +19,7 @@ export default function TableComponent({ data }: any) {
         cellBordered
         fillHeight={true}
         hover={true}>
-        <Column align="center" resizable width={50}>
+        <Column align="center" width={50}>
           <HeaderCell>ID</HeaderCell>
           <Cell dataKey="user.id" />
         </Column>
@@ -31,7 +31,7 @@ export default function TableComponent({ data }: any) {
           <HeaderCell>Email</HeaderCell>
           <Cell dataKey="user.email" />
         </Column>
-        <Column align="center" width={250} >
+        <Column align="center" width={300}>
           <HeaderCell> </HeaderCell>
           <Cell align="center">
             {(rowData) => {
