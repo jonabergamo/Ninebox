@@ -1,4 +1,4 @@
-import { Nine_box, Subject } from ".";
+import { Criteria, Nine_box, Subject } from ".";
 
 export type Activity = {
   id: number;

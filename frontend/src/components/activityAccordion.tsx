@@ -14,10 +14,7 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { useUser } from "@/context/UserContext";
 import { Activity, Nine_box, Subject } from "@/types";
-
-
-
-
+import StudentActivityTable from "./studentActivityTable";
 
 interface Props {
   activity: Activity;
@@ -54,7 +51,22 @@ export default function ActivityAccordion({ activity }: Props) {
           </div>
         </AccordionSummary>
         <AccordionDetails className="bg-gray-200">
-          <Accordion defaultExpanded={false}>
+          <Typography>
+            <strong>Porcentagem de correção: </strong>
+            {(activity.total_corrected_activities /
+              (activity.total_students_with_activity || 1)) *
+              100}
+            %
+          </Typography>
+          <Typography>
+            <strong>Total de estudantes com essa atividade: </strong>
+            {activity.total_students_with_activity}
+          </Typography>
+          <Typography>
+            <strong>Total de atividades de estudantes corrigidas: </strong>
+            {activity.total_corrected_activities}
+          </Typography>
+          <Accordion defaultExpanded={false} className="mt-4">
             <AccordionSummary
               expandIcon={<MdExpandMore />}
               aria-controls="panel1a-content"
@@ -79,7 +91,6 @@ export default function ActivityAccordion({ activity }: Props) {
               </Typography>
             </AccordionDetails>
           </Accordion>
-
           <Accordion defaultExpanded={false}>
             <AccordionSummary
               expandIcon={<MdExpandMore />}
@@ -92,56 +103,70 @@ export default function ActivityAccordion({ activity }: Props) {
               </Typography>
             </AccordionSummary>
             <AccordionDetails className="bg-gray-200">
+              <div className="flex flex-col gap-5">
+                <Typography>
+                  <strong className="mt-5">Nível da atividade:</strong>
+                  <div className="flex flex-col">
+                    <strong className="text-secondary-color-light">
+                      {activity.level}
+                    </strong>
+                  </div>
+                </Typography>
+                <Typography>
+                  <strong>Descrição:</strong>
+                  <br />
+                  {activity.description}
+                </Typography>
+                <Typography>
+                  <strong>Critérios:</strong>
+                  <br />
+                  <div className="flex flex-col gap-2">
+                    {activity.criteria.map((c, index) => (
+                      <div className="flex gap-2">
+                        {index + 1}.<p className="break-all">{c.description}</p>
+                        <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
+                          Peso: {c.weight}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </Typography>
+                <Typography>
+                  <strong className="mt-5">Disciplinas envolvidas:</strong>
+                  <br />
+                  <div className="flex flex-col">
+                    {activity.subjects.map((s, index) => (
+                      <div className="flex gap-2">
+                        {index + 1}.<p>{s.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Typography>
+                <Typography>
+                  <strong className="mt-5">Nine Boxes:</strong>
+                  <br />
+                  <div className="flex flex-col">
+                    {activity.nine_boxes.map((ninebox, index) => (
+                      <div className="flex gap-2">
+                        {index + 1}.<p>{ninebox.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Typography>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion defaultExpanded={false} className="">
+            <AccordionSummary
+              expandIcon={<MdExpandMore />}
+              aria-controls="panel1a-content"
+              id="panel1a-header">
               <Typography>
-                <strong className="mt-5">Nível da atividade:</strong>
-                <div className="flex flex-col">
-                  <strong className="text-secondary-color-light">
-                    {activity.level}
-                  </strong>
-                </div>
+                <strong className="text-md font-medium">Correções</strong>
               </Typography>
-              <Typography>
-                <strong>Descrição:</strong>
-                <br />
-                {activity.description}
-              </Typography>
-              <Typography>
-                <strong>Critérios:</strong>
-                <br />
-                <div className="flex flex-col gap-2">
-                  {activity.criteria.map((c, index) => (
-                    <div className="flex gap-2">
-                      {index + 1}.<p className="break-all">{c.description}</p>
-                      <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
-                        Peso: {c.weight}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Typography>
-
-              <Typography>
-                <strong className="mt-5">Disciplinas envolvidas:</strong>
-                <br />
-                <div className="flex flex-col">
-                  {activity.subjects.map((s, index) => (
-                    <div className="flex gap-2">
-                      {index + 1}.<p>{s.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </Typography>
-              <Typography>
-                <strong className="mt-5">Nine Boxes:</strong>
-                <br />
-                <div className="flex flex-col">
-                  {activity.nine_boxes.map((ninebox, index) => (
-                    <div className="flex gap-2">
-                      {index + 1}.<p>{ninebox.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </Typography>
+            </AccordionSummary>
+            <AccordionDetails className="bg-gray-200">
+              <StudentActivityTable activity={activity} />
             </AccordionDetails>
           </Accordion>
         </AccordionDetails>

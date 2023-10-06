@@ -11,36 +11,55 @@ import { Table, Column, Cell, HeaderCell } from "rsuite-table";
 import "rsuite-table/dist/css/rsuite-table.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Activity } from "@/types";
+import { Activity, StudentActivity, StudentActivityModal } from "@/types";
 import { useUser } from "@/context/UserContext";
+import { FaSpellCheck } from "react-icons/fa6";
+import { IoMdDoneAll } from "react-icons/io";
 
 type StudentActivityTableProps = {
-  activityId: number;
-  order?: string;
-  filter?: string;
+  activity: Activity;
 };
 
 export default function StudentActivityTable({
-  activityId,
-  order = "-id",
-  filter = "",
+  activity,
 }: StudentActivityTableProps) {
   const { user, selectedClass } = useUser();
-  const [data, setData] = useState<Activity[]>([]);
+  const [data, setData] = useState<StudentActivity[]>([]);
   const [filteredStudentActivities, setFilteredStudentActivities] = useState<
-    Activity[]
+    StudentActivity[]
   >([]);
+  const [filter, setFilter] = useState<string>("");
+  const { toggleModal } = useModal();
+
+  function formatDate(dateString: string) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Os meses vão de 0 a 11, então adicionamos 1
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
 
   const fetchStudentsActivities = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/student_activities/?activity=${activityId}&ordering=${order}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/activities/${activity.id}/student_activities/`,
         {
           headers: { Authorization: `Token ${Cookies.get("token")}` },
         }
       );
-      setData(response.data);
-      setFilteredStudentActivities(response.data);
+      const formattedData = response.data.map(
+        (item: StudentActivity, index: number) => ({
+          ...item,
+          index: index + 1,
+          final_grade: item.final_grade ? item.final_grade : "Não gerada",
+          correction_date: item.correction_date
+            ? formatDate(item.correction_date)
+            : "Não corrigida",
+        })
+      );
+      setData(formattedData);
+      setFilteredStudentActivities(formattedData);
       console.log(response.data);
     } catch {
       toast.remove();
@@ -52,32 +71,50 @@ export default function StudentActivityTable({
     fetchStudentsActivities();
   }, [selectedClass, user]);
 
-  const filterStudentActivities = () => {
-    setFilteredStudentActivities(
-      data.filter((studentActivity) =>
-        studentActivity.name.toLowerCase().includes(filter.toLowerCase())
-      )
-    );
-  };
+  const filterStudentActivities = data.filter(
+    (studentActivity) =>
+      studentActivity.student.name
+        .toLowerCase()
+        .includes(filter.toLowerCase()) ||
+      studentActivity.student.email.toLowerCase().includes(filter.toLowerCase())
+  );
 
-  const { toggleModal } = useModal();
   return (
-    <div className="text-primary-color-dark dark:text-primary-color-dark ">
-      <Table data={data} height={400} fillHeight={true} hover={true}>
-        <Column align="center" resizable width={200} flexGrow={1}>
-          <HeaderCell>ID</HeaderCell>
-          <Cell dataKey="user.id" />
+    <div className="text-primary-color-dark dark:text-primary-color-dark text-lg">
+      <input
+        className="px-4 py-2 h-9 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
+        placeholder="Filtrar estudantes..."
+        onChange={(e) => {
+          setFilter(e.target.value || "");
+        }}
+      />
+      <Table
+        data={filterStudentActivities}
+        fillHeight={false}
+        hover={true}
+        className="h-auto">
+        <Column align="center" width={20} flexGrow={1}>
+          <HeaderCell>Número</HeaderCell>
+          <Cell dataKey="index" />
         </Column>
-        <Column align="center" resizable width={200} flexGrow={1}>
+        <Column align="center" width={50} flexGrow={1}>
           <HeaderCell>Name</HeaderCell>
-          <Cell dataKey="user.name" />
+          <Cell dataKey="student.name" />
         </Column>
-        <Column align="center" resizable width={200} flexGrow={1}>
+        <Column align="center" width={50} flexGrow={1}>
           <HeaderCell>Email</HeaderCell>
-          <Cell dataKey="user.email" />
+          <Cell dataKey="student.email" />
         </Column>
-        <Column align="center" width={200} flexGrow={1}>
-          <HeaderCell>Action</HeaderCell>
+        <Column align="center" width={50} flexGrow={1}>
+          <HeaderCell>Data de correção</HeaderCell>
+          <Cell dataKey="correction_date" />
+        </Column>
+        <Column align="center" width={50} flexGrow={1}>
+          <HeaderCell>Nota atribuida</HeaderCell>
+          <Cell dataKey="final_grade" />
+        </Column>
+        <Column align="center" width={400} flexGrow={1}>
+          <HeaderCell> </HeaderCell>
           <Cell align="center">
             {(rowData) => {
               function handleAction() {
@@ -85,29 +122,39 @@ export default function StudentActivityTable({
               }
               return (
                 <span className="flex gap-2">
-                  <div
-                    className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
-                    title="Enviar nova senha"
-                    onClick={() => {
-                      toggleModal("SendNewPassword", rowData.user.id);
-                    }}>
-                    <PiPasswordFill />
-                    Nova senha
-                  </div>
-                  <div
-                    className="flex text-md p-2 gap-2  h-8 rounded-md cursor-pointer bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
-                    title="Remover estudante"
-                    onClick={() => {
-                      if (rowData.user) {
-                        toggleModal(
-                          "RemoveStudentFromClass",
-                          rowData.user.email
-                        );
-                      }
-                    }}>
-                    <HiUserRemove />
-                    Remover
-                  </div>
+                  {rowData.final_grade === "Não gerada" ? (
+                    <button
+                      className="flex text-md p-2 gap-2  h-8 rounded-md bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
+                      title="Enviar nova senha"
+                      onClick={() => {
+                        let activityInfo: StudentActivity = {
+                          id: rowData.id,
+                          activity: rowData.activity,
+                          class_obj: rowData.class_obj,
+                          evaluations: rowData.evaluations,
+                          post_date: rowData.post_date,
+                          correction_date: rowData.correction_date,
+                          final_grade: rowData.final_grade,
+                          student: rowData.student,
+                        };
+                        let fullActivity: StudentActivityModal = {
+                          activity: activity,
+                          studentActivity: activityInfo,
+                        };
+                        toggleModal("Evaluate", 0, fullActivity);
+                      }}>
+                      <FaSpellCheck />
+                      Corrigir atividade
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex text-md p-2 gap-2  h-8 rounded-md bg-gray-500 transition-all items-center text-white justify-center align-middle"
+                      title="Corrigida">
+                      <IoMdDoneAll />
+                      Corrigida
+                    </button>
+                  )}
                 </span>
               );
             }}

@@ -13,6 +13,7 @@ import { MdDelete } from "react-icons/md";
 import { AiOutlinePlus } from "react-icons/ai";
 import NewActivityModal from "./newActivityModal";
 import SettingsModal from "./settingsModal";
+import EvaluateModal from "./evaluateModal";
 
 type Criterion = {
   description: string;
@@ -31,33 +32,6 @@ const Modal: React.FC = () => {
   const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [newNineboxName, setNewNineBoxName] = useState<string | null>("");
   const [teacherClass, setTeachersClass] = useState<Teacher[] | null>(null);
-
-  // Activities
-  const [activityName, setActivityName] = useState("");
-  const [level, setLevel] = useState(0);
-  const [criteria, setCriteria] = useState<Criterion[]>([
-    { description: "", weight: 0 },
-  ]);
-  const [ninebox, setNinebox] = useState<string[]>([]);
-  const [discipline, setDiscipline] = useState<string[]>([]);
-
-  const addCriterion = () => {
-    setCriteria([...criteria, { description: "", weight: 0 }]);
-  };
-
-  const handleDelete = (criterionIndex: number) => {
-    if (criteria.length <= 1) {
-      toast.error("Você deve ter ao menos 1 critério");
-      return;
-    }
-
-    // Cria uma cópia do array original, removendo o item no índice especificado
-    const updatedCriteria = criteria.filter(
-      (_, index) => index !== criterionIndex
-    );
-    // Atualiza o estado com o novo array
-    setCriteria(updatedCriteria);
-  };
 
   const handleJoinClass = async () => {
     try {
@@ -805,6 +779,8 @@ const Modal: React.FC = () => {
         return <NewActivityModal />;
       case "Settings":
         return <SettingsModal />;
+      case "Evaluate":
+        return <EvaluateModal />;
       default:
         return null;
     }
