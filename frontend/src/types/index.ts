@@ -6,3 +6,6 @@ export type { Subject } from "./subject";
 export type { Teacher } from "./teacher";
 export type { Criteria } from "./criteria";
 export type { Activity } from "./activity";
+export type { StudentActivity } from "./studentActivity";
+export type { Student } from "./student";
+export type { StudentActivityModal } from "./studentActivityModal";

@@ -1,5 +1,6 @@
 "use client";
 import Modal from "@/components/modals/modals";
+import { Activity, StudentActivity, StudentActivityModal } from "@/types";
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 
@@ -7,8 +8,13 @@ interface IModalContext {
   showModal: boolean;
   modalType: string | null;
   modalId: number | null;
-  toggleModal: (type?: string, id?: number) => void;
+  toggleModal: (
+    type?: string,
+    id?: number,
+    studentActivity?: StudentActivityModal
+  ) => void;
   closeModal: () => void;
+  studentActivity: StudentActivityModal | null;
 }
 
 const ModalContext = createContext<IModalContext | undefined>(undefined);
@@ -29,15 +35,18 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<string | null>(null);
   const [modalId, setModalId] = useState<number | null>(null);
+  const [studentActivity, setStudentActivity] =
+    useState<StudentActivityModal | null>(null);
 
-  const toggleModal = (type?: string, id?: number) => {
+  const toggleModal = (
+    type?: string,
+    id?: number,
+    studentActivity?: StudentActivityModal
+  ) => {
     setShowModal(!showModal);
     setModalType(type || null);
-    if (id) {
-      setModalId(id);
-    } else {
-      setModalId(null);
-    }
+    setModalId(id || null);
+    setStudentActivity(studentActivity || null);
   };
 
   const closeModal = () => {
@@ -51,6 +60,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     toggleModal,
     closeModal,
     modalId,
+    studentActivity,
   };
 
   return (
