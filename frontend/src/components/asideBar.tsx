@@ -96,7 +96,7 @@ export default function AsideBar() {
               key={index}
               className="text-3xl cursor-pointer bg-secondary-color-light hover:bg-secondary-color-dark p-2 rounded-full transition-all hover:scale-105"
               onClick={() => {
-                router.push(icon.to);
+                router.replace(icon.to);
               }}
               title={icon.title}>
               {icon.iconImage || icon.iconName}
