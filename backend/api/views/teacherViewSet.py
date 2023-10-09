@@ -336,13 +336,12 @@ class TeacherViewSet(viewsets.ModelViewSet):
         
         file_path = self.generate_word(new_activity)
         
+        for student in valid_students:
+            StudentActivity.objects.create(
+                student=student, activity=new_activity, class_obj=class_instance
+            )
         try:
             if send_to_students:
-                for student in valid_students:
-                    StudentActivity.objects.create(
-                        student=student, activity=new_activity, class_obj=class_instance
-                    )
-
                 # Coletando e-mails dos estudantes em uma lista.
                 student_emails = [student.user.email for student in valid_students]
 
