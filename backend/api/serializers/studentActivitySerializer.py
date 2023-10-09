@@ -10,6 +10,7 @@ from api.serializers import (
 
 class StudentActivitySerializer(serializers.ModelSerializer):
     evaluations = EvaluationSerializer(many=True, read_only=True)
+    activity = ActivitySerializer()
 
     class Meta:
         model = StudentActivity
@@ -22,7 +23,9 @@ class StudentActivitySerializer(serializers.ModelSerializer):
             "correction_date",
             "final_grade",
             "evaluations",
+            "activity_link"
         ]
+        extra_kwargs = {'activity_link': {'required': False}}
 
     # def to_representation(self, instance):
     #     representation = super().to_representation(instance)

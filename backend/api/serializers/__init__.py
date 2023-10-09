@@ -6,6 +6,6 @@ from .criteriaSerializer import CriteriaSerializer
 from .evaluationSerializer import EvaluationSerializer
 from .nineBoxSerializer import NineBoxSerializer
 from .studentNineBoxSerializer import StudentNineBoxSerializer
-from .subjectSerializer import SubjectSerializer
+from .subjectSerializer import SubjectSerializer, StudentSubjectDetailSerializer
 from .teacherSerializer import TeacherSerializer
 from .studentActivitySerializer import StudentActivitySerializer

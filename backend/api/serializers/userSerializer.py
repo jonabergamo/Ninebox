@@ -25,4 +25,4 @@ class StudentActivityWithStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentActivity
-        fields = ('id', 'activity', 'class_obj', 'evaluations', 'post_date', 'correction_date', 'final_grade', 'student')
+        fields = ('id', 'activity', 'class_obj', 'evaluations', 'post_date', 'correction_date', 'final_grade', 'student', 'activity_link')

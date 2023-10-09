@@ -5,32 +5,13 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "js-cookie";
-import { Nine_box, Subject } from "@/types";
+import { Nine_box, Subject, Activity } from "@/types";
 import toast from "react-hot-toast";
 
 type Criterion = {
   id: number;
   description: string;
   weight: number;
-};
-
-type Activity = {
-  id: number;
-  subjects: Subject[];
-  nine_boxes: Nine_box[];
-  criteria: Criterion[];
-  name: string;
-  level: number;
-  description: string;
-  class_obj: string;
-  average_grade: number;
-  median_grade: number;
-  percentile_25: number;
-  percentile_75: number;
-  std_dev_grade: number;
-  total_students_with_activity: number;
-  total_corrected_activities: number;
-  created_at: string;
 };
 
 export default function TeacherActivitesScreen() {

@@ -30,6 +30,7 @@ import os
 from docx.shared import Inches, RGBColor
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+import unicodedata
 
 class JoinTurmaRequest(serializers.Serializer):
     unique_id = serializers.CharField()
@@ -41,6 +42,18 @@ class TeacherViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "__all__"
     permission_classes = [IsAuthenticated]
+    
+    
+    def format_activity_name(activity_name):
+        # Remove acentos
+        nfkd_form = unicodedata.normalize('NFKD', activity_name)
+        name_without_accents = u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+        # Substitui espaços por underscores e converte para lowercase
+        formatted_name = name_without_accents.replace(" ", "_").lower()
+
+        return formatted_name
+
 
     def generate_word(self, activity):
         doc = Document()
@@ -111,7 +124,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
             p.style = 'ListNumber'  # Definindo o estilo para uma lista numerada
 
 
-        file_path = "activity.docx"
+        file_path = f"{self.format_activity_name(activity.name)}.docx"
         doc.save(file_path)
         
         return file_path

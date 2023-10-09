@@ -16,5 +16,6 @@ export type Activity = {
   std_dev_grade: number;
   total_students_with_activity: number;
   total_corrected_activities: number;
+  total_delivered_activities: number;
   created_at: string;
 };

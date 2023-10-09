@@ -59,14 +59,25 @@ export default function ActivityAccordion({ activity }: Props) {
             %
           </Typography>
           <Typography>
+            <strong>Porcentagem de entrega: </strong>
+            {(activity.total_delivered_activities /
+              (activity.total_students_with_activity || 1)) *
+              100}
+            %
+          </Typography>
+          <Typography>
             <strong>Total de estudantes com essa atividade: </strong>
             {activity.total_students_with_activity}
           </Typography>
           <Typography>
-            <strong>Total de atividades de estudantes corrigidas: </strong>
+            <strong>Total de atividades entregues: </strong>
+            {activity.total_delivered_activities}
+          </Typography>
+          <Typography>
+            <strong>Total de atividades corrigidas: </strong>
             {activity.total_corrected_activities}
           </Typography>
-          <Accordion defaultExpanded={false} className="mt-4">
+          <Accordion defaultExpanded={false} className="mt-12">
             <AccordionSummary
               expandIcon={<MdExpandMore />}
               aria-controls="panel1a-content"

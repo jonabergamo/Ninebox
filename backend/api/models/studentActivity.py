@@ -24,6 +24,7 @@ class StudentActivity(models.Model):
     post_date = models.DateTimeField(default=timezone.now)
     correction_date = models.DateField(null=True, blank=True)
     final_grade = models.FloatField(null=True, blank=True)
+    activity_link = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.student} - {self.activity} - {self.class_obj}"
