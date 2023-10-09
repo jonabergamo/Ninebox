@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from api.models import StudentNineBox
+from api.serializers.nineBoxSerializer import NineBoxSerializer
 
 
 class StudentNineBoxSerializer(serializers.ModelSerializer):
     rank = serializers.SerializerMethodField()
+    nine_box = NineBoxSerializer()
 
     class Meta:
         model = StudentNineBox

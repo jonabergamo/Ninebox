@@ -93,6 +93,15 @@ export default function EvaluateModal() {
       <label>
         <strong>Aluno:</strong> {studentActivity?.studentActivity.student.name}
       </label>
+      <label>
+        <strong>Atividade:</strong>{" "}
+        <a
+          href={studentActivity?.studentActivity.activity_link}
+          className="underline text-secondary-color"
+          target="__blank__">
+          {studentActivity?.studentActivity.activity_link}
+        </a>
+      </label>
       <h1 className="font-bold text-lg">Critérios:</h1>
       {studentActivity?.activity.criteria.map((c, index) => (
         <CriteriaSelector index={index} c={c} onChange={handleGradeUpdate} />

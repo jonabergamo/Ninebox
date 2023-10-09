@@ -18,6 +18,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     std_dev_grade = serializers.SerializerMethodField()
     total_students_with_activity = serializers.SerializerMethodField()
     total_corrected_activities = serializers.SerializerMethodField()
+    total_delivered_activities  = serializers.SerializerMethodField()
 
     class Meta:
         model = Activity
@@ -48,3 +49,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_total_corrected_activities(self, obj):
         return obj.activity_student_activities.filter(final_grade__isnull=False).count()
+    
+    def get_total_delivered_activities(self, obj):
+        total = obj.activity_student_activities.filter(activity_link__isnull=False, activity_link__gt="").count()
+        return total if total else 0

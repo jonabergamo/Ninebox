@@ -15,6 +15,7 @@ import { Activity, StudentActivity, StudentActivityModal } from "@/types";
 import { useUser } from "@/context/UserContext";
 import { FaSpellCheck } from "react-icons/fa6";
 import { IoMdDoneAll } from "react-icons/io";
+import { FaWindowClose } from "react-icons/fa";
 
 type StudentActivityTableProps = {
   activity: Activity;
@@ -48,7 +49,7 @@ export default function StudentActivityTable({
           headers: { Authorization: `Token ${Cookies.get("token")}` },
         }
       );
-      const formattedData = response.data.map(
+      const formatedData = response.data.map(
         (item: StudentActivity, index: number) => ({
           ...item,
           index: index + 1,
@@ -58,8 +59,8 @@ export default function StudentActivityTable({
             : "Não corrigida",
         })
       );
-      setData(formattedData);
-      setFilteredStudentActivities(formattedData);
+      setData(formatedData);
+      setFilteredStudentActivities(formatedData);
       console.log(response.data);
     } catch {
       toast.remove();
@@ -92,18 +93,31 @@ export default function StudentActivityTable({
         data={filterStudentActivities}
         fillHeight={false}
         hover={true}
-        className="h-auto">
-        <Column align="center" width={20} flexGrow={1}>
-          <HeaderCell>Número</HeaderCell>
+        bordered
+        className="h-auto text-base">
+        <Column align="center" width={60}>
+          <HeaderCell>N°</HeaderCell>
           <Cell dataKey="index" />
         </Column>
         <Column align="center" width={50} flexGrow={1}>
           <HeaderCell>Name</HeaderCell>
-          <Cell dataKey="student.name" />
+          <Cell>
+            {(rowData) => {
+              return (
+                <div title={rowData.student.name}>{rowData.student.name}</div>
+              );
+            }}
+          </Cell>
         </Column>
-        <Column align="center" width={50} flexGrow={1}>
+        <Column align="center" width={50} flexGrow={2}>
           <HeaderCell>Email</HeaderCell>
-          <Cell dataKey="student.email" />
+          <Cell>
+            {(rowData) => {
+              return (
+                <div title={rowData.student.email}>{rowData.student.email}</div>
+              );
+            }}
+          </Cell>
         </Column>
         <Column align="center" width={50} flexGrow={1}>
           <HeaderCell>Data de correção</HeaderCell>
@@ -113,7 +127,7 @@ export default function StudentActivityTable({
           <HeaderCell>Nota atribuida</HeaderCell>
           <Cell dataKey="final_grade" />
         </Column>
-        <Column align="center" width={400} flexGrow={1}>
+        <Column align="center" width={180}>
           <HeaderCell> </HeaderCell>
           <Cell align="center">
             {(rowData) => {
@@ -122,7 +136,15 @@ export default function StudentActivityTable({
               }
               return (
                 <span className="flex gap-2">
-                  {rowData.final_grade === "Não gerada" ? (
+                  {!rowData.activity_link ? (
+                    <button
+                      disabled
+                      className="flex text-md p-2 gap-2  h-8 rounded-md bg-gray-500 transition-all items-center text-white justify-center align-middle"
+                      title="Corrigida">
+                      <FaWindowClose />
+                      Não Entregue
+                    </button>
+                  ) : rowData.final_grade === "Não gerada" ? (
                     <button
                       className="flex text-md p-2 gap-2  h-8 rounded-md bg-secondary-color-light transition-all hover:scale-105 items-center text-white justify-center align-middle"
                       title="Enviar nova senha"
@@ -136,6 +158,7 @@ export default function StudentActivityTable({
                           correction_date: rowData.correction_date,
                           final_grade: rowData.final_grade,
                           student: rowData.student,
+                          activity_link: rowData.activity_link,
                         };
                         let fullActivity: StudentActivityModal = {
                           activity: activity,
@@ -144,7 +167,7 @@ export default function StudentActivityTable({
                         toggleModal("Evaluate", 0, fullActivity);
                       }}>
                       <FaSpellCheck />
-                      Corrigir atividade
+                      Corrigir
                     </button>
                   ) : (
                     <button
