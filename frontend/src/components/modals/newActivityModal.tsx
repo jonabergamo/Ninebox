@@ -227,13 +227,11 @@ export default function NewActivityModal() {
       );
 
       if (response.status === 200 || response.status === 201) {
-
         // Fechar o modal após a criação bem-sucedida da classe.
         toast.remove();
         toast.success(
           "Atividade " + activityName + " criada e enviada com sucesso"
         );
-        fetchUser();
       } else {
         // Lidar com outros códigos de status aqui.
       }
@@ -252,6 +250,7 @@ export default function NewActivityModal() {
         }
       }
     }
+    fetchUser();
   };
 
   return (
