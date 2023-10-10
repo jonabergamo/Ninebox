@@ -10,7 +10,7 @@ const StudentSubjectsScreen = React.lazy(
   () => import("@/screens/subjects/studentSubjectsScreen")
 );
 
-export default function page() {
+export default function SubjectsPage() {
   const { token, user, selectedClass } = useUser();
 
   return user?.info.is_teacher ? (
