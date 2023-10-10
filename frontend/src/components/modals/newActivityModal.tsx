@@ -232,7 +232,6 @@ export default function NewActivityModal() {
         toast.success(
           "Atividade " + activityName + " criada e enviada com sucesso"
         );
-        fetchUser();
       } else {
         // Lidar com outros códigos de status aqui.
       }
@@ -251,6 +250,7 @@ export default function NewActivityModal() {
         }
       }
     }
+    fetchUser();
   };
 
   return (
