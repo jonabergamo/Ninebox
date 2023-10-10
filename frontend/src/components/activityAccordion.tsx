@@ -60,9 +60,11 @@ export default function ActivityAccordion({ activity }: Props) {
           </Typography>
           <Typography>
             <strong>Porcentagem de entrega: </strong>
-            {(activity.total_delivered_activities /
-              (activity.total_students_with_activity || 1)) *
-              100}
+            {(
+              (activity.total_delivered_activities /
+                (activity.total_students_with_activity || 1)) *
+              100
+            ).toFixed(2)}
             %
           </Typography>
           <Typography>
