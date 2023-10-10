@@ -124,7 +124,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
             p.style = 'ListNumber'  # Definindo o estilo para uma lista numerada
 
 
-        file_path = f"{self.format_activity_name(activity.name)}.docx"
+        file_path = "atividade2.docx"
         doc.save(file_path)
         
         return file_path
