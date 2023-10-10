@@ -222,53 +222,56 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
             </AccordionDetails>
           </Accordion>
 
-          <Accordion defaultExpanded={false} className="">
-            <AccordionSummary
-              expandIcon={<MdExpandMore />}
-              aria-controls="panel1a-content"
-              id="panel1a-header">
-              <Typography>
-                <strong className="text-md font-medium">
-                  Detalhes da correção
-                </strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails className="bg-gray-200">
-              <div className="flex flex-col gap-5">
+          {studentActivity.final_grade && (
+            <Accordion defaultExpanded={false} className="">
+              <AccordionSummary
+                expandIcon={<MdExpandMore />}
+                aria-controls="panel1a-content"
+                id="panel1a-header">
                 <Typography>
-                  <strong className="mt-5">Corrigido em:</strong>
-                  <div className="flex flex-col">
-                    <strong className="text-secondary-color-light">
-                      {formatDate(new Date(studentActivity.post_date))}
-                    </strong>
-                  </div>
+                  <strong className="text-md font-medium">
+                    Detalhes da correção
+                  </strong>
                 </Typography>
-                <Typography>
-                  <strong className="mt-5">Nota da atividade:</strong>
-                  <div className="flex flex-col">
-                    <strong className="text-secondary-color-light">
-                      {studentActivity.final_grade}
-                    </strong>
-                  </div>
-                </Typography>
-                <Typography>
-                  <strong>Critérios:</strong>
-                  <br />
-                  <div className="flex flex-col gap-2">
-                    {studentActivity.activity.criteria.map((c, index) => (
-                      <div className="flex gap-2" key={index}>
-                        {index + 1}.<p className="break-all">{c.description}</p>
-                        <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
-                          Peso: {c.weight}
-                        </p>
-                        {(() => {
-                          const evaluation = studentActivity.evaluations.find(
-                            (e) => e.criteria === c.id
-                          );
-                          if (evaluation) {
-                            const gradeInfo = GRADE_MAPPING[evaluation.grade];
-                            const gradeColor = gradeInfo.color;
-                            const gradeDescription = gradeInfo.description;
+              </AccordionSummary>
+              <AccordionDetails className="bg-gray-200">
+                <div className="flex flex-col gap-5">
+                  <Typography>
+                    <strong className="mt-5">Corrigido em:</strong>
+                    <div className="flex flex-col">
+                      <strong className="text-secondary-color-light">
+                        {studentActivity.correction_date &&
+                          formatDate(new Date(studentActivity.correction_date))}
+                      </strong>
+                    </div>
+                  </Typography>
+                  <Typography>
+                    <strong className="mt-5">Nota da atividade:</strong>
+                    <div className="flex flex-col">
+                      <strong className="text-secondary-color-light">
+                        {studentActivity.final_grade}
+                      </strong>
+                    </div>
+                  </Typography>
+                  <Typography>
+                    <strong>Critérios:</strong>
+                    <br />
+                    <div className="flex flex-col gap-2">
+                      {studentActivity.activity.criteria.map((c, index) => (
+                        <div className="flex gap-2">
+                          {index + 1}.
+                          <p className="break-all">{c.description}</p>
+                          <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
+                            Peso: {c.weight}
+                          </p>
+                          {(() => {
+                            const evaluation = studentActivity.evaluations.find(
+                              (e) => e.criteria === c.id
+                            );
+                            if (evaluation) {
+                              const gradeInfo = GRADE_MAPPING[evaluation.grade];
+                              const gradeColor = gradeInfo.color;
+                              const gradeDescription = gradeInfo.description;
 
                             return (
                               <p
