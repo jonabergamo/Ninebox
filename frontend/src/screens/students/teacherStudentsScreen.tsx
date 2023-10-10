@@ -14,22 +14,21 @@ export default function TeacherStudentsScreen() {
   const [studentsData, setStudentsData] = useState();
   const { toggleModal } = useModal();
 
-  const fetchStudents = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/students/?classes=${selectedClass?.unique_id}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setStudentsData(response.data);
-      console.log(response.data);
-    } catch {
-      toast.error("Ocorreu um erro inesperado ao carregar os estudantes");
-    }
-  };
-
   useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/students/?classes=${selectedClass?.unique_id}`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setStudentsData(response.data);
+        console.log(response.data);
+      } catch {
+        toast.error("Ocorreu um erro inesperado ao carregar os estudantes");
+      }
+    };
     fetchStudents();
   }, [selectedClass, user]);
 

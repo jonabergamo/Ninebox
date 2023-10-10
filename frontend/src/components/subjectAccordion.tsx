@@ -39,32 +39,35 @@ export default function SubjectAccordion({
   const { user } = useUser();
   const [teachers, setTeachers] = useState<any>();
 
-  const fetchTeathers = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/teachers/?subjects=${id}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setTeachers(response.data);
-      } else {
-        // Lidar com outros códigos de status aqui.
-      }
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const e = error as { response: { status: number } };
-        toast.remove();
-        toast.error("Ocorreu um erro desconhecido ao deletar a disciplina.");
-      }
-    }
-  };
-
   useEffect(() => {
+    const fetchTeathers = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/teachers/?subjects=${id}`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+
+        if (response.status === 200) {
+          setTeachers(response.data);
+        } else {
+          // Lidar com outros códigos de status aqui.
+        }
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const e = error as { response: { status: number } };
+          toast.remove();
+          toast.error("Ocorreu um erro desconhecido ao deletar a disciplina.");
+        }
+      }
+    };
     fetchTeathers();
-  }, [user]);
+  }, [user, id]);
 
   return (
     <div>
@@ -73,7 +76,9 @@ export default function SubjectAccordion({
           expandIcon={<MdExpandMore />}
           aria-controls="panel1a-content"
           id="panel1a-header">
-          <Typography><strong className="text-2xl font-medium">{title}</strong></Typography>
+          <Typography>
+            <strong className="text-2xl font-medium">{title}</strong>
+          </Typography>
         </AccordionSummary>
         <AccordionDetails className="bg-gray-200">
           <div>

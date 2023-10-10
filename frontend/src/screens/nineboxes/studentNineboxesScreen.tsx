@@ -23,27 +23,26 @@ export default function StudentNineboxesScreen() {
     []
   );
 
-  const fetchNinboxes = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/student_nineboxes/get_student_nine_boxes_for_class/`,
-        {
-          student_id: user?.info.id,
-          class_obj: selectedClass?.unique_id,
-        },
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setStudentNineboxes(response.data);
-      console.log(response.data);
-    } catch {
-      toast.remove();
-      toast.error("Ocorreu um erro inesperado ao carregar as atividades");
-    }
-  };
-
   useEffect(() => {
+    const fetchNinboxes = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/student_nineboxes/get_student_nine_boxes_for_class/`,
+          {
+            student_id: user?.info.id,
+            class_obj: selectedClass?.unique_id,
+          },
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setStudentNineboxes(response.data);
+        console.log(response.data);
+      } catch {
+        toast.remove();
+        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      }
+    };
     fetchNinboxes();
   }, [user, selectedClass]);
 
@@ -54,7 +53,7 @@ export default function StudentNineboxesScreen() {
       </div>
       <div className="flex flex-wrap mt-2 text-2xl gap-4">
         {studentNineboxes.map((ninebox, index) => (
-          <div>
+          <div key={index}>
             <Accordion defaultExpanded={true}>
               <AccordionSummary
                 expandIcon={<MdExpandMore />}

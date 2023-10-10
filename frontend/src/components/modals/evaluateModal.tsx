@@ -104,7 +104,9 @@ export default function EvaluateModal() {
       </label>
       <h1 className="font-bold text-lg">Critérios:</h1>
       {studentActivity?.activity.criteria.map((c, index) => (
-        <CriteriaSelector index={index} c={c} onChange={handleGradeUpdate} />
+        <div key={index}>
+          <CriteriaSelector index={index} c={c} onChange={handleGradeUpdate} />
+        </div>
       ))}
       <div className="flex flex-col gap-2 w-full items-center">
         <button
@@ -130,7 +132,7 @@ function CriteriaSelector({ index, c, onChange }: CriteriaSelectorProps) {
     if (selected) {
       onChange(c.id, selected);
     }
-  }, [selected]);
+  }, [selected, c.id, onChange]);
 
   return (
     <div

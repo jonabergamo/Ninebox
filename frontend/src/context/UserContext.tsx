@@ -5,6 +5,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -46,7 +47,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (!token && !Cookies.get("token")) {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
-  }, [token]);
+  }, [token, router]);
 
   const handleSubmit = (email: string, password: string) => {
     setError("");
@@ -117,7 +118,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       });
   };
 
-  const fetchUser = () => {
+  const fetchUser = useCallback(() => {
     const storedUser = Cookies.get("user");
     const storedToken = Cookies.get("token");
     const stored_class = Cookies.get("selected_class");
@@ -176,7 +177,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         });
     } else {
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (selectedClass?.unique_id) {
@@ -190,7 +191,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const Logout = () => {
     setUser(null);

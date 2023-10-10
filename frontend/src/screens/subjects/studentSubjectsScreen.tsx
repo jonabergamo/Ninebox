@@ -28,27 +28,26 @@ export default function StudentSubjectsScreen() {
   );
   const router = useRouter();
 
-  const fetchSubjects = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/subjects/student-details/`,
-        {
-          student_id: user?.info.id,
-          class_id: selectedClass?.unique_id,
-        },
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setStudentsSubjects(response.data);
-      console.log(response.data);
-    } catch {
-      toast.remove();
-      toast.error("Ocorreu um erro inesperado ao carregar as atividades");
-    }
-  };
-
   useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/subjects/student-details/`,
+          {
+            student_id: user?.info.id,
+            class_id: selectedClass?.unique_id,
+          },
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setStudentsSubjects(response.data);
+        console.log(response.data);
+      } catch {
+        toast.remove();
+        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      }
+    };
     fetchSubjects();
   }, [user, selectedClass]);
 
@@ -60,7 +59,7 @@ export default function StudentSubjectsScreen() {
       <div className="flex flex-col flex-wrap mt-2 text-2xl gap-4">
         {studentSubjects &&
           studentSubjects.map((subject, index) => (
-            <div>
+            <div key={index}>
               <Accordion defaultExpanded={true}>
                 <AccordionSummary
                   expandIcon={<MdExpandMore />}
