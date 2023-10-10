@@ -258,7 +258,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                     <br />
                     <div className="flex flex-col gap-2">
                       {studentActivity.activity.criteria.map((c, index) => (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" key={index}>
                           {index + 1}.
                           <p className="break-all">{c.description}</p>
                           <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
@@ -273,21 +273,22 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                               const gradeColor = gradeInfo.color;
                               const gradeDescription = gradeInfo.description;
 
-                            return (
-                              <p
-                                className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
-                                {gradeDescription}
-                              </p>
-                            );
-                          }
-                        })()}
-                      </div>
-                    ))}
-                  </div>
-                </Typography>
-              </div>
-            </AccordionDetails>
-          </Accordion>
+                              return (
+                                <p
+                                  className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
+                                  {gradeDescription}
+                                </p>
+                              );
+                            }
+                          })()}
+                        </div>
+                      ))}
+                    </div>
+                  </Typography>
+                </div>
+              </AccordionDetails>
+            </Accordion>
+          )}
         </AccordionDetails>
       </Accordion>
     </div>
