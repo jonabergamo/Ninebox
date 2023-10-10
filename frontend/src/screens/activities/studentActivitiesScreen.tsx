@@ -14,6 +14,8 @@ import {
   Typography,
 } from "@mui/material";
 import { MdExpandMore } from "react-icons/md";
+import { RiGitRepositoryCommitsFill } from "react-icons/ri";
+import StudentActivityAccordion from "@/components/studentActivityAccordion";
 
 type Criterion = {
   id: number;
@@ -41,7 +43,6 @@ export default function StudentActivitiesScreen() {
       );
       setActivityData(response.data);
       setFilteredActivities(response.data);
-      console.log(response.data);
     } catch {
       toast.remove();
       toast.error("Ocorreu um erro inesperado ao carregar as atividades");
@@ -103,107 +104,8 @@ export default function StudentActivitiesScreen() {
 
       <div className="flex flex-col mt-2 text-2xl gap-4">
         {filteredActivities.map((studentActivity, index) => (
-          <div>
-            <Accordion defaultExpanded={false}>
-              <AccordionSummary
-                expandIcon={<MdExpandMore />}
-                aria-controls="panel1a-content"
-                id="panel1a-header">
-                <div className="flex w-full justify-between">
-                  <Typography>
-                    <strong className="text-2xl font-medium">
-                      {studentActivity.activity.name}
-                    </strong>
-                  </Typography>
-                  {!studentActivity.activity_link ? (
-                    <Typography>
-                      <strong className="text-2xl font-medium">PENDENTE</strong>
-                    </Typography>
-                  ) : null}
-                  <Typography>
-                    <strong className="text-gray-500 text-2xl font-medium mr-5">
-                      {formatDate(
-                        new Date(studentActivity.activity.created_at)
-                      )}
-                    </strong>
-                  </Typography>
-                </div>
-              </AccordionSummary>
-              <AccordionDetails className="bg-gray-200">
-                <Accordion defaultExpanded={false}>
-                  <AccordionSummary
-                    expandIcon={<MdExpandMore />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header">
-                    <Typography>
-                      <strong className="text-md font-medium">
-                        Detalhes da atividade
-                      </strong>
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails className="bg-gray-200">
-                    <div className="flex flex-col gap-5">
-                      <Typography>
-                        <strong className="mt-5">Nível da atividade:</strong>
-                        <div className="flex flex-col">
-                          <strong className="text-secondary-color-light">
-                            {studentActivity.activity.level}
-                          </strong>
-                        </div>
-                      </Typography>
-                      <Typography>
-                        <strong>Descrição:</strong>
-                        <br />
-                        {studentActivity.activity.description}
-                      </Typography>
-                      <Typography>
-                        <strong>Critérios:</strong>
-                        <br />
-                        <div className="flex flex-col gap-2">
-                          {studentActivity.activity.criteria.map((c, index) => (
-                            <div className="flex gap-2">
-                              {index + 1}.
-                              <p className="break-all">{c.description}</p>
-                              <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
-                                Peso: {c.weight}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </Typography>
-                      <Typography>
-                        <strong className="mt-5">
-                          Disciplinas envolvidas:
-                        </strong>
-                        <br />
-                        <div className="flex flex-col">
-                          {studentActivity?.activity.subjects.map(
-                            (s, index) => (
-                              <div className="flex gap-2">
-                                {index + 1}.<p>{s.name}</p>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </Typography>
-                      <Typography>
-                        <strong className="mt-5">Nine Boxes:</strong>
-                        <br />
-                        <div className="flex flex-col">
-                          {studentActivity.activity.nine_boxes.map(
-                            (ninebox, index) => (
-                              <div className="flex gap-2">
-                                {index + 1}.<p>{ninebox.description}</p>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </Typography>
-                    </div>
-                  </AccordionDetails>
-                </Accordion>
-              </AccordionDetails>
-            </Accordion>
+          <div key={index}>
+            <StudentActivityAccordion studentActivity={studentActivity} />
           </div>
         ))}
       </div>
