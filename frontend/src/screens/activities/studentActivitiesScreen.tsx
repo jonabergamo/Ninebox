@@ -37,25 +37,24 @@ export default function StudentActivitiesScreen() {
     StudentActivity[]
   >([]);
 
-  const fetchActivities = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/student_activities/?class_obj=${selectedClass?.unique_id}&ordering=${ordering}&student=${user?.info.id}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setActivityData(response.data);
-      setFilteredActivities(response.data);
-    } catch {
-      toast.remove();
-      toast.error("Ocorreu um erro inesperado ao carregar as atividades");
-    }
-  };
-
   useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/student_activities/?class_obj=${selectedClass?.unique_id}&ordering=${ordering}&student=${user?.info.id}`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setActivityData(response.data);
+        setFilteredActivities(response.data);
+      } catch {
+        toast.remove();
+        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      }
+    };
     fetchActivities();
-  }, [selectedClass, user]);
+  }, [selectedClass, user, ordering]);
 
   const filterActivities = () => {
     setFilteredActivities(

@@ -1,5 +1,5 @@
 import { useModal } from "@/context/ModalContext";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
@@ -69,7 +69,7 @@ export default function NewActivityModal() {
     setCriteria(updatedCriteria);
   };
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/students/?classes=${selectedClass?.unique_id}`,
@@ -93,9 +93,9 @@ export default function NewActivityModal() {
         }
       }
     }
-  };
+  }, [selectedClass?.unique_id, selectedClass?.name]);
 
-  const fetchNineboxes = async () => {
+  const fetchNineboxes = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/nineboxes/?class_obj=${selectedClass?.unique_id}`,
@@ -119,9 +119,9 @@ export default function NewActivityModal() {
         }
       }
     }
-  };
+  }, [selectedClass?.unique_id, selectedClass?.name]);
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/subjects/?class_obj=${selectedClass?.unique_id}`,
@@ -155,13 +155,13 @@ export default function NewActivityModal() {
         }
       }
     }
-  };
+  }, [selectedClass?.unique_id, selectedClass?.name, user?.subjects]);
 
   useEffect(() => {
     fetchStudents();
     fetchNineboxes();
     fetchSubjects();
-  }, []);
+  }, [fetchStudents, fetchNineboxes, fetchSubjects]);
 
   interface RequestBody {
     name: string;

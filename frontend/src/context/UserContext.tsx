@@ -5,6 +5,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -46,7 +47,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (!token && !Cookies.get("token")) {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
-  }, [token]);
+  }, [token, router]);
 
   const handleSubmit = (email: string, password: string) => {
     setError("");
@@ -69,7 +70,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       })
       .then((userResponse) => {
         const stored_user: User = userResponse.data[0];
-        console.log(stored_user);
         const user_role = stored_user?.is_teacher
           ? "teachers"
           : stored_user?.is_student
@@ -94,7 +94,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         const simple_user_structured = {
           info: user,
         };
-        console.log(user_structured);
         setUser(user_structured);
         setSelectedClass(user_structured.classes[0]);
         Cookies.set("user", JSON.stringify(simple_user_structured), {
@@ -117,7 +116,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       });
   };
 
-  const fetchUser = () => {
+  const fetchUser = useCallback(() => {
     const storedUser = Cookies.get("user");
     const storedToken = Cookies.get("token");
     const stored_class = Cookies.get("selected_class");
@@ -130,7 +129,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         ? "students"
         : "";
       setUserRole(user_role);
-      console.log(parsed_user);
       axios
         .get(
           `${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${parsed_user.info.id}`,
@@ -139,9 +137,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           }
         )
         .then((res) => {
-          console.log(res.data);
           const { classes, user, nine_boxes, subjects } = res.data;
-          console.log(subjects);
           const user_structure = {
             classes: classes,
             info: user,
@@ -159,24 +155,16 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 (obj: Class) => obj.unique_id === stored_class
               )
             );
-            console.log(
-              user_structure.classes.find(
-                (obj: Class) => obj.unique_id === stored_class
-              )
-            );
           } else {
             setSelectedClass(user_structure.classes[0]);
           }
-
-          console.log(stored_class);
         })
         .catch((error) => {
-          console.log(user);
           console.error(error);
         });
     } else {
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (selectedClass?.unique_id) {
@@ -184,13 +172,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         secure: true,
         sameSite: "strict",
       });
-      console.log(selectedClass?.unique_id);
     }
   }, [selectedClass]);
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const Logout = () => {
     setUser(null);

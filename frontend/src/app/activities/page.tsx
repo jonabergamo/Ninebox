@@ -7,7 +7,7 @@ import StudentNineboxesScreen from "@/screens/nineboxes/studentNineboxesScreen";
 import TeacherActivitesScreen from "@/screens/activities/teacherActivitesScreen";
 import StudentActivitiesScreen from "@/screens/activities/studentActivitiesScreen";
 
-export default function page() {
+export default function ActivityPage() {
   const { token, user, selectedClass } = useUser();
 
   return user?.info.is_teacher ? (

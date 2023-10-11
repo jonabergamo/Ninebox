@@ -119,27 +119,26 @@ export default function NineboxAccordion({ description, id, title }: Props) {
     // Você pode usá-los como achar melhor, talvez definir um estado ou chamar outra função
   }, [nineboxData, selectedStat, selectedPercentil, selectedClass]);
 
-  const fetchNinebox = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/classes/${selectedClass?.unique_id}/get_aggregate_nineboxes/?ninebox=${id}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setNineboxData(response.data.aggregate_nineboxes);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Um erro inesperado aconteceu");
-      }
-    }
-  };
-
   useEffect(() => {
+    const fetchNinebox = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/classes/${selectedClass?.unique_id}/get_aggregate_nineboxes/?ninebox=${id}`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setNineboxData(response.data.aggregate_nineboxes);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Um erro inesperado aconteceu");
+        }
+      }
+    };
     fetchNinebox();
-  }, [user]);
+  }, [user, selectedClass, id]);
 
   return (
     <div>
