@@ -164,7 +164,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         });
     } else {
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (selectedClass?.unique_id) {
