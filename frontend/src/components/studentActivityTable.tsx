@@ -62,7 +62,6 @@ export default function StudentActivityTable({
         );
         setData(formatedData);
         setFilteredStudentActivities(formatedData);
-        console.log(response.data);
       } catch {
         toast.remove();
         toast.error("Ocorreu um erro inesperado ao carregar as atividades");

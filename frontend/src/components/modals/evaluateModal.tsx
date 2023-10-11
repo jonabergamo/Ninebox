@@ -40,7 +40,6 @@ export default function EvaluateModal() {
         toast.remove();
         toast.success("Atividade corrigida com sucesso!");
       } else {
-        console.log(response.data);
       }
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "response" in error) {
@@ -74,9 +73,7 @@ export default function EvaluateModal() {
     }
   };
 
-  useEffect(() => {
-    console.log(grades);
-  }, [grades]);
+
 
   return (
     <div className="flex flex-col gap-2 px-8 pb-5 text-primary-color-dark relative">

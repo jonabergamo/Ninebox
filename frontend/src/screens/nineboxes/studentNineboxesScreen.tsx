@@ -37,7 +37,6 @@ export default function StudentNineboxesScreen() {
           }
         );
         setStudentNineboxes(response.data);
-        console.log(response.data);
       } catch {
         toast.remove();
         toast.error("Ocorreu um erro inesperado ao carregar as atividades");

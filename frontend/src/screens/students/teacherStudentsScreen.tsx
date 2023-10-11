@@ -24,7 +24,6 @@ export default function TeacherStudentsScreen() {
           }
         );
         setStudentsData(response.data);
-        console.log(response.data);
       } catch {
         toast.error("Ocorreu um erro inesperado ao carregar os estudantes");
       }
