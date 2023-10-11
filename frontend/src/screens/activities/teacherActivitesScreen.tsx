@@ -1,3 +1,4 @@
+"use client";
 import ActivityAccordion from "@/components/activityAccordion";
 import { useModal } from "@/context/ModalContext";
 import { useUser } from "@/context/UserContext";
@@ -5,14 +6,9 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "js-cookie";
-import { Nine_box, Subject, Activity } from "@/types";
+import { Activity } from "@/types";
 import toast from "react-hot-toast";
 
-type Criterion = {
-  id: number;
-  description: string;
-  weight: number;
-};
 
 export default function TeacherActivitesScreen() {
   const { toggleModal } = useModal();

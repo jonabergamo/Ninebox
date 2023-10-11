@@ -1,31 +1,16 @@
-import ActivityAccordion from "@/components/activityAccordion";
+"use client";
 import { useModal } from "@/context/ModalContext";
 import { useUser } from "@/context/UserContext";
 import axios from "axios";
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "js-cookie";
-import { Nine_box, Subject, Activity, StudentActivity } from "@/types";
+import { StudentActivity } from "@/types";
 import toast from "react-hot-toast";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Typography,
-} from "@mui/material";
-import { MdExpandMore } from "react-icons/md";
-import { RiGitRepositoryCommitsFill } from "react-icons/ri";
 import LoadingScreen from "@/app/loadingScreen";
 
 const StudentActivityAccordion = lazy(
   () => import("@/components/studentActivityAccordion")
 );
-
-type Criterion = {
-  id: number;
-  description: string;
-  weight: number;
-};
 
 export default function StudentActivitiesScreen() {
   const { toggleModal } = useModal();
@@ -98,13 +83,17 @@ export default function StudentActivitiesScreen() {
       </div>
 
       <div className="flex flex-col mt-2 text-2xl gap-4">
-        {filteredActivities.map((studentActivity, index) => (
-          <div key={index}>
-            <Suspense fallback={<LoadingScreen />}>
-              <StudentActivityAccordion studentActivity={studentActivity} />
-            </Suspense>
-          </div>
-        ))}
+        {activityData ? (
+          filteredActivities.map((studentActivity, index) => (
+            <div key={index}>
+              <Suspense fallback={<LoadingScreen />}>
+                <StudentActivityAccordion studentActivity={studentActivity} />
+              </Suspense>
+            </div>
+          ))
+        ) : (
+          <LoadingScreen />
+        )}
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { useUser } from "@/context/UserContext";
 import { FaSpellCheck } from "react-icons/fa6";
 import { IoMdDoneAll } from "react-icons/io";
 import { FaWindowClose } from "react-icons/fa";
+import { RiShareBoxFill } from "react-icons/ri";
 
 type StudentActivityTableProps = {
   activity: Activity;
@@ -168,13 +169,24 @@ export default function StudentActivityTable({
                       Corrigir
                     </button>
                   ) : (
-                    <button
-                      disabled
-                      className="flex text-md p-2 gap-2  h-8 rounded-md bg-gray-500 transition-all items-center text-white justify-center align-middle"
-                      title="Corrigida">
-                      <IoMdDoneAll />
-                      Corrigida
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        title="Abrir atividade"
+                        onClick={() => {
+                          window.open(rowData.activity_link, "__blank__");
+                        }}
+                        className={`flex text-white items-center gap-2  rounded-sm  transition-all duration-300  bg-secondary-color-light hover:scale-105 
+                        px-2 py-1`}>
+                        <RiShareBoxFill />
+                      </button>
+                      <button
+                        disabled
+                        className="flex text-md p-2 gap-2  h-8 rounded-md bg-gray-500 transition-all items-center text-white justify-center align-middle"
+                        title="Corrigida">
+                        <IoMdDoneAll />
+                        Corrigida
+                      </button>
+                    </div>
                   )}
                 </span>
               );
