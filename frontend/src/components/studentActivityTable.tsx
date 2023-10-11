@@ -41,36 +41,34 @@ export default function StudentActivityTable({
     return `${day}/${month}/${year}`;
   }
 
-  const fetchStudentsActivities = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/activities/${activity.id}/student_activities/`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      const formatedData = response.data.map(
-        (item: StudentActivity, index: number) => ({
-          ...item,
-          index: index + 1,
-          final_grade: item.final_grade ? item.final_grade : "Não gerada",
-          correction_date: item.correction_date
-            ? formatDate(item.correction_date)
-            : "Não corrigida",
-        })
-      );
-      setData(formatedData);
-      setFilteredStudentActivities(formatedData);
-      console.log(response.data);
-    } catch {
-      toast.remove();
-      toast.error("Ocorreu um erro inesperado ao carregar as atividades");
-    }
-  };
-
   useEffect(() => {
+    const fetchStudentsActivities = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/activities/${activity.id}/student_activities/`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        const formatedData = response.data.map(
+          (item: StudentActivity, index: number) => ({
+            ...item,
+            index: index + 1,
+            final_grade: item.final_grade ? item.final_grade : "Não gerada",
+            correction_date: item.correction_date
+              ? formatDate(item.correction_date)
+              : "Não corrigida",
+          })
+        );
+        setData(formatedData);
+        setFilteredStudentActivities(formatedData);
+      } catch {
+        toast.remove();
+        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      }
+    };
     fetchStudentsActivities();
-  }, [selectedClass, user]);
+  }, [selectedClass, user, activity.id]);
 
   const filterStudentActivities = data.filter(
     (studentActivity) =>

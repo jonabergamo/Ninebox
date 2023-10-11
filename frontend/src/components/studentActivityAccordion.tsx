@@ -58,7 +58,6 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
 
       if (response.status === 200) {
         toast.success("Atividade entregue com sucesso!");
-        setActivity_link("");
         fetchUser();
       }
     } catch (error: unknown) {
@@ -186,7 +185,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                   <br />
                   <div className="flex flex-col gap-2">
                     {studentActivity.activity.criteria.map((c, index) => (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2" key={c.id}>
                         {index + 1}.<p className="break-all">{c.description}</p>
                         <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
                           Peso: {c.weight}
@@ -200,7 +199,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                   <br />
                   <div className="flex flex-col">
                     {studentActivity?.activity.subjects.map((s, index) => (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2" key={index}>
                         {index + 1}.<p>{s.name}</p>
                       </div>
                     ))}
@@ -212,7 +211,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                   <div className="flex flex-col">
                     {studentActivity.activity.nine_boxes.map(
                       (ninebox, index) => (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" key={index}>
                           {index + 1}.<p>{ninebox.description}</p>
                         </div>
                       )
@@ -259,7 +258,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                     <br />
                     <div className="flex flex-col gap-2">
                       {studentActivity.activity.criteria.map((c, index) => (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" key={index}>
                           {index + 1}.
                           <p className="break-all">{c.description}</p>
                           <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">

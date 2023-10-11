@@ -122,7 +122,7 @@ export default function StudentHomeScreen() {
     if (!token && !Cookies.get("token")) {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
-  }, [token]);
+  }, [token, router]);
 
   useEffect(() => {
     const fetchData = async () => {

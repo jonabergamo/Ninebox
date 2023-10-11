@@ -22,26 +22,24 @@ export default function TeacherActivitesScreen() {
   const [filter, setFilter] = useState("");
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
 
-  const fetchActivities = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/activities/?class_obj=${selectedClass?.unique_id}&ordering=${ordering}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-      setActivityData(response.data);
-      setFilteredActivities(response.data);
-      console.log(response.data);
-    } catch {
-      toast.remove();
-      toast.error("Ocorreu um erro inesperado ao carregar as atividades");
-    }
-  };
-
   useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/activities/?class_obj=${selectedClass?.unique_id}&ordering=${ordering}`,
+          {
+            headers: { Authorization: `Token ${Cookies.get("token")}` },
+          }
+        );
+        setActivityData(response.data);
+        setFilteredActivities(response.data);
+      } catch {
+        toast.remove();
+        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      }
+    };
     fetchActivities();
-  }, [selectedClass, user]);
+  }, [selectedClass, user, ordering]);
 
   const filterActivities = () => {
     setFilteredActivities(
