@@ -3,17 +3,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import Cookies from "js-cookie";
-import Image from "next/image";
-import AsideBar from "@/components/asideBar";
-import UserInfo from "@/components/userInfo";
-import ClassSwitch from "@/components/classSwitch";
-import { FaBookOpen } from "react-icons/fa";
 import axios from "axios";
-import NineBox from "@/components/nineBox";
 import LoadingScreen from "@/app/loadingScreen";
 import { BiCopy } from "react-icons/bi";
 import toast from "react-hot-toast";
-import { IoAlert } from "react-icons/io5";
 
 interface Percentiles {
   "0": number;
