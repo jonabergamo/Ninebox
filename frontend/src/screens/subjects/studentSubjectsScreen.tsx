@@ -93,7 +93,7 @@ export default function StudentSubjectsScreen() {
                   </Typography>
                   <Typography>
                     <strong>Média na disciplina: </strong>
-                    {subject.average_grade.toFixed(2) || "Sem registro"}
+                    {subject.average_grade && subject.average_grade.toFixed(2) || "Sem registro"}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
