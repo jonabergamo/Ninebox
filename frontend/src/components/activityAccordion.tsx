@@ -1,4 +1,5 @@
 "use client";
+import { lazy, Suspense, useEffect, useState } from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -7,14 +8,13 @@ import { BiExpand } from "react-icons/bi";
 import { MdDeleteForever, MdExpandMore } from "react-icons/md";
 import { useModal } from "@/context/ModalContext";
 import { PiChalkboardTeacherFill } from "react-icons/pi";
-import { useEffect, useState } from "react";
 import { selectClasses } from "@mui/material";
 import axios from "axios";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { useUser } from "@/context/UserContext";
 import { Activity, Nine_box, Subject } from "@/types";
-import StudentActivityTable from "./studentActivityTable";
+const StudentActivityTable = lazy(() => import("./studentActivityTable"));
 
 interface Props {
   activity: Activity;
@@ -179,7 +179,9 @@ export default function ActivityAccordion({ activity }: Props) {
               </Typography>
             </AccordionSummary>
             <AccordionDetails className="bg-gray-200">
-              <StudentActivityTable activity={activity} />
+              <Suspense fallback="Carregando...">
+                <StudentActivityTable activity={activity} />
+              </Suspense>
             </AccordionDetails>
           </Accordion>
         </AccordionDetails>

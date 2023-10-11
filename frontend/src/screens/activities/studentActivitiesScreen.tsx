@@ -2,7 +2,7 @@ import ActivityAccordion from "@/components/activityAccordion";
 import { useModal } from "@/context/ModalContext";
 import { useUser } from "@/context/UserContext";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "js-cookie";
 import { Nine_box, Subject, Activity, StudentActivity } from "@/types";
@@ -15,7 +15,11 @@ import {
 } from "@mui/material";
 import { MdExpandMore } from "react-icons/md";
 import { RiGitRepositoryCommitsFill } from "react-icons/ri";
-import StudentActivityAccordion from "@/components/studentActivityAccordion";
+import LoadingScreen from "@/app/loadingScreen";
+
+const StudentActivityAccordion = lazy(
+  () => import("@/components/studentActivityAccordion")
+);
 
 type Criterion = {
   id: number;
@@ -97,7 +101,9 @@ export default function StudentActivitiesScreen() {
       <div className="flex flex-col mt-2 text-2xl gap-4">
         {filteredActivities.map((studentActivity, index) => (
           <div key={index}>
-            <StudentActivityAccordion studentActivity={studentActivity} />
+            <Suspense fallback={<LoadingScreen />}>
+              <StudentActivityAccordion studentActivity={studentActivity} />
+            </Suspense>
           </div>
         ))}
       </div>
