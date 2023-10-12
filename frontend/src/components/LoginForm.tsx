@@ -8,16 +8,20 @@ import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import LoadingScreen from "@/app/loadingScreen";
+import { Ping } from "@uiball/loaders";
 
 export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { setToken, token, setUser, user, handleSubmit, error } = useUser();
   const router = useRouter();
 
   const Login = async () => {
+    setLoading(true);
     handleSubmit(email, password);
   };
 
@@ -65,14 +69,22 @@ export default function LoginForm() {
           Esqueceu a senha?
         </a>
       </div>
-      <div className="text-center md:text-left">
-        <button
-          className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
-          type="submit"
-          onClick={Login}>
-          Entrar
-        </button>
-      </div>
+      {!loading ? (
+        <div className="text-center md:text-left">
+          (
+          <button
+            className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
+            type="submit"
+            onClick={Login}>
+            Entrar
+          </button>
+          )
+        </div>
+      ) : (
+        <div className="m-5 w-20">
+          <Ping color="red" />
+        </div>
+      )}
     </div>
   );
 }
