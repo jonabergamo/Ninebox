@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import { StudentActivity } from "@/types";
 import toast from "react-hot-toast";
 import LoadingScreen from "@/app/loadingScreen";
+import { IoMdSad } from "react-icons/io";
+import { MdCancel } from "react-icons/md";
 
 const StudentActivityAccordion = lazy(
   () => import("@/components/studentActivityAccordion")
@@ -51,6 +53,10 @@ export default function StudentActivitiesScreen() {
     );
   };
 
+  useEffect(() => {
+    filterActivities();
+  }, [filter]);
+
   function formatDate(date: Date): string {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 porque getMonth() começa do 0 para janeiro
@@ -58,6 +64,15 @@ export default function StudentActivitiesScreen() {
 
     return `${day}/${month}/${year}`;
   }
+
+  const NoActivities = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem atividades
+    </span>
+  );
 
   return (
     <div>
@@ -67,33 +82,41 @@ export default function StudentActivitiesScreen() {
         </div>
         <div className="flex gap-3 items-center">
           <input
+            value={filter}
             className="px-4 py-2 h-9 rounded outline-none text-black focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
             placeholder="Filtrar atividades..."
             onChange={(e) => {
               setFilter(e.target.value || "");
             }}
           />
-          <button
-            className=" bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-            // onClick={handleAddActivity}
-            onClick={filterActivities}>
-            Buscar
-          </button>
+          {filter && (
+            <button
+              className=" bg-secondary-color-light h-9 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+              // onClick={handleAddActivity}
+              onClick={() => {
+                setFilter("");
+              }}>
+              <MdCancel />
+            </button>
+          )}
         </div>
+        {filter && (
+          <p>
+            Resultados para: <strong>{filter}</strong>
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col mt-2 text-2xl gap-4">
-        {activityData ? (
-          filteredActivities.map((studentActivity, index) => (
-            <div key={index}>
-              <Suspense fallback={<LoadingScreen />}>
-                <StudentActivityAccordion studentActivity={studentActivity} />
-              </Suspense>
-            </div>
-          ))
-        ) : (
-          <LoadingScreen />
-        )}
+        {filteredActivities.length > 0
+          ? filteredActivities.map((studentActivity, index) => (
+              <div key={index}>
+                <Suspense fallback={<LoadingScreen />}>
+                  <StudentActivityAccordion studentActivity={studentActivity} />
+                </Suspense>
+              </div>
+            ))
+          : NoActivities}
       </div>
     </div>
   );

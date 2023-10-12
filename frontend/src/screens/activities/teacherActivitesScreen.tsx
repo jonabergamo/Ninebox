@@ -8,7 +8,9 @@ import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "js-cookie";
 import { Activity } from "@/types";
 import toast from "react-hot-toast";
-
+import { FaSadTear } from "react-icons/fa";
+import { IoMdSad } from "react-icons/io";
+import { MdCancel } from "react-icons/md";
 
 export default function TeacherActivitesScreen() {
   const { toggleModal } = useModal();
@@ -45,6 +47,19 @@ export default function TeacherActivitesScreen() {
     );
   };
 
+  useEffect(() => {
+    filterActivities();
+  }, [filter]);
+
+  const NoActivities = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem atividades
+    </span>
+  );
+
   return (
     <div>
       <div className="flex flex-col gap-2">
@@ -61,27 +76,39 @@ export default function TeacherActivitesScreen() {
         </div>
         <div className="flex gap-3 items-center">
           <input
+            value={filter}
             className="px-4 py-2 h-9 rounded outline-none text-black focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
             placeholder="Filtrar atividades..."
             onChange={(e) => {
               setFilter(e.target.value || "");
             }}
           />
-          <button
-            className=" bg-secondary-color-light hover:brightness-90 text-white font-bold py-2 px-4 rounded"
-            // onClick={handleAddActivity}
-            onClick={filterActivities}>
-            Buscar
-          </button>
+          {filter && (
+            <button
+              className=" bg-secondary-color-light h-9 hover:brightness-90 text-white font-bold py-2 px-4 rounded"
+              // onClick={handleAddActivity}
+              onClick={() => {
+                setFilter("");
+              }}>
+              <MdCancel />
+            </button>
+          )}
         </div>
+        {filter && (
+          <p>
+            Resultados para: <strong>{filter}</strong>
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col mt-2 text-2xl gap-4">
-        {filteredActivities.map((activity, index) => (
-          <div key={index}>
-            <ActivityAccordion activity={activity} />
-          </div>
-        ))}
+        {filteredActivities.length > 0
+          ? filteredActivities.map((activity, index) => (
+              <div key={index}>
+                <ActivityAccordion activity={activity} />
+              </div>
+            ))
+          : NoActivities}
       </div>
     </div>
   );

@@ -8,10 +8,13 @@ import { MdSpaceDashboard, MdSubject } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import Image from "next/image";
 import { CgMenuGridR } from "react-icons/cg";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AsideBar() {
   const { user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
 
   interface IconProps {
     iconName: string | null;
@@ -92,15 +95,18 @@ export default function AsideBar() {
               ? "student"
               : ""
           ]?.map((icon, index) => (
-            <div
-              key={index}
-              className="text-3xl cursor-pointer bg-secondary-color-light hover:bg-secondary-color-dark p-2 rounded-full transition-all hover:scale-105"
-              onClick={() => {
-                router.replace(icon.to);
-              }}
-              title={icon.title}>
-              {icon.iconImage || icon.iconName}
-            </div>
+            <Link href={icon.to} key={index}>
+              <div
+                className={`text-3xl cursor-pointer p-2 rounded-full transition-all hover:scale-105 
+                  ${
+                    pathname === icon.to
+                      ? "bg-secondary-color-light hover:bg-secondary-color-dark ring-2 ring-offset-2 ring-secondary-color-light  ring-offset-primary-color-light dark:ring-offset-primary-color-dark"
+                      : "bg-secondary-color-light hover:bg-secondary-color-dark"
+                  }`}
+                title={icon.title}>
+                {icon.iconImage || icon.iconName}
+              </div>
+            </Link>
           ))}
         </aside>
       </div>
