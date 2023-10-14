@@ -22,7 +22,19 @@ export default function LoginForm() {
 
   const Login = async () => {
     setLoading(true);
-    handleSubmit(email, password);
+
+    try {
+      const result = await handleSubmit(email, password); // agora ele aguardará a Promise resolver
+      if (result) {
+        // Seu código para login bem sucedido
+      } else {
+        // Seu código para login mal sucedido
+        setLoading(false);
+      }
+    } catch (error) {
+      // Tratamento de erro
+      setLoading(false);
+    }
   };
 
   return (
