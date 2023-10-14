@@ -32,7 +32,7 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  return (
+  return !user?.info ? (
     <section className="h-3/4 flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0">
       <div className="md:w-1/3 max-w-sm flex flex-col items-center gap-5 ">
         <Image
@@ -48,5 +48,5 @@ export default function LoginPage() {
       </div>
       <LoginForm />
     </section>
-  );
+  ) : null;
 }
