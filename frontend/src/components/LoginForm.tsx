@@ -83,14 +83,14 @@ export default function LoginForm() {
       </div>
       {!loading ? (
         <div className="text-center md:text-left">
-          (
+          
           <button
             className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
             type="submit"
             onClick={Login}>
             Entrar
           </button>
-          )
+          
         </div>
       ) : (
         <div className="m-5 w-20">
