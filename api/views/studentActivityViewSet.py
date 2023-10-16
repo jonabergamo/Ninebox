@@ -10,8 +10,11 @@ from drf_yasg.utils import swagger_auto_schema
 from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter
+from api.permissions import IsTeacherPermission
 
 
+class SubmitActivityInput(serializers.Serializer):
+    activity_link = serializers.URLField()
 
 
 class GradeInputSerializer(serializers.Serializer):
@@ -28,7 +31,17 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
     serializer_class = StudentActivitySerializer
     filter_backends = (filters.DjangoFilterBackend,OrderingFilter)
     filterset_fields = "__all__"
-    permission_classes = [IsAuthenticated]
+    
+    
+    def get_permissions(self):
+        if self.action == 'list':
+            self.permission_classes = [IsAuthenticated,]
+        elif self.action == 'submit_activity':
+            self.permission_classes = [IsAuthenticated,]
+        else:
+            self.permission_classes = [IsTeacherPermission,]
+        return [permission() for permission in self.permission_classes]
+
 
     @swagger_auto_schema(
         method="post",
@@ -93,3 +106,23 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+        
+    @swagger_auto_schema(
+        method="patch",
+        request_body=SubmitActivityInput,
+        operation_description="Envia o link da atividade de um aluno.",
+    )
+    @action(detail=True, methods=["PATCH"], url_path="submit_activity")
+    def submit_activity(self, request, pk=None):
+        student_activity = get_object_or_404(StudentActivity, id=pk)
+        
+        # Verifique se o usuário tem permissão para atualizar essa atividade específica
+        # (Por exemplo, verificar se request.user == student_activity.student)
+        
+        activity_link = request.data.get("activity_link")
+        if activity_link:
+            student_activity.activity_link = activity_link
+            student_activity.save()
+            return Response({"status": "Link da atividade atualizado com sucesso."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Link da atividade não fornecido."}, status=status.HTTP_400_BAD_REQUEST)

@@ -48,14 +48,14 @@ class StudentActivity(models.Model):
         else:
             for evaluation in evaluations:
                 numerical_grade = self.convert_grade_to_number(evaluation.grade)
-                weight = (
-                    evaluation.criteria.weight
-                )  # Assume que o campo 'weight' está no modelo Evaluation
+                weight = evaluation.criteria.weight  # Assume que o campo 'weight' está no modelo Evaluation
+                weight = weight if weight > 0 else 1  # Se o peso é 0, considere-o como 1
                 total_weighted_grade += numerical_grade * weight
                 total_weight += weight
 
-            self.final_grade = np.round((
-                total_weighted_grade / total_weight if total_weight > 0 else None
-            ), 2)
+            if total_weight > 0:
+                self.final_grade = np.round(total_weighted_grade / total_weight, 2)
+            else:
+                self.final_grade = None  # Aqui é onde você pode definir o que acontece se total_weight for 0
 
         self.save()
