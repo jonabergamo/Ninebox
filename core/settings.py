@@ -33,12 +33,14 @@ DEBUG = bool(int(os.getenv("DEBUG", 1)))
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "10.109.25.120"
+    "10.109.25.120",
+    "jonabergamo.pythonanywhere.com"
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
     'http://10.109.25.120:3000',
+    "https://ninebox-psi.vercel.app"
 ]
 
 # E-mail settings
