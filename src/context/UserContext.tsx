@@ -43,9 +43,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [error, setError] = useState("");
   const router = useRouter();
 
-
-
-
+  useEffect(() => {
+    if (!token && !Cookies.get("token")) {
+      router.push("/login"); // Redireciona para a página de login se o token não existir
+    }
+  }, [token]);
 
   const handleSubmit = (email: string, password: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -125,7 +127,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     });
   };
 
-  const fetchUser = useCallback(() => {
+  const fetchUser = () => {
     const storedUser = Cookies.get("user");
     const storedToken = Cookies.get("token");
     const stored_class = Cookies.get("selected_class");
@@ -173,7 +175,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         });
     } else {
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (selectedClass?.unique_id) {
@@ -186,7 +188,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]);
+  }, []);
 
   const Logout = () => {
     setUser(null);

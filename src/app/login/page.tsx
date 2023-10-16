@@ -26,6 +26,11 @@ export default function LoginPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (user?.info || Cookies.get("user")) {
+      router.push("/"); // Redireciona para a página inicial se o token existir
+    }
+  }, [user]);
 
   return !user?.info ? (
     <section className="h-3/4 flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0">
