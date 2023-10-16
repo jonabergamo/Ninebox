@@ -47,7 +47,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (!token && !Cookies.get("token")) {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
-  }, [token, router]);
+  }, [token]);
+
+
+
   const handleSubmit = (email: string, password: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setError("");
