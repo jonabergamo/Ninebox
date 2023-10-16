@@ -4,11 +4,7 @@ import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Alert } from "@material-tailwind/react";
 import { IoAlertCircleSharp } from "react-icons/io5";
-import axios from "axios";
 import { useUser } from "@/context/UserContext";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import LoadingScreen from "@/app/loadingScreen";
 import { Ping } from "@uiball/loaders";
 
 export default function LoginForm() {
@@ -17,11 +13,23 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { setToken, token, setUser, user, handleSubmit, error } = useUser();
-  const router = useRouter();
+  const { handleSubmit, error } = useUser();
 
-  const Login = () => {
-    handleSubmit(email, password);
+  const Login = async () => {
+    setLoading(true);
+
+    try {
+      const result = await handleSubmit(email, password); // agora ele aguardará a Promise resolver
+      if (result) {
+        // Seu código para login bem sucedido
+      } else {
+        // Seu código para login mal sucedido
+        setLoading(false);
+      }
+    } catch (error) {
+      // Tratamento de erro
+      setLoading(false);
+    }
   };
 
   return (
