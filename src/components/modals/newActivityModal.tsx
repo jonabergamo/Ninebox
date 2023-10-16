@@ -34,7 +34,7 @@ export default function NewActivityModal() {
   const [activityName, setActivityName] = useState("");
   const [level, setLevel] = useState(0);
   const [criteria, setCriteria] = useState<Criterion[]>([
-    { description: "", weight: 0 },
+    { description: "", weight: 1 },
   ]);
   const [nineboxData, setNineboxData] = useState<Nine_box[]>([]);
   const [selectedNineboxes, setSelectedNineboxes] = useState<Nine_box[]>([]);
@@ -317,13 +317,17 @@ export default function NewActivityModal() {
           <label className="flex flex-col w-3/12">
             Peso:
             <input
+              min="1"
               className="px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
               type="number"
               value={criterion.weight}
               onChange={(e) => {
-                const newCriteria = [...criteria];
-                newCriteria[index].weight = Number(e.target.value);
-                setCriteria(newCriteria);
+                const value = Number(e.target.value);
+                if (value >= 1) {
+                  const newCriteria = [...criteria];
+                  newCriteria[index].weight = value;
+                  setCriteria(newCriteria);
+                }
               }}
             />
           </label>
