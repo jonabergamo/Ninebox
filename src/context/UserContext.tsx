@@ -48,83 +48,82 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       router.push("/login"); // Redireciona para a página de login se o token não existir
     }
   }, [token, router]);
-
-  const handleSubmit = async (
-    email: string,
-    password: string
-  ): Promise<boolean> => {
-    try {
+  const handleSubmit = (email: string, password: string): Promise<boolean> => {
+    return new Promise((resolve) => {
       setError("");
 
-      const authResponse = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/token-auth/`,
-        {
+      axios
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
           username: email,
           password: password,
-        }
-      );
+        })
+        .then((authResponse) => {
+          const data_token = authResponse.data.token;
+          if (data_token) {
+            setToken(data_token);
+            Cookies.set("token", data_token, {
+              secure: true,
+              sameSite: "strict",
+            });
+          }
 
-      const data_token = authResponse.data.token;
-      setToken(data_token);
-      Cookies.set("token", data_token, { secure: true, sameSite: "strict" });
+          return axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
+            {
+              headers: { Authorization: `Token ${data_token}` },
+            }
+          );
+        })
+        .then((userResponse) => {
+          const stored_user: User = userResponse.data[0];
+          const user_role = stored_user?.is_teacher
+            ? "teachers"
+            : stored_user?.is_student
+            ? "students"
+            : "";
+          setUserRole(user_role);
 
-      // Segunda requisição: Obter o usuário
-      const userResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
-        {
-          headers: { Authorization: `Token ${data_token}` },
-        }
-      );
+          return axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${stored_user.id}`,
+            {
+              headers: { Authorization: `Token ${Cookies.get("token")}` },
+            }
+          );
+        })
+        .then((roleResponse) => {
+          const { classes, user, nine_boxes, subjects } = roleResponse.data;
+          const user_structured = {
+            classes: classes,
+            info: user,
+            nine_boxes,
+            subjects,
+          };
+          const simple_user_structured = {
+            info: user,
+          };
+          setUser(user_structured);
+          setSelectedClass(user_structured.classes[0]);
+          Cookies.set("user", JSON.stringify(simple_user_structured), {
+            secure: true,
+            sameSite: "strict",
+          });
 
-      const stored_user: User = userResponse.data[0];
-      const user_role = stored_user?.is_teacher
-        ? "teachers"
-        : stored_user?.is_student
-        ? "students"
-        : "";
-      setUserRole(user_role);
-
-      // Terceira requisição: Obter dados específicos com base na role
-      const roleResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${stored_user.id}`,
-        {
-          headers: { Authorization: `Token ${Cookies.get("token")}` },
-        }
-      );
-
-      const { classes, user, nine_boxes, subjects } = roleResponse.data;
-      const user_structured = {
-        classes: classes,
-        info: user,
-        nine_boxes,
-        subjects,
-      };
-      const simple_user_structured = {
-        info: user,
-      };
-      setUser(user_structured);
-      setSelectedClass(user_structured.classes[0]);
-      Cookies.set("user", JSON.stringify(simple_user_structured), {
-        secure: true,
-        sameSite: "strict",
-      });
-
-      setError("");
-      toast.success("Login bem sucedido");
-      return true;
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response) {
-        if (err.response.status === 400) {
-          setError("Email ou senha inválidos.");
-        } else {
-          setError("Ocorreu um erro. Tente novamente.");
-        }
-      } else {
-        setError("Ocorreu um erro desconhecido.");
-      }
-
-      return false;
-    }
+          toast.success("Login bem sucedido");
+          resolve(true);
+        })
+        .catch((err: unknown) => {
+          if (axios.isAxiosError(err) && err.response) {
+            if (err.response.status === 400) {
+              setError("Email ou senha inválidos.");
+            } else {
+              setError("Ocorreu um erro. Tente novamente.");
+            }
+          } else {
+            setError("Ocorreu um erro desconhecido.");
+          }
+          resolve(false);
+        });
+    });
   };
 
   const fetchUser = useCallback(() => {
