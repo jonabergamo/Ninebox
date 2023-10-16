@@ -32,7 +32,11 @@ const GRADE_MAPPING: { [key: string]: GradeInfo } = {
 
 export default function StudentActivityAccordion({ studentActivity }: Props) {
   const [activity_link, setActivity_link] = useState<string>("");
-  const { fetchUser } = useUser();
+  const { fetchUser, user } = useUser();
+
+  useEffect(() => {
+    setActivity_link('');
+  }, [user]);
 
   function formatDate(date: Date): string {
     const day = String(date.getDate()).padStart(2, "0");
@@ -45,7 +49,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
   const handleSendActivity = async () => {
     try {
       const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/student_activities/${studentActivity.id}/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/student_activities/${studentActivity.id}/submit_activity/`,
         {
           activity_link,
         },
