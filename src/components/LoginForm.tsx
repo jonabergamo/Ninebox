@@ -20,21 +20,8 @@ export default function LoginForm() {
   const { setToken, token, setUser, user, handleSubmit, error } = useUser();
   const router = useRouter();
 
-  const Login = async () => {
-    setLoading(true);
-
-    try {
-      const result = await handleSubmit(email, password); // agora ele aguardará a Promise resolver
-      if (result) {
-        // Seu código para login bem sucedido
-      } else {
-        // Seu código para login mal sucedido
-        setLoading(false);
-      }
-    } catch (error) {
-      // Tratamento de erro
-      setLoading(false);
-    }
+  const Login = () => {
+    handleSubmit(email, password);
   };
 
   return (
@@ -83,14 +70,12 @@ export default function LoginForm() {
       </div>
       {!loading ? (
         <div className="text-center md:text-left">
-          
           <button
             className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
             type="submit"
             onClick={Login}>
             Entrar
           </button>
-          
         </div>
       ) : (
         <div className="m-5 w-20">
