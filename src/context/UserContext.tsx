@@ -127,7 +127,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     });
   };
 
-  const fetchUser = () => {
+  const fetchUser = useCallback(() => {
     const storedUser = Cookies.get("user");
     const storedToken = Cookies.get("token");
     const stored_class = Cookies.get("selected_class");
@@ -175,7 +175,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         });
     } else {
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (selectedClass?.unique_id) {
@@ -188,7 +188,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const Logout = () => {
     setUser(null);
