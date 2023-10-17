@@ -11,6 +11,7 @@ from django_filters import rest_framework as filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter
 from api.permissions import IsTeacherPermission
+from datetime import timedelta
 
 
 class SubmitActivityInput(serializers.Serializer):
@@ -90,7 +91,7 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
 
         # Atualizando o StudentActivity
         student_activity.evaluations.set(evaluations)
-        student_activity.correction_date = timezone.now()
+        student_activity.correction_date = timezone.now() + timedelta(days=1)
         student_activity.update_final_grade()  # Adicione essa linha
         # Atualizando todas as StudentNineBoxes associadas
         for student_ninebox_instance in student_ninebox_instances:
