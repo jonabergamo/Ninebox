@@ -14,6 +14,7 @@ import LoadingScreen from "@/app/loadingScreen";
 import { BiCopy } from "react-icons/bi";
 import toast from "react-hot-toast";
 import { IoAlert } from "react-icons/io5";
+import Link from "next/link";
 
 interface Percentiles {
   "0": number;
@@ -262,13 +263,11 @@ export default function TeacherHomeScreen() {
               </label>
               <label>
                 Sua turma não possui nineboxes, clique{" "}
-                <label
-                  onClick={() => {
-                    router.push("/nineboxes");
-                  }}
+                <Link
+                  href={"/nineboxes"}
                   className="font-bold underline-offset-auto cursor-pointer ">
                   aqui
-                </label>{" "}
+                </Link>{" "}
                 para criar{" "}
               </label>
             </div>
