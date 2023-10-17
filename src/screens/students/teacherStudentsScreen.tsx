@@ -24,8 +24,18 @@ export default function TeacherStudentsScreen() {
           }
         );
         setStudentsData(response.data);
-      } catch {
-        toast.error("Ocorreu um erro inesperado ao carregar os estudantes");
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const e = error as { response: { status: number } };
+        } else {
+          toast.error(
+            "Ocorreu um erro desconhecido ao carregar os estudantes."
+          );
+        }
       }
     };
     fetchStudents();

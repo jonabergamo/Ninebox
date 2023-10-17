@@ -3,10 +3,21 @@ import { useModal } from "@/context/ModalContext";
 import { useUser } from "@/context/UserContext";
 import React from "react";
 import { AiOutlinePlus } from "react-icons/ai";
+import { IoMdSad } from "react-icons/io";
 
 export default function TeacherNineboxesScreen() {
   const { toggleModal } = useModal();
   const { user, selectedClass } = useUser();
+
+  const NoNineBoxes = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem Nineboxes
+    </span>
+  );
+
   return (
     <div>
       <div className="flex gap-2">
@@ -21,11 +32,13 @@ export default function TeacherNineboxesScreen() {
         </div>
       </div>
       <div className="flex flex-wrap mt-2 text-2xl gap-4">
-        {selectedClass?.nineboxes?.map((ninebox, index) => (
-          <div key={index}>
-            <NineboxAccordion title={ninebox.description} id={ninebox.id}/>
-          </div>
-        ))}
+        {selectedClass?.nineboxes?.length !== 0
+          ? selectedClass?.nineboxes?.map((ninebox, index) => (
+              <div key={index}>
+                <NineboxAccordion title={ninebox.description} id={ninebox.id} />
+              </div>
+            ))
+          : NoNineBoxes}
       </div>
     </div>
   );

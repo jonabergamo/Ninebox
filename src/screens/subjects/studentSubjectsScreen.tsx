@@ -12,6 +12,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
+import { IoMdSad } from "react-icons/io";
 
 type StudentSubjects = {
   subject_name: string;
@@ -50,53 +51,66 @@ export default function StudentSubjectsScreen() {
     fetchSubjects();
   }, [user, selectedClass]);
 
+  const NoSubjects = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem Disciplinas
+    </span>
+  );
+
   return (
     <div>
       <div className="flex gap-2">
         <h1 className="text-4xl font-medium mb-5">Disciplinas</h1>
       </div>
       <div className="flex flex-col flex-wrap mt-2 text-2xl gap-4">
-        {studentSubjects &&
-          studentSubjects.map((subject, index) => (
-            <div key={index}>
-              <Accordion defaultExpanded={true}>
-                <AccordionSummary
-                  expandIcon={<MdExpandMore />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header">
-                  <div className="flex w-full justify-between">
-                    <Typography>
-                      <strong className="text-2xl font-medium">
-                        {subject.subject_name}
-                      </strong>
-                    </Typography>
-                    {subject.total_activities - subject.total_delivered !==
-                      0 && (
-                      <div className="mr-5">
-                        <strong className="text-base font-medium">
-                          Atividade pendente
+        {studentSubjects.length !== 0
+          ? studentSubjects &&
+            studentSubjects.map((subject, index) => (
+              <div key={index}>
+                <Accordion defaultExpanded={true}>
+                  <AccordionSummary
+                    expandIcon={<MdExpandMore />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header">
+                    <div className="flex w-full justify-between">
+                      <Typography>
+                        <strong className="text-2xl font-medium">
+                          {subject.subject_name}
                         </strong>
-                      </div>
-                    )}
-                  </div>
-                </AccordionSummary>
-                <AccordionDetails className="bg-gray-200">
-                  <Typography>
-                    <strong>Total de atividades: </strong>
-                    {subject.total_activities}
-                  </Typography>
-                  <Typography>
-                    <strong>Total de entregas: </strong>
-                    {subject.total_delivered}
-                  </Typography>
-                  <Typography>
-                    <strong>Média na disciplina: </strong>
-                    {subject.average_grade && subject.average_grade.toFixed(2) || "Sem registro"}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            </div>
-          ))}
+                      </Typography>
+                      {subject.total_activities - subject.total_delivered !==
+                        0 && (
+                        <div className="mr-5">
+                          <strong className="text-base font-medium">
+                            Atividade pendente
+                          </strong>
+                        </div>
+                      )}
+                    </div>
+                  </AccordionSummary>
+                  <AccordionDetails className="bg-gray-200">
+                    <Typography>
+                      <strong>Total de atividades: </strong>
+                      {subject.total_activities}
+                    </Typography>
+                    <Typography>
+                      <strong>Total de entregas: </strong>
+                      {subject.total_delivered}
+                    </Typography>
+                    <Typography>
+                      <strong>Média na disciplina: </strong>
+                      {(subject.average_grade &&
+                        subject.average_grade.toFixed(2)) ||
+                        "Sem registro"}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))
+          : NoSubjects}
       </div>
     </div>
   );

@@ -57,14 +57,6 @@ export default function StudentActivitiesScreen() {
     filterActivities();
   }, [filter]);
 
-  function formatDate(date: Date): string {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 porque getMonth() começa do 0 para janeiro
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-  }
-
   const NoActivities = (
     <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
       <div className="text-4xl">
@@ -73,6 +65,14 @@ export default function StudentActivitiesScreen() {
       Sem atividades
     </span>
   );
+
+  function formatDate(date: Date): string {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 porque getMonth() começa do 0 para janeiro
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
 
   return (
     <div>

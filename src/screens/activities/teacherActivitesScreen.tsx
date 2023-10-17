@@ -31,9 +31,18 @@ export default function TeacherActivitesScreen() {
         );
         setActivityData(response.data);
         setFilteredActivities(response.data);
-      } catch {
-        toast.remove();
-        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+      } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error
+        ) {
+          const e = error as { response: { status: number } };
+        } else {
+          toast.error(
+            "Ocorreu um erro desconhecido ao carregar os atividades."
+          );
+        }
       }
     };
     fetchActivities();

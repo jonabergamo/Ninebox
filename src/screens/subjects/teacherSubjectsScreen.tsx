@@ -5,11 +5,21 @@ import { useModal } from "@/context/ModalContext";
 import { MdDelete } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import SubjectAccordion from "@/components/subjectAccordion";
+import { IoMdSad } from "react-icons/io";
 
 export default function TeacherSubjectsScreen() {
   const { user, selectedClass } = useUser();
   const { toggleModal } = useModal();
   const router = useRouter();
+
+  const NoSubjects = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem Disciplinas
+    </span>
+  );
 
   return (
     <div>
@@ -25,21 +35,23 @@ export default function TeacherSubjectsScreen() {
         </div>
       </div>
       <div className="flex flex-wrap mt-2 text-2xl gap-4">
-        {selectedClass?.subjects?.map((subject, index) => (
-          <SubjectAccordion
-            key={index}
-            title={subject.name}
-            std_dev={subject.std_dev_activity_grade}
-            avg={subject.average_activity_grade}
-            activities={subject.activities.length}
-            id={subject.id}
-            permission={
-              user?.subjects
-                ? user.subjects.some((s) => s === subject.id)
-                : false
-            }
-          />
-        ))}
+        {selectedClass?.subjects?.length !== 0
+          ? selectedClass?.subjects?.map((subject, index) => (
+              <SubjectAccordion
+                key={index}
+                title={subject.name}
+                std_dev={subject.std_dev_activity_grade}
+                avg={subject.average_activity_grade}
+                activities={subject.activities.length}
+                id={subject.id}
+                permission={
+                  user?.subjects
+                    ? user.subjects.some((s) => s === subject.id)
+                    : false
+                }
+              />
+            ))
+          : NoSubjects}
       </div>
     </div>
   );
