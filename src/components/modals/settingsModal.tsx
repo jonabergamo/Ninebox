@@ -127,9 +127,17 @@ export default function SettingsModal() {
           </label>
           <div className="text-red-500 flex gap-2 p-2 items-center justify-start text-sm">
             <IoAlert />
-            <p>
-              Somente um professor consegue recuperar sua senha em caso de perda
-            </p>
+            {user?.info.is_student ? (
+              <p>
+                Somente um professor consegue recuperar sua senha em caso de
+                perda
+              </p>
+            ) : (
+              <p>
+                Somente um usuário administrador consegue recuperar sua senha em
+                caso de perda
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <button
