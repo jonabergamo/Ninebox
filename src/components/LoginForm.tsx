@@ -12,22 +12,27 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const { handleSubmit, error } = useUser();
 
-  const Login = async () => {
-    setLoading(true);
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEmail(e.target.value);
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setPassword(e.target.value);
 
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
+
+  const Login = async () => {
     try {
-      const result = await handleSubmit(email, password); // agora ele aguardará a Promise resolver
+      setLoading(true);
+      const result = await handleSubmit(email, password);
       if (result) {
-        // Seu código para login bem sucedido
+        // Seu código para login bem-sucedido
       } else {
-        // Seu código para login mal sucedido
-        setLoading(false);
+        // Seu código para login mal-sucedido
       }
-    } catch (error) {
-      // Tratamento de erro
+    } catch (err) {
+      console.error("Ocorreu um erro durante o login:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -41,24 +46,18 @@ export default function LoginForm() {
         className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
         type="text"
         placeholder="Email"
-        onChange={(e) => {
-          setEmail(e.target.value);
-        }}
+        onChange={handleEmailChange}
       />
       <div className="relative w-full container mx-auto mt-5">
         <input
           className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
           type={showPassword ? "text" : "password"}
           placeholder="Password"
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
+          onChange={handlePasswordChange}
         />
         <div
           className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 dark:text-black cursor-pointer"
-          onClick={() => {
-            setShowPassword(!showPassword);
-          }}>
+          onClick={toggleShowPassword}>
           {!showPassword ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
         </div>
       </div>

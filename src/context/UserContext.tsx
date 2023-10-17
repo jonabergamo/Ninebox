@@ -3,15 +3,18 @@ import React, {
   createContext,
   useContext,
   useState,
-  ReactNode,
   useEffect,
   useCallback,
+  ReactNode,
+  ReactElement,
+  useMemo,
 } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { User, Class, FullUser } from "../types";
+import { usePathname } from "next/navigation";
 
 type UserContextType = {
   user: FullUser | null;
@@ -34,98 +37,91 @@ type UserProviderProps = {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [tempUser, setTempUser] = useState<User | null>(null);
+export const UserProvider: React.FC<UserProviderProps> = ({
+  children,
+}): ReactElement => {
   const [user, setUser] = useState<FullUser | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [error, setError] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  const verifyToken = useCallback(() => {
+    if (!token && !Cookies.get("token")) {
+      if (pathname !== "/login") {
+        router.push("/login"); // Redireciona para login se o token não existir
+      }
+    } else {
+      if (pathname === "/login") {
+        router.push("/"); // Redireciona para a página inicial se o token existir e estiver na página de login
+      }
+    }
+  }, [token, router]);
 
   useEffect(() => {
-    if (!token && !Cookies.get("token")) {
-      router.push("/login"); // Redireciona para a página de login se o token não existir
-    }
-  }, [token]);
+    verifyToken();
+  }, [verifyToken]);
 
-  const handleSubmit = (email: string, password: string): Promise<boolean> => {
-    return new Promise((resolve) => {
+  const handleSubmit = useCallback(
+    async (email: string, password: string): Promise<boolean> => {
       setError("");
-
-      axios
-        .post(`${process.env.NEXT_PUBLIC_API_URL}/token-auth/`, {
-          username: email,
-          password: password,
-        })
-        .then((authResponse) => {
-          const data_token = authResponse.data.token;
-          if (data_token) {
-            setToken(data_token);
-            Cookies.set("token", data_token, {
-              secure: true,
-              sameSite: "strict",
-            });
+      try {
+        const authResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/token-auth/`,
+          {
+            username: email,
+            password,
           }
+        );
 
-          return axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
-            {
-              headers: { Authorization: `Token ${data_token}` },
-            }
-          );
-        })
-        .then((userResponse) => {
-          const stored_user: User = userResponse.data[0];
-          const user_role = stored_user?.is_teacher
-            ? "teachers"
-            : stored_user?.is_student
-            ? "students"
-            : "";
-          setUserRole(user_role);
+        const data_token = authResponse.data.token;
+        setToken(data_token);
+        Cookies.set("token", data_token, { secure: true, sameSite: "strict" });
 
-          return axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/${user_role}/${stored_user.id}`,
-            {
-              headers: { Authorization: `Token ${Cookies.get("token")}` },
-            }
-          );
-        })
-        .then((roleResponse) => {
-          const { classes, user, nine_boxes, subjects } = roleResponse.data;
-          const user_structured = {
-            classes: classes,
-            info: user,
-            nine_boxes,
-            subjects,
-          };
-          const simple_user_structured = {
-            info: user,
-          };
-          setUser(user_structured);
-          setSelectedClass(user_structured.classes[0]);
-          Cookies.set("user", JSON.stringify(simple_user_structured), {
-            secure: true,
-            sameSite: "strict",
-          });
-
-          toast.success("Login bem sucedido");
-          resolve(true);
-        })
-        .catch((err: unknown) => {
-          if (axios.isAxiosError(err) && err.response) {
-            if (err.response.status === 400) {
-              setError("Email ou senha inválidos.");
-            } else {
-              setError("Ocorreu um erro. Tente novamente.");
-            }
-          } else {
-            setError("Ocorreu um erro desconhecido.");
+        const userResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/?email=${email}`,
+          {
+            headers: { Authorization: `Token ${data_token}` },
           }
-          resolve(false);
+        );
+
+        const storedUser: User = userResponse.data[0];
+        const userRole = storedUser?.is_teacher ? "teachers" : "students";
+
+        const roleResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/${userRole}/${storedUser.id}`,
+          {
+            headers: { Authorization: `Token ${data_token}` },
+          }
+        );
+        const { classes, user, nine_boxes, subjects } = roleResponse.data;
+        const user_structured = {
+          classes: classes,
+          info: user,
+          nine_boxes,
+          subjects,
+        };
+        const simple_user_structured = {
+          info: user,
+        };
+        setUser(user_structured);
+        setSelectedClass(user_structured.classes[0]);
+        Cookies.set("user", JSON.stringify(simple_user_structured), {
+          secure: true,
+          sameSite: "strict",
         });
-    });
-  };
+
+        toast.success("Login bem sucedido");
+        return true;
+      } catch (err) {
+        setError("Ocorreu um erro. Tente novamente.");
+        return false;
+      }
+    },
+    []
+  );
 
   const fetchUser = useCallback(() => {
     const storedUser = Cookies.get("user");
@@ -190,22 +186,20 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     fetchUser();
   }, [fetchUser]);
 
-  const Logout = () => {
+  const Logout = useCallback(() => {
     setUser(null);
     setToken(null);
     setSelectedClass(null);
-    setTempUser(null);
 
-    const cookies = Cookies.get();
-
-    for (let cookieName in cookies) {
+    Object.keys(Cookies.get()).forEach((cookieName) => {
       Cookies.remove(cookieName);
-    }
+    });
+
     toast.loading("Saindo da conta...");
     router.push("/login");
     toast.remove();
     toast.success("Logout bem sucedido");
-  };
+  }, [router]);
 
   return (
     <UserContext.Provider
