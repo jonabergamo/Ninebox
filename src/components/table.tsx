@@ -8,10 +8,26 @@ import { PiPasswordFill } from "react-icons/pi";
 import { HiUserRemove } from "react-icons/hi";
 import { Table, Column, Cell, HeaderCell } from "rsuite-table";
 import "rsuite-table/dist/css/rsuite-table.css";
+import { IoMdSad } from "react-icons/io";
+import { FullUser } from "@/types";
 
-export default function TableComponent({ data }: any) {
+type TableProps = {
+  data?: FullUser[];
+};
+
+export default function TableComponent({ data }: TableProps) {
   const { toggleModal } = useModal();
-  return (
+
+  const NoStudents = (
+    <span className=" w-full flex flex-col gap-2 items-center justify-center text-xl text-gray-500">
+      <div className="text-4xl">
+        <IoMdSad />
+      </div>
+      Sem estudantes nessa turma
+    </span>
+  );
+
+  return data && data.length !== 0 ? (
     <div className="text-primary-color-dark dark:text-primary-color-dark ">
       <Table
         data={data}
@@ -70,5 +86,7 @@ export default function TableComponent({ data }: any) {
         </Column>
       </Table>
     </div>
+  ) : (
+    NoStudents
   );
 }
