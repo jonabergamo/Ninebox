@@ -84,15 +84,6 @@ class TeacherViewSet(viewsets.ModelViewSet):
         cell_1.width = cell_width
         cell_2.width = cell_width
 
-        # Insere as logos
-        cell_1.paragraphs[0].add_run().add_picture('logo_senai.jpg', width=Inches(2))
-        cell_2.paragraphs[0].add_run().add_picture('logo_27box.jpg', width=Inches(2))
-
-        for paragraph in cell_1.paragraphs:
-            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        for paragraph in cell_2.paragraphs:
-            paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-
         # Adiciona espaço antes da próxima seção
         doc.add_paragraph()
 
