@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
-import { AiOutlinePlus } from "react-icons/ai";
 import { useModal } from "@/context/ModalContext";
-import { MdDelete, MdExpandMore } from "react-icons/md";
-import { useRouter } from "next/navigation";
-import SubjectAccordion from "@/components/subjectAccordion";
+import { MdExpandMore } from "react-icons/md";
 import axios from "axios";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
@@ -13,13 +10,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import { IoMdSad } from "react-icons/io";
-
-type StudentSubjects = {
-  subject_name: string;
-  total_activities: number;
-  total_delivered: number;
-  average_grade: number;
-};
+import { StudentSubjects } from "@/types";
 
 export default function StudentSubjectsScreen() {
   const { user, selectedClass } = useUser();
@@ -27,7 +18,6 @@ export default function StudentSubjectsScreen() {
   const [studentSubjects, setStudentsSubjects] = useState<StudentSubjects[]>(
     []
   );
-  const router = useRouter();
 
   useEffect(() => {
     const fetchSubjects = async () => {
