@@ -18,4 +18,8 @@ export type Activity = {
   total_corrected_activities: number;
   total_delivered_activities: number;
   created_at: string;
+  created_by: {
+    id: number;
+    name: string;
+  };
 };

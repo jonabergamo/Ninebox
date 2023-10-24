@@ -249,6 +249,7 @@ export default function NewActivityModal() {
           toast.error("Ocorreu um erro desconhecido.");
         }
       }
+      console.error(error);
     }
     fetchUser();
   };

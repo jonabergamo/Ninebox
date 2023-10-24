@@ -120,6 +120,14 @@ export default function ActivityAccordion({ activity }: Props) {
             <AccordionDetails className="bg-gray-200">
               <div className="flex flex-col gap-5">
                 <Typography>
+                  <strong className="mt-5">Criada por:</strong>
+                  <div className="flex flex-col">
+                    <strong className="text-secondary-color-light">
+                      {activity.created_by.name}
+                    </strong>
+                  </div>
+                </Typography>
+                <Typography>
                   <strong className="mt-5">Nível da atividade:</strong>
                   <div className="flex flex-col">
                     <strong className="text-secondary-color-light">

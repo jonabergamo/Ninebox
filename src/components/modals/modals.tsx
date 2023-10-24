@@ -14,6 +14,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import NewActivityModal from "./newActivityModal";
 import SettingsModal from "./settingsModal";
 import EvaluateModal from "./evaluateModal";
+import "./transitions.css";
 
 type Criterion = {
   description: string;
@@ -32,6 +33,17 @@ const Modal: React.FC = () => {
   const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [newNineboxName, setNewNineBoxName] = useState<string | null>("");
   const [teacherClass, setTeachersClass] = useState<Teacher[] | null>(null);
+  const [modalState, setModalState] = useState("exited"); // adicionado
+
+  useEffect(() => {
+    if (showModal) {
+      setModalState("entering");
+      setTimeout(() => setModalState("entered"), 300); // coincide com o tempo da transição CSS
+    } else {
+      setModalState("exiting");
+      setTimeout(() => setModalState("exited"), 300); // coincide com o tempo da transição CSS
+    }
+  }, [showModal]);
 
   const handleJoinClass = async () => {
     try {
@@ -788,9 +800,7 @@ const Modal: React.FC = () => {
 
   return (
     <div
-      className={`fixed z-10 inset-0 overflow-y-auto text-black  ${
-        showModal ? "block" : "hidden"
-      }`}>
+      className={`fixed z-10 inset-0 overflow-y-auto text-black  modal-${modalState}`}>
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex gap-5 bg-primary-color  rounded-lg p-4 w-92 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border-spacing-1 border-gray-500">
           {renderModalContent()}
