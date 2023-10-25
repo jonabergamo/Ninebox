@@ -1,16 +1,22 @@
 from rest_framework import serializers
-from api.models import Activity
+from api.models import Activity, Teacher, User
 from api.serializers.subjectSerializer import SubjectSerializer
 from api.serializers.nineBoxSerializer import NineBoxSerializer
 from api.serializers.criteriaSerializer import CriteriaSerializer
 from django.db.models import Avg, StdDev, F
 import numpy as np
 
+class UserActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','name')
+
 
 class ActivitySerializer(serializers.ModelSerializer):
     subjects = SubjectSerializer(many=True)
     nine_boxes = NineBoxSerializer(many=True)
     criteria = CriteriaSerializer(many=True)
+    created_by = UserActivitySerializer(read_only=True)
     average_grade = serializers.SerializerMethodField()
     median_grade = serializers.SerializerMethodField()
     percentile_25 = serializers.SerializerMethodField()

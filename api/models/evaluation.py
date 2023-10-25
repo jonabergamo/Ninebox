@@ -10,6 +10,7 @@ class Evaluation(models.Model):
     criteria = models.ForeignKey(Criteria, on_delete=models.CASCADE)
     GRADE_CHOICES = [("E", "Excellent"), ("G", "Good"), ("A", "Average"), ("P", "Poor")]
     grade = models.CharField(choices=GRADE_CHOICES, max_length=1)
+    feedback = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.student} - {self.activity} - {self.criteria}"

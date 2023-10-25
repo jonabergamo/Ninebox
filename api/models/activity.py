@@ -13,7 +13,8 @@ class Activity(models.Model):
     )
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)  # Campo de data de criação
-
+    created_by = models.ForeignKey('User', related_name='teacher', on_delete=models.CASCADE)
+    delivery_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name

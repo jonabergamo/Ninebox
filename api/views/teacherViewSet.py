@@ -286,6 +286,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     )
     @action(detail=True, methods=["POST"], url_path="create_activity")
     def create_activity(self, request, pk=None):
+        user = self.request.user
         teacher = self.get_object()
         name = request.data.get("name", "")
         description = request.data.get("description", "")
@@ -340,7 +341,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
         nine_boxes_objects = NineBox.objects.filter(id__in=nine_boxes)
 
         new_activity = Activity.objects.create(
-            name=name, description=description, level=level, class_obj=class_instance
+            name=name, description=description, level=level, class_obj=class_instance, created_by=user
         )
         new_activity.subjects.set(subjects_objects)
         new_activity.nine_boxes.set(nine_boxes_objects)

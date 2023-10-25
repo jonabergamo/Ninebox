@@ -16,4 +16,5 @@ class EvaluationSerializer(serializers.ModelSerializer):
             "criteria_description",
             "criteria",
             "grade",
+            "feedback"
         ]

@@ -20,7 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = "__all__"
     permission_classes = [IsAuthenticated]
-
+    
     def update(self, request, *args, **kwargs):
         user = self.get_object()
 
