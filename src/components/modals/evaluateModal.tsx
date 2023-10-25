@@ -16,6 +16,11 @@ export default function EvaluateModal() {
   const { closeModal, studentActivity } = useModal();
   const { user, fetchUser } = useUser();
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Map<number, string>>(new Map());
+
+  const handleFeedbackUpdate = (criteria_id: number, feedback: string) => {
+    setFeedbacks((prev) => new Map(prev.set(criteria_id, feedback)));
+  };
 
   const handleEvaluate = async () => {
     if (grades.length !== studentActivity?.activity.criteria.length) {
@@ -28,6 +33,10 @@ export default function EvaluateModal() {
         `${process.env.NEXT_PUBLIC_API_URL}/student_activities/${studentActivity?.studentActivity.id}/grade_exam/`,
         {
           grades: grades,
+          feedbacks: Array.from(feedbacks).map(([criteria_id, feedback]) => ({
+            criteria_id,
+            feedback,
+          })),
         },
         {
           headers: { Authorization: `Token ${Cookies.get("token")}` },
@@ -73,8 +82,6 @@ export default function EvaluateModal() {
     }
   };
 
-
-
   return (
     <div className="flex flex-col gap-2 px-8 pb-5 text-primary-color-dark relative">
       <button
@@ -103,6 +110,12 @@ export default function EvaluateModal() {
       {studentActivity?.activity.criteria.map((c, index) => (
         <div key={index}>
           <CriteriaSelector index={index} c={c} onChange={handleGradeUpdate} />
+          <input
+            className="w-full px-4 py-2 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
+            onChange={(e) => {
+              handleFeedbackUpdate(c.id, e.target.value);
+            }}
+          />
         </div>
       ))}
       <div className="flex flex-col gap-2 w-full items-center">
