@@ -276,8 +276,10 @@ export default function StudentActivityAccordion({
                     <br />
                     <div className="flex flex-col gap-2">
                       {studentActivity.activity.criteria.map((c, index) => (
-                        <div className="p-3 border rounded-md border-secondary-color">
-                          <div className="flex gap-2" key={index}>
+                        <div
+                          className="p-3 border rounded-md border-secondary-color"
+                          key={index}>
+                          <div className="flex gap-2">
                             {index + 1}.
                             <p className="break-all">{c.description}</p>
                             <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
