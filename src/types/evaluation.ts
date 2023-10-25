@@ -5,4 +5,5 @@ export type Evaluation = {
   criteria_description: string;
   criteria: number;
   grade: string;
+  feedback: string;
 };

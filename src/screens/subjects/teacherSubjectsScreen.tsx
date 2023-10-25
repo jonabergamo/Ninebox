@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useUser } from "@/context/UserContext";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useModal } from "@/context/ModalContext";

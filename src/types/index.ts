@@ -11,3 +11,4 @@ export type { Student } from "./student";
 export type { StudentActivityModal } from "./studentActivityModal";
 export type { StudentNineBox } from "./studentNinebox";
 export type { Evaluation } from "./evaluation";
+export type { StudentSubjects } from "./studentSubjects";
