@@ -25,7 +25,7 @@ export default function StudentNineboxesScreen() {
   );
 
   useEffect(() => {
-    const fetchNinboxes = async () => {
+    const fetchNineboxes = async () => {
       try {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/student_nineboxes/get_student_nine_boxes_for_class/`,
@@ -40,10 +40,10 @@ export default function StudentNineboxesScreen() {
         setStudentNineboxes(response.data);
       } catch {
         toast.remove();
-        toast.error("Ocorreu um erro inesperado ao carregar as atividades");
+        toast.error("Ocorreu um erro inesperado ao carregar as nineboxes");
       }
     };
-    fetchNinboxes();
+    fetchNineboxes();
   }, [user, selectedClass]);
 
   const NoNineBoxes = (

@@ -6,12 +6,14 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useModal } from "@/context/ModalContext";
+import LoadingScreen from "@/app/loadingScreen";
+import { FullUser } from "@/types";
 
 const TableComponent = React.lazy(() => import("@/components/table"));
 
 export default function TeacherStudentsScreen() {
   const { user, selectedClass, token } = useUser();
-  const [studentsData, setStudentsData] = useState();
+  const [studentsData, setStudentsData] = useState<FullUser[]>();
   const { toggleModal } = useModal();
 
   useEffect(() => {
@@ -23,7 +25,28 @@ export default function TeacherStudentsScreen() {
             headers: { Authorization: `Token ${Cookies.get("token")}` },
           }
         );
-        setStudentsData(response.data);
+        const fetchedStudents = response.data; // Vou supor que isso seja um array de objetos
+
+        const transformedAndSortedStudents = fetchedStudents
+          .map((student: any) => ({
+            classes: student.classes,
+            info: student.user,
+            nine_boxes: student.nine_boxes,
+            subjects: student.subjects,
+          }))
+          .sort((a: FullUser, b: FullUser) => {
+            if (a.info.name < b.info.name) return -1;
+            if (a.info.name > b.info.name) return 1;
+            return 0;
+          })
+          .map((student: FullUser, index: number) => {
+            return {
+              ...student,
+              callOrder: index + 1, // Adicionando o campo "callOrder" aqui
+            };
+          });
+
+        setStudentsData(transformedAndSortedStudents);
       } catch (error: unknown) {
         if (
           typeof error === "object" &&
@@ -52,7 +75,7 @@ export default function TeacherStudentsScreen() {
         <AiOutlinePlus />
         <p>Cadastrar Estudante</p>
       </button>
-      <Suspense fallback={<div>Carregando...</div>}>
+      <Suspense fallback={<LoadingScreen />}>
         <TableComponent data={studentsData} />
       </Suspense>
     </div>

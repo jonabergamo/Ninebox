@@ -16,6 +16,7 @@ import { RiShareBoxFill } from "react-icons/ri";
 
 interface Props {
   studentActivity: StudentActivity;
+  delivered?: boolean;
 }
 
 type GradeInfo = {
@@ -30,12 +31,15 @@ const GRADE_MAPPING: { [key: string]: GradeInfo } = {
   P: { color: "red", description: "Ruim" },
 };
 
-export default function StudentActivityAccordion({ studentActivity }: Props) {
+export default function StudentActivityAccordion({
+  studentActivity,
+  delivered = true,
+}: Props) {
   const [activity_link, setActivity_link] = useState<string>("");
   const { fetchUser, user } = useUser();
 
   useEffect(() => {
-    setActivity_link('');
+    setActivity_link("");
   }, [user]);
 
   function formatDate(date: Date): string {
@@ -83,7 +87,7 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
           <div className="flex w-full justify-between">
             <Typography>
               <strong className="text-2xl font-medium">
-                {studentActivity.activity.name}
+                {studentActivity && studentActivity.activity.name}
               </strong>
             </Typography>
             <div>
@@ -117,47 +121,48 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
           </div>
         </AccordionSummary>
         <AccordionDetails className="bg-gray-200">
-          <label className="mt-5 flex flex-col text-lg w-full">
-            Link da atividade:
-            <div className="flex gap-3 w-3/6 h-10">
-              <input
-                disabled={studentActivity?.activity_link ? true : false}
-                className="w-full  px-4 py-1 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
-                value={studentActivity?.activity_link || activity_link}
-                onChange={(e) => {
-                  setActivity_link(e.target.value);
-                }}
-              />
-              {studentActivity?.activity_link && (
-                <button
-                  onClick={() => {
-                    window.open(studentActivity.activity_link, "__blank__");
+          {delivered && (
+            <label className="mt-5 flex flex-col text-lg w-full">
+              Link da atividade:
+              <div className="flex gap-3 w-3/6 h-10">
+                <input
+                  disabled={studentActivity?.activity_link ? true : false}
+                  className="w-full  px-4 py-1 rounded outline-none focus:ring-secondary-color-light focus:border-secondary-color-light focus:ring-1 border-gray-500 border-[0.5px]"
+                  value={studentActivity?.activity_link || activity_link}
+                  onChange={(e) => {
+                    setActivity_link(e.target.value);
                   }}
-                  className={`flex text-white items-center gap-2  rounded-sm  transition-all duration-300  bg-secondary-color-light hover:scale-105 
+                />
+                {studentActivity?.activity_link && (
+                  <button
+                    onClick={() => {
+                      window.open(studentActivity.activity_link, "__blank__");
+                    }}
+                    className={`flex text-white items-center gap-2  rounded-sm  transition-all duration-300  bg-secondary-color-light hover:scale-105 
                    px-2 py-1`}>
-                  <RiShareBoxFill />
+                    <RiShareBoxFill />
+                  </button>
+                )}
+                <button
+                  onClick={handleSendActivity}
+                  disabled={studentActivity?.activity_link ? true : false}
+                  className={`flex items-center gap-2  rounded-sm  transition-all duration-300 text-white ${
+                    !studentActivity?.activity_link
+                      ? "bg-secondary-color-light hover:scale-105"
+                      : "bg-gray-500"
+                  } px-2 py-1`}>
+                  <RiGitRepositoryCommitsFill />{" "}
+                  {!studentActivity?.activity_link ? "ENTREGAR" : "ENTREGUE"}
                 </button>
-              )}
-              <button
-                onClick={handleSendActivity}
-                disabled={studentActivity?.activity_link ? true : false}
-                className={`flex items-center gap-2  rounded-sm  transition-all duration-300 text-white ${
-                  !studentActivity?.activity_link
-                    ? "bg-secondary-color-light hover:scale-105"
-                    : "bg-gray-500"
-                } px-2 py-1`}>
-                <RiGitRepositoryCommitsFill />{" "}
-                {!studentActivity?.activity_link ? "ENTREGAR" : "ENTREGUE"}
-              </button>
-            </div>
-            {!studentActivity?.activity_link && (
-              <div className="mt-2 text-base inline-flex w-fit p-2 items-center gap-3 bg-secondary-color-light text-white">
-                <RiAlertFill />
-                Atenção! Não é possivel desfazer uma entrega.
               </div>
-            )}
-          </label>
-
+              {!studentActivity?.activity_link && (
+                <div className="mt-2 text-base inline-flex w-fit p-2 items-center gap-3 bg-secondary-color-light text-white">
+                  <RiAlertFill />
+                  Atenção! Não é possivel desfazer uma entrega.
+                </div>
+              )}
+            </label>
+          )}
           <Accordion defaultExpanded={false} className="mt-5">
             <AccordionSummary
               expandIcon={<MdExpandMore />}
@@ -171,6 +176,15 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
             </AccordionSummary>
             <AccordionDetails className="bg-gray-200">
               <div className="flex flex-col gap-5">
+                <Typography>
+                  <strong className="mt-5">Criada por:</strong>
+                  <div className="flex flex-col">
+                    <strong className="text-secondary-color-light">
+                      {studentActivity &&
+                        studentActivity.activity.created_by.name}
+                    </strong>
+                  </div>
+                </Typography>
                 <Typography>
                   <strong className="mt-5">Nível da atividade:</strong>
                   <div className="flex flex-col">
@@ -262,29 +276,53 @@ export default function StudentActivityAccordion({ studentActivity }: Props) {
                     <br />
                     <div className="flex flex-col gap-2">
                       {studentActivity.activity.criteria.map((c, index) => (
-                        <div className="flex gap-2" key={index}>
-                          {index + 1}.
-                          <p className="break-all">{c.description}</p>
-                          <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
-                            Peso: {c.weight}
-                          </p>
-                          {(() => {
-                            const evaluation = studentActivity.evaluations.find(
-                              (e) => e.criteria === c.id
-                            );
-                            if (evaluation) {
-                              const gradeInfo = GRADE_MAPPING[evaluation.grade];
-                              const gradeColor = gradeInfo.color;
-                              const gradeDescription = gradeInfo.description;
-
-                              return (
-                                <p
-                                  className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
-                                  {gradeDescription}
-                                </p>
-                              );
-                            }
-                          })()}
+                        <div className="p-3 border rounded-md border-secondary-color">
+                          <div className="flex gap-2" key={index}>
+                            {index + 1}.
+                            <p className="break-all">{c.description}</p>
+                            <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
+                              Peso: {c.weight}
+                            </p>
+                            {(() => {
+                              const evaluation =
+                                studentActivity.evaluations.find(
+                                  (e) => e.criteria === c.id
+                                );
+                              if (evaluation) {
+                                const gradeInfo =
+                                  GRADE_MAPPING[evaluation.grade];
+                                const gradeColor = gradeInfo.color;
+                                const gradeDescription = gradeInfo.description;
+                                return (
+                                  <div>
+                                    <p
+                                      className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
+                                      {gradeDescription}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                          <div>
+                            {(() => {
+                              const evaluation =
+                                studentActivity.evaluations.find(
+                                  (e) => e.criteria === c.id
+                                );
+                              if (evaluation) {
+                                const feedback = evaluation.feedback; // Acessando o feedback aqui
+                                return (
+                                  <div>
+                                    <div className="text-base">
+                                      <strong>Feedback:</strong>{" "}
+                                      {feedback || "Não fornecido"}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
                         </div>
                       ))}
                     </div>
