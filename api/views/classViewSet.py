@@ -19,6 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, StdDev
 import numpy as np
 from drf_yasg import openapi
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class AddStudentBody(serializers.Serializer):
@@ -60,12 +61,6 @@ class ClassViewSet(viewsets.ModelViewSet):
             student, created = Student.objects.get_or_create(user=user)
             class_model.students.add(student)
 
-            # Adicionar todas as atividades da classe ao estudante
-            activities = Activity.objects.filter(class_obj=class_model)
-            for activity in activities:
-                StudentActivity.objects.get_or_create(
-                    student=student, activity=activity, class_obj=class_model
-                )
 
             # Adicionar todas as NineBox da classe ao estudante
             nine_boxes = NineBox.objects.filter(class_obj=class_model)

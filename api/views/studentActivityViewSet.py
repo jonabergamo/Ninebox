@@ -22,9 +22,13 @@ class GradeInputSerializer(serializers.Serializer):
     criteria_id = serializers.IntegerField()
     grade = serializers.ChoiceField(choices=["E", "G", "A", "P"])
 
+class FeedbacksInputSerializer(serializers.Serializer):
+    feedback = serializers.CharField()
+
 
 class CorrectStudentActivityInput(serializers.Serializer):
     grades = GradeInputSerializer(many=True)
+    feedbacks = FeedbacksInputSerializer(many=True)
 
 
 class StudentActivityViewSet(viewsets.ModelViewSet):
@@ -52,7 +56,7 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["POST"], url_path="grade_exam")
     def grade_exam(self, request, pk=None):
         grades = request.data.get("grades", [])
-
+        feedbacks = request.data.get('feedbacks',[])
         try:
             student_activity = StudentActivity.objects.get(id=pk)
             activity = student_activity.activity
@@ -80,12 +84,19 @@ class StudentActivityViewSet(viewsets.ModelViewSet):
                     {"error": f"Nota para o critério {crit.id} não fornecida."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+            print(type(feedbacks))
+            print(feedbacks)
+            feedback = next(
+            (item["feedback"] for item in feedbacks if item["criteria_id"] == crit.id),
+            None,
+            )
 
             evaluation = Evaluation.objects.create(
                 student=student,
                 activity=activity,
                 criteria=crit,
                 grade=grade,
+                feedback=feedback,  # nova linha
             )
             evaluations.append(evaluation)
 
