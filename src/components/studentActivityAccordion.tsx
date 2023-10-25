@@ -87,7 +87,7 @@ export default function StudentActivityAccordion({
           <div className="flex w-full justify-between">
             <Typography>
               <strong className="text-2xl font-medium">
-                {studentActivity.activity.name}
+                {studentActivity && studentActivity.activity.name}
               </strong>
             </Typography>
             <div>
@@ -180,7 +180,8 @@ export default function StudentActivityAccordion({
                   <strong className="mt-5">Criada por:</strong>
                   <div className="flex flex-col">
                     <strong className="text-secondary-color-light">
-                      {studentActivity.activity.created_by.name}
+                      {studentActivity &&
+                        studentActivity.activity.created_by.name}
                     </strong>
                   </div>
                 </Typography>
@@ -275,29 +276,53 @@ export default function StudentActivityAccordion({
                     <br />
                     <div className="flex flex-col gap-2">
                       {studentActivity.activity.criteria.map((c, index) => (
-                        <div className="flex gap-2" key={index}>
-                          {index + 1}.
-                          <p className="break-all">{c.description}</p>
-                          <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
-                            Peso: {c.weight}
-                          </p>
-                          {(() => {
-                            const evaluation = studentActivity.evaluations.find(
-                              (e) => e.criteria === c.id
-                            );
-                            if (evaluation) {
-                              const gradeInfo = GRADE_MAPPING[evaluation.grade];
-                              const gradeColor = gradeInfo.color;
-                              const gradeDescription = gradeInfo.description;
-
-                              return (
-                                <p
-                                  className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
-                                  {gradeDescription}
-                                </p>
-                              );
-                            }
-                          })()}
+                        <div className="p-3 border rounded-md border-secondary-color">
+                          <div className="flex gap-2" key={index}>
+                            {index + 1}.
+                            <p className="break-all">{c.description}</p>
+                            <p className="text-sm bg-secondary-color-light text-white px-2 py-1 h-7 whitespace-nowrap">
+                              Peso: {c.weight}
+                            </p>
+                            {(() => {
+                              const evaluation =
+                                studentActivity.evaluations.find(
+                                  (e) => e.criteria === c.id
+                                );
+                              if (evaluation) {
+                                const gradeInfo =
+                                  GRADE_MAPPING[evaluation.grade];
+                                const gradeColor = gradeInfo.color;
+                                const gradeDescription = gradeInfo.description;
+                                return (
+                                  <div>
+                                    <p
+                                      className={`text-base text-white px-2 bg-${gradeColor} py-1 h-7 whitespace-nowrap bg-${gradeColor}-500`}>
+                                      {gradeDescription}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                          <div>
+                            {(() => {
+                              const evaluation =
+                                studentActivity.evaluations.find(
+                                  (e) => e.criteria === c.id
+                                );
+                              if (evaluation) {
+                                const feedback = evaluation.feedback; // Acessando o feedback aqui
+                                return (
+                                  <div>
+                                    <div className="text-base">
+                                      <strong>Feedback:</strong>{" "}
+                                      {feedback || "Não fornecido"}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
                         </div>
                       ))}
                     </div>
