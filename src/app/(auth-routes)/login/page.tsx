@@ -7,15 +7,17 @@ import { useUser } from "@/context/UserContext";
 import Cookies from "js-cookie";
 import Logo27Box from "@/assets/27box_logo.svg";
 import Logo27BoxDark from "@/assets/27box_logo_dark.svg";
-import useDarkMode from "@/hooks/useDarkMode"; // Import do novo hook
+import useDarkMode from "@/lib/hooks/useDarkMode"; // Import do novo hook
+import { useSession } from "next-auth/react";
 
 function LoginPage() {
   const router = useRouter();
   const { user } = useUser();
+  const { data: session } = useSession();
   const prefersDarkMode = useDarkMode(); // Usando o hook
 
   useEffect(() => {
-    if (user?.info || Cookies.get("user")) {
+    if (session?.user) {
       router.push("/");
     }
   }, [user]);
