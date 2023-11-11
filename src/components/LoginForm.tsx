@@ -1,18 +1,21 @@
 "use client";
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Alert } from "@material-tailwind/react";
 import { IoAlertCircleSharp } from "react-icons/io5";
 import { useUser } from "@/context/UserContext";
 import { Ping } from "@uiball/loaders";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { handleSubmit, error } = useUser();
+  const router = useRouter();
+  const [error, setError] = useState(false);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setEmail(e.target.value);
@@ -21,21 +24,24 @@ export default function LoginForm() {
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
-  const Login = async () => {
-    try {
-      setLoading(true);
-      const result = await handleSubmit(email, password);
-      if (result) {
-        // Seu código para login bem-sucedido
-      } else {
-        // Seu código para login mal-sucedido
-      }
-    } catch (err) {
-      console.error("Ocorreu um erro durante o login:", err);
-    } finally {
+  async function handleSubmit(event: SyntheticEvent) {
+    event.preventDefault();
+    setLoading(true);
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      console.log(result);
       setLoading(false);
+      return;
     }
-  };
+
+    router.replace("/");
+  }
 
   return (
     <div className="md:w-1/3 max-w-sm text-black">
@@ -80,7 +86,7 @@ export default function LoginForm() {
           <button
             className="mt-4 bg-secondary-color-light hover:brightness-90 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
             type="submit"
-            onClick={Login}>
+            onClick={handleSubmit}>
             Entrar
           </button>
         </div>

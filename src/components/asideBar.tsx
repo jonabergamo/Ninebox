@@ -10,9 +10,12 @@ import Image from "next/image";
 import { CgMenuGridR } from "react-icons/cg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function AsideBar() {
   const { user, selectedClass } = useUser();
+  const { data: session } = useSession();
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -85,13 +88,13 @@ export default function AsideBar() {
   };
 
   return (
-    user?.info && (
+    session?.user && (
       <div className="h-screen flex overflow-hidden px-2">
         <aside className="h-full flex flex-col gap-5 items-center justify-center text-white">
           {asideIconsMap[
-            user.info?.is_teacher
+            session?.user.is_teacher
               ? "teacher"
-              : user.info?.is_student
+              : session?.user.is_student
               ? "student"
               : ""
           ]?.map((icon, index) =>

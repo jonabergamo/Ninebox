@@ -2,15 +2,15 @@
 import React from "react";
 import TeacherHomeScreen from "@/screens/home/teacherHomeScreen";
 import StudentHomeScreen from "@/screens/home/studentHomeScreen";
-import { useUser } from "@/context/UserContext";
-import LoadingScreen from "./loadingScreen";
+import LoadingScreen from "../loadingScreen";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
-  const { user } = useUser();
-
-  return user?.info && user?.info.is_teacher ? (
+  const { data: session } = useSession();
+  console.log(session?.user);
+  return session && session?.user.is_teacher ? (
     <TeacherHomeScreen />
-  ) : user?.info && user?.info.is_student ? (
+  ) : session && session?.user.is_student ? (
     <StudentHomeScreen />
   ) : (
     <LoadingScreen />

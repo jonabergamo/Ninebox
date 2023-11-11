@@ -7,8 +7,10 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { RxEnter, RxHalf1 } from "react-icons/rx";
 import { useModal } from "@/context/ModalContext";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 export default function ClassSwitch() {
+  const { data: session } = useSession();
   const { user, token, setSelectedClass, selectedClass, userRole } = useUser();
   const { toggleModal } = useModal();
 
@@ -22,7 +24,7 @@ export default function ClassSwitch() {
   };
 
   return (
-    user?.info && (
+    session?.user && (
       <div className="flex items-center px-5 gap-4 flex-wrap mt-5">
         {user?.classes && user.classes.length > 0 ? (
           <select
