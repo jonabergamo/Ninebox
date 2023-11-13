@@ -2,6 +2,7 @@ import axios from "axios";
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import Cookies from "js-cookie";
 
 const nextAuthOptions: NextAuthOptions = {
   providers: [
@@ -20,8 +21,26 @@ const nextAuthOptions: NextAuthOptions = {
             password: credentials?.password,
           }
         );
+        const storedUser: any = response.data;
+        const userRole = storedUser?.is_teacher ? "teachers" : "students";
 
-        const user = await response.data;
+        const roleResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/${userRole}/${storedUser.id}`,
+          {
+            headers: { Authorization: `Token ${storedUser.accessToken}` },
+          }
+        );
+        const { classes, nine_boxes, subjects } = roleResponse.data;
+        const user = {
+          selectedClass: classes[0],
+          ...storedUser,
+          nine_boxes,
+          subjects,
+        };
+        const simple_user_structured = {
+          info: user,
+        };
+
         if (user && response.status === 200) {
           return user;
         }

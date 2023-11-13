@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import { IoAlert } from "react-icons/io5";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import useAxiosAuth from "@/hooks/useAxiosAuth";
+import { axiosAuth } from "@/lib/api";
 
 interface Percentiles {
   "0": number;
@@ -59,7 +59,6 @@ const describeStdDev = (stdDev: number) => {
 
 export default function TeacherHomeScreen() {
   const { data: session } = useSession();
-  const axiosAuth = useAxiosAuth();
   const router = useRouter();
   const { token, user, selectedClass } = useUser();
   const [classNineBoxData, setClassNineBoxData] = useState<NineBoxData | null>(
@@ -125,6 +124,7 @@ export default function TeacherHomeScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("Ativou");
       try {
         const response = await axiosAuth.get<ApiResponse>(
           `/classes/${selectedClass?.unique_id}/get_aggregate_nineboxes/${
@@ -148,7 +148,7 @@ export default function TeacherHomeScreen() {
 
   return session?.user ? (
     <div className="text-xl text-primary-color-dark dark:text-primary-color-light">
-      {user?.classes && user.classes.length > 0 ? (
+      {session?.user?.classes && session?.user.classes.length > 0 ? (
         <div>
           <p>Turma Atual</p>
           <h1 className="text-3xl">

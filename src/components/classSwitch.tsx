@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 
 export default function ClassSwitch() {
   const { data: session } = useSession();
-  const { user, token, setSelectedClass, selectedClass, userRole } = useUser();
+  const { user, setSelectedClass, selectedClass, userRole } = useUser();
   const { toggleModal } = useModal();
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -26,13 +26,13 @@ export default function ClassSwitch() {
   return (
     session?.user && (
       <div className="flex items-center px-5 gap-4 flex-wrap mt-5">
-        {user?.classes && user.classes.length > 0 ? (
+        {session.user.classes && session.user.classes.length > 0 ? (
           <select
             onChange={handleSelectChange}
             value={selectedClass?.unique_id || ""}
             id="classes"
             className="bg-gray-50  border w-[200px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            {user?.classes?.map((classItem, index) => (
+            {session.user?.classes?.map((classItem, index) => (
               <option key={index} value={classItem.unique_id}>
                 {classItem.name}
               </option>

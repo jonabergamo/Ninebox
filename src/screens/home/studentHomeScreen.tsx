@@ -8,7 +8,7 @@ import LoadingScreen from "@/app/loadingScreen";
 import { BiCopy } from "react-icons/bi";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import useAxiosAuth from "@/hooks/useAxiosAuth";
+import { axiosAuth } from "@/lib/api";
 
 interface Percentiles {
   "0": number;
@@ -51,7 +51,6 @@ const describeStdDev = (stdDev: number) => {
 
 export default function StudentHomeScreen() {
   const { data: session } = useSession();
-  const axiosAuth = useAxiosAuth();
   const router = useRouter();
   const { token, user, selectedClass } = useUser();
   const [classNineBoxData, setClassNineBoxData] = useState<NineBoxData | null>(
