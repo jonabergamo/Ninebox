@@ -16,7 +16,6 @@ export default function ClassSwitch() {
   const { data: session } = useSession();
   const { user, setSelectedClass, selectedClass, setUser } = useUser();
   const { toggleModal } = useModal();
-  const axiosAuth = useAxiosAuth();
 
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ["classes", session?.user.email, session?.user.accessToken],
@@ -37,20 +36,20 @@ export default function ClassSwitch() {
       data &&
       data.find((classItem) => classItem.unique_id === selectedUniqueId);
     if (session) {
-      session.user.selectedClass = selected;
+      session.user.selectedClass = selected?.unique_id;
     }
-    console.log(session?.user.selectedClass);
+    console.log(session?.user.selectedClass.uni);
     setSelectedClass(selected || null);
     toast.success("Você mudou para a turma " + selected?.name);
   };
 
   return (
     <div className="flex items-center px-5 gap-4 flex-wrap mt-5">
-      <h1>{session?.user.selectedClass.name}</h1>
+      <h1>{session?.user.selectedClass}</h1>
       {data && data.length > 0 ? (
         <select
           onChange={handleSelectChange}
-          value={session?.user.selectedClass.unique_id || ""}
+          value={session?.user.selectedClass || ""}
           id="classes"
           className="bg-gray-50  border w-[200px] h-10 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
           {data.map((classItem, index) => (

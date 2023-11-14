@@ -34,7 +34,7 @@ const nextAuthOptions: NextAuthOptions = {
         const user = {
           ...storedUser,
           role: userRole,
-          selectedClass: classes[0],
+          selectedClass: classes[0].unique_id,
         };
 
         if (user && response.status === 200) {
@@ -53,7 +53,6 @@ const nextAuthOptions: NextAuthOptions = {
       return { ...token, ...user };
     },
     async session({ session, token }) {
-
       session.user = token as any;
       return session;
     },
