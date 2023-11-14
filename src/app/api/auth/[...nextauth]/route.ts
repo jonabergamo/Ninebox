@@ -27,18 +27,14 @@ const nextAuthOptions: NextAuthOptions = {
         const roleResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/${userRole}/${storedUser.id}`,
           {
-            headers: { Authorization: `Token ${storedUser.accessToken}` },
+            headers: { Authorization: `Bearer ${storedUser.accessToken}` },
           }
         );
-        const { classes, nine_boxes, subjects } = roleResponse.data;
+        const { classes } = roleResponse.data;
         const user = {
-          selectedClass: classes[0],
           ...storedUser,
-          nine_boxes,
-          subjects,
-        };
-        const simple_user_structured = {
-          info: user,
+          role: userRole,
+          selectedClass: classes[0],
         };
 
         if (user && response.status === 200) {
@@ -53,10 +49,11 @@ const nextAuthOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       return { ...token, ...user };
     },
     async session({ session, token }) {
+
       session.user = token as any;
       return session;
     },

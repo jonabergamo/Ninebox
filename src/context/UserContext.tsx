@@ -100,15 +100,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (selectedClass?.unique_id) {
-      Cookies.set("selected_class", selectedClass.unique_id, {
-        secure: true,
-        sameSite: "strict",
-      });
-    }
-  }, [selectedClass]);
-
-  useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
