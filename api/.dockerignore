@@ -1,8 +1,7 @@
 .venv
+.git
 __pycache__
 *.pyc
 .env
-db.sqlite3
-staticfiles
 .pytest_cache
-.ruff_cache
+staticfiles

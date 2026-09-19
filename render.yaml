@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: ninebox-api
+    runtime: docker
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: ninebox-api.onrender.com
+      - key: CORS_ORIGINS
+        value: https://ninebox.vercel.app
+      - key: SEED_DEMO
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true

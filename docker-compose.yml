@@ -1,0 +1,15 @@
+# local database only. the api and the web app run with uv and pnpm in their folders
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ninebox
+      POSTGRES_PASSWORD: ninebox
+      POSTGRES_DB: ninebox
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
