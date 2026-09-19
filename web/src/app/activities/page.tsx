@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import AppShell from "@/components/app-shell"
 import { NewActivityDialog } from "@/components/activity-dialogs"
 import { Badge } from "@/components/ui/badge"
+import { ListSkeleton } from "@/components/skeletons"
 import { activities, submissions } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useClassroom } from "@/lib/classroom"
@@ -25,6 +26,7 @@ function TeacherList() {
       <div className="flex justify-end">
         <NewActivityDialog classId={current.id} />
       </div>
+      {q.isPending && <ListSkeleton rows={6} />}
       <ul className="grid gap-2 md:grid-cols-2">
         {(q.data ?? []).map((a) => (
           <li key={a.id}>
@@ -51,6 +53,7 @@ function StudentList() {
   const { current } = useClassroom()
   const q = useQuery({ queryKey: ["submissions", current?.id], queryFn: () => submissions.mine(current!.id), enabled: !!current })
   if (!current) return <p className="text-muted-foreground">{t.dash.studentEmpty}</p>
+  if (q.isPending) return <ListSkeleton rows={6} />
   return (
     <ul className="grid gap-2 md:grid-cols-2">
       {(q.data ?? []).map((s) => {

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { activities, placements, submissions } from "@/lib/api"
+import { ListSkeleton, StatsSkeleton } from "@/components/skeletons"
 import { useAuth } from "@/lib/auth"
 import { useClassroom } from "@/lib/classroom"
 import { useT } from "@/lib/i18n"
@@ -25,7 +26,7 @@ function TeacherHome() {
   const { t } = useT()
   const { current, loading } = useClassroom()
   const acts = useQuery({ queryKey: ["activities", current?.id], queryFn: () => activities.list(current!.id), enabled: !!current })
-  if (!current) return loading ? null : <p className="text-muted-foreground">{t.dash.empty}</p>
+  if (!current) return loading ? <StatsSkeleton /> : <p className="text-muted-foreground">{t.dash.empty}</p>
   const toGrade = (acts.data ?? []).reduce((n, a) => n + (a.submitted - a.graded), 0)
   const copy = () => {
     navigator.clipboard.writeText(current.code)
@@ -39,6 +40,7 @@ function TeacherHome() {
           {t.klass.open} →
         </Link>
       </div>
+      {acts.isPending ? <StatsSkeleton /> : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat title={t.dash.students} value={current.students_count} />
         <Stat title={t.dash.activities} value={acts.data?.length} />
@@ -56,6 +58,7 @@ function TeacherHome() {
           </CardContent>
         </Card>
       </div>
+      )}
       <div>
         <h2 className="mb-1 text-lg font-semibold">{t.dash.heatmap}</h2>
         <p className="text-muted-foreground mb-3 text-sm">{t.dash.heatmapHint}</p>
@@ -63,6 +66,7 @@ function TeacherHome() {
       </div>
       <div>
         <h2 className="mb-3 text-lg font-semibold">{t.dash.recent}</h2>
+        {acts.isPending && <ListSkeleton rows={4} />}
         <ul className="grid gap-2 md:grid-cols-2">
           {(acts.data ?? []).slice(0, 4).map((a) => (
             <li key={a.id}>
@@ -87,7 +91,15 @@ function StudentHome() {
   const mine = useQuery({ queryKey: ["placements", "mine"], queryFn: () => placements.list() })
   const subs = useQuery({ queryKey: ["submissions", current?.id], queryFn: () => submissions.mine(current!.id), enabled: !!current })
 
-  if (!loading && list.length === 0) {
+  if (loading || (current && (mine.isPending || subs.isPending))) {
+    return (
+      <>
+        <StatsSkeleton n={2} />
+        <ListSkeleton rows={2} />
+      </>
+    )
+  }
+  if (list.length === 0) {
     return (
       <div className="flex flex-col items-start gap-4 rounded-xl border border-dashed p-8">
         <p className="text-muted-foreground">{t.dash.studentEmpty}</p>

@@ -8,7 +8,7 @@ import { AuthProvider } from "@/lib/auth"
 import { ClassProvider } from "@/lib/classroom"
 
 export default function Providers({ children }: { children: ReactNode }) {
-  const [qc] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 10_000 } } }))
+  const [qc] = useState(() => new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false } } }))
   return (
     <QueryClientProvider client={qc}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

@@ -5,6 +5,7 @@ import { Timer } from "lucide-react"
 import AppShell from "@/components/app-shell"
 import { NewExamDialog } from "@/components/exam-dialog"
 import { Badge } from "@/components/ui/badge"
+import { ListSkeleton } from "@/components/skeletons"
 import { exams } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useClassroom } from "@/lib/classroom"
@@ -27,6 +28,7 @@ export default function ExamsPage() {
               <NewExamDialog classId={current.id} />
             </div>
           )}
+          {q.isPending && <ListSkeleton rows={2} />}
           <ul className="grid gap-2 md:grid-cols-2">
             {(q.data ?? []).map((e) => (
               <li key={e.id}>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ListSkeleton } from "@/components/skeletons"
 import { classes, grids, subjects, activities } from "@/lib/api"
 import { useClassroom } from "@/lib/classroom"
 import { useT } from "@/lib/i18n"
@@ -66,6 +67,7 @@ function Students({ classId }: { classId: number }) {
     },
     onError: () => toast.error(t.common.failed),
   })
+  if (q.isPending) return <ListSkeleton rows={9} cols={3} />
   if (q.isSuccess && q.data.length === 0) return <p className="text-muted-foreground text-sm">{t.klass.noStudents}</p>
   return (
     <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -92,6 +94,7 @@ function Activities({ classId }: { classId: number }) {
       <div className="flex justify-end">
         <NewActivityDialog classId={classId} />
       </div>
+      {q.isPending && <ListSkeleton rows={6} />}
       <ul className="grid gap-2 md:grid-cols-2">
         {(q.data ?? []).map((a) => (
           <li key={a.id}>

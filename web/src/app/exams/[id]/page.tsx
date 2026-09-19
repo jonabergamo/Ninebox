@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { StatsSkeleton, TableSkeleton } from "@/components/skeletons"
 import { exams, Exam } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useT, intlTag } from "@/lib/i18n"
@@ -80,7 +81,7 @@ function Lobby({ id }: { id: number }) {
       router.replace("/exams")
     },
   })
-  if (!q.data) return null
+  if (!q.data) return <StatsSkeleton n={2} />
   const exam = q.data
   return (
     <>
@@ -137,6 +138,7 @@ function Lobby({ id }: { id: number }) {
             <CardTitle className="text-base">{t.exam.results}</CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto p-0">
+            {results.isPending ? <TableSkeleton /> : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -155,6 +157,7 @@ function Lobby({ id }: { id: number }) {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
       )}
@@ -195,7 +198,7 @@ function Room({ id }: { id: number }) {
     if (status === "closed") qc.invalidateQueries({ queryKey: ["exam", id] })
   }, [status, id, qc])
 
-  if (!exam) return null
+  if (!exam) return <StatsSkeleton n={1} />
   const attempt = exam.my_attempt
   const done = !!attempt?.submitted_at || status === "closed"
   const answered = Object.keys(answers).length

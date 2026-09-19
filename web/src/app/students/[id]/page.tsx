@@ -10,6 +10,7 @@ import NineBoxGrid from "@/components/nine-box-grid"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { placements } from "@/lib/api"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useT, intlTag } from "@/lib/i18n"
 
 export default function StudentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -64,7 +65,15 @@ export function Timeline({ studentId, backHref = "/students" }: { studentId: num
               {p && p.fail_streak > 0 && <Badge variant="outline" className="ml-2">{t.student.streak(p.fail_streak)}</Badge>}
             </CardDescription>
           </CardHeader>
-          <CardContent>{p && <NineBoxGrid x={p.x} y={p.y} size="lg" />}</CardContent>
+          <CardContent>
+            {p ? (
+              <NineBoxGrid x={p.x} y={p.y} size="lg" />
+            ) : (
+              <div className="grid grid-cols-3 gap-1" aria-busy>
+                {Array.from({ length: 9 }).map((_, i) => <Skeleton key={i} className="size-32 rounded-md" />)}
+              </div>
+            )}
+          </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
@@ -72,7 +81,9 @@ export function Timeline({ studentId, backHref = "/students" }: { studentId: num
             <CardDescription>{t.student.timelineHint}</CardDescription>
           </CardHeader>
           <CardContent className="h-64">
-            {history.length === 0 ? (
+            {tl.isPending || mine.isPending ? (
+              <Skeleton className="h-full w-full" />
+            ) : history.length === 0 ? (
               <p className="text-muted-foreground text-sm">{t.student.noHistory}</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { TableSkeleton } from "@/components/skeletons"
 import { activities, submissions, Submission } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
 import { useT, intlTag } from "@/lib/i18n"
@@ -86,6 +87,7 @@ function TeacherView({ id }: { id: number }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {subs.isPending ? <TableSkeleton /> : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -123,6 +125,7 @@ function TeacherView({ id }: { id: number }) {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </>

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import AppShell from "@/components/app-shell"
 import { classes } from "@/lib/api"
+import { ListSkeleton } from "@/components/skeletons"
 import { useClassroom } from "@/lib/classroom"
 import { useT } from "@/lib/i18n"
 
@@ -14,6 +15,8 @@ export default function StudentsPage() {
     <AppShell title={t.nav.students}>
       {!current ? (
         <p className="text-muted-foreground">{t.dash.empty}</p>
+      ) : q.isPending ? (
+        <ListSkeleton rows={9} cols={3} />
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {(q.data ?? []).map((s) => (

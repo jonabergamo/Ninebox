@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { classes, Heatmap as HeatmapData } from "@/lib/api"
 import { useT } from "@/lib/i18n"
 import NineBoxGrid from "./nine-box-grid"
+import { BoardSkeleton } from "./skeletons"
 import { CELLS, cellTone } from "@/lib/grid"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -20,6 +21,7 @@ export default function Heatmap({ classId, linkStudents = true }: { classId: num
   const { t } = useT()
   const q = useQuery({ queryKey: ["heatmap", classId], queryFn: () => classes.heatmap(classId) })
   const data: HeatmapData = q.data ?? []
+  if (q.isPending) return <BoardSkeleton />
   if (q.isSuccess && data.length === 0) return <p className="text-muted-foreground text-sm">{t.klass.gridsHint}</p>
   return (
     <div className="space-y-3">

@@ -109,7 +109,8 @@ export default function AppShell({ children, title }: { children: ReactNode; tit
 // how many handed in submissions still wait for a grade in the current class
 function WaitingBadge() {
   const { current } = useClassroom()
-  const q = useQuery({ queryKey: ["activities", current?.id], queryFn: () => activities.list(current!.id), enabled: !!current })
+  // its own key, so the pages don't inherit this query's data and always start from a skeleton
+  const q = useQuery({ queryKey: ["waiting", current?.id], queryFn: () => activities.list(current!.id), enabled: !!current, refetchInterval: 30_000 })
   const n = (q.data ?? []).reduce((sum, a) => sum + (a.submitted - a.graded), 0)
   if (!n) return null
   return <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-semibold text-white">{n}</span>
