@@ -1,0 +1,11 @@
+version: "3"
+services:
+  web:
+    image: ninebox
+    build: .
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - .:/app
+      - ./db.sqlite3:/app/db.sqlite3 # Montando o arquivo SQLite
+    ports:
+      - "9000:8000"
