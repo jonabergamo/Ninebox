@@ -154,7 +154,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         return Exam.objects.filter(classroom__in=classes_of(self.request.user)).prefetch_related("questions__choices", "grids")
 
     def get_permissions(self):
-        if self.action in ("create", "update", "partial_update", "destroy", "open", "close", "results"):
+        if self.action in ("create", "update", "partial_update", "destroy", "open", "close", "reopen", "results"):
             return [IsTeacher()]
         if self.action in ("answer", "submit", "start"):
             return [IsStudent()]
@@ -194,6 +194,16 @@ class ExamViewSet(viewsets.ModelViewSet):
         if exam.status != Exam.Status.OPEN:
             raise ValidationError("not open")
         services.close_exam(exam)
+        broadcast(exam.id, exam_state(exam))
+        return Response(self.get_serializer(exam).data)
+
+    @action(detail=True, methods=["post"])
+    def reopen(self, request, pk=None):
+        exam = self.get_object()
+        teacher_owns(request.user, exam.classroom)
+        if exam.status != Exam.Status.CLOSED:
+            raise ValidationError("only a closed exam can be reopened")
+        services.reopen_exam(exam)
         broadcast(exam.id, exam_state(exam))
         return Response(self.get_serializer(exam).data)
 

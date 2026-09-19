@@ -139,3 +139,30 @@ async def test_socket_sends_state_and_rejects_strangers(teacher, student, klass)
     stranger = WebsocketCommunicator(application, f"/ws/exams/{exam.id}/?token=nope")
     ok, code = await stranger.connect()
     assert not ok and code == 4401
+
+
+def test_reopen_takes_the_move_back(as_, klass, teacher, student):
+    grid = enrolled(as_, teacher, student, klass)
+    t, s = as_(teacher), as_(student)
+    exam = make_exam(t, klass, grid["id"])  # level 1
+    t.post(f"/api/exams/{exam['id']}/open/")
+    s.post(f"/api/exams/{exam['id']}/start/")
+    for q in exam["questions"]:
+        right = next(c for c in q["choices"] if c["is_correct"])
+        s.post(f"/api/exams/{exam['id']}/answer/", {"question": q["id"], "choice": right["id"]})
+    s.post(f"/api/exams/{exam['id']}/submit/")
+    t.post(f"/api/exams/{exam['id']}/close/")
+    p = Placement.objects.get(student=student, grid=grid["id"])
+    assert (p.x, p.y) == (2, 2)  # 100 on a harder exam climbed two cells
+
+    assert s.post(f"/api/exams/{exam['id']}/reopen/").status_code == 403
+    r = t.post(f"/api/exams/{exam['id']}/reopen/")
+    assert r.status_code == 200 and r.data["status"] == "draft" and r.data["ends_at"] is None
+    p.refresh_from_db()
+    assert (p.x, p.y, p.level) == (2, 1, 0)
+    assert Attempt.objects.filter(exam_id=exam["id"]).count() == 0
+    assert t.get(f"/api/students/{student.id}/timeline?grid={grid['id']}").data["history"] == []
+
+    # and it can run again
+    assert t.post(f"/api/exams/{exam['id']}/open/").status_code == 200
+    assert s.post(f"/api/exams/{exam['id']}/start/").status_code == 200

@@ -98,6 +98,34 @@ def submit_attempt(attempt: Attempt, when=None):
     return attempt
 
 
+def replay(placement: Placement):
+    """rebuild a placement from its history, oldest first. used when a move is taken back"""
+    pos = Position()
+    for h in placement.history.select_related("submission__activity", "attempt__exam").order_by("at", "id"):
+        level = h.submission.activity.level if h.submission_id else h.attempt.exam.level
+        pos = next_position(pos, h.grade, level)
+        if (h.level, h.x, h.y) != (pos.level, pos.x, pos.y):
+            h.level, h.x, h.y = pos.level, pos.x, pos.y
+            h.save(update_fields=["level", "x", "y"])
+    placement.level, placement.x, placement.y, placement.fail_streak = pos.level, pos.x, pos.y, pos.fail_streak
+    placement.save()
+    return placement
+
+
+@transaction.atomic
+def reopen_exam(exam: Exam):
+    """back to draft. attempts go, and every student the exam moved gets their placement replayed"""
+    students = list(exam.attempts.values_list("student_id", flat=True))
+    exam.attempts.all().delete()  # history rows of those attempts cascade
+    for placement in Placement.objects.filter(student_id__in=students, grid__in=exam.grids.all()):
+        replay(placement)
+    exam.status = Exam.Status.DRAFT
+    exam.opened_at = None
+    exam.ends_at = None
+    exam.save()
+    return exam
+
+
 @transaction.atomic
 def close_exam(exam: Exam):
     """time is up or the teacher stopped it. whatever a student answered so far counts"""

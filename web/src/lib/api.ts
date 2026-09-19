@@ -203,6 +203,7 @@ export const exams = {
   remove: (id: number) => api<void>(`/exams/${id}/`, { method: "DELETE" }),
   open: (id: number) => api<Exam>(`/exams/${id}/open/`, { method: "POST" }),
   close: (id: number) => api<Exam>(`/exams/${id}/close/`, { method: "POST" }),
+  reopen: (id: number) => api<Exam>(`/exams/${id}/reopen/`, { method: "POST" }),
   results: (id: number) => api<Attempt[]>(`/exams/${id}/results/`),
   start: (id: number) => api<Attempt>(`/exams/${id}/start/`, { method: "POST" }),
   answer: (id: number, question: number, choice: number) => api<Attempt>(`/exams/${id}/answer/`, { method: "POST", json: { question, choice } }),

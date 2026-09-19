@@ -62,6 +62,16 @@ function Lobby({ id }: { id: number }) {
   const after = { onSuccess: () => qc.invalidateQueries({ queryKey: ["exam", id] }), onError: () => toast.error(t.common.failed) }
   const open = useMutation({ mutationFn: () => exams.open(id), ...after })
   const close = useMutation({ mutationFn: () => exams.close(id), ...after })
+  const reopen = useMutation({
+    mutationFn: () => exams.reopen(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["exam", id] })
+      qc.invalidateQueries({ queryKey: ["heatmap"] })
+      qc.invalidateQueries({ queryKey: ["placements"] })
+      toast.success(t.exam.reopened)
+    },
+    onError: () => toast.error(t.common.failed),
+  })
   const remove = useMutation({
     mutationFn: () => exams.remove(id),
     onSuccess: () => {
@@ -100,6 +110,11 @@ function Lobby({ id }: { id: number }) {
             </div>
             {status === "draft" && <Button size="lg" onClick={() => open.mutate()} disabled={open.isPending}>{t.exam.open}</Button>}
             {status === "open" && <Button size="lg" variant="destructive" onClick={() => confirm(t.exam.close + "?") && close.mutate()} disabled={close.isPending}>{t.exam.close}</Button>}
+            {status === "closed" && (
+              <Button size="lg" variant="outline" onClick={() => confirm(t.exam.reopenBody) && reopen.mutate()} disabled={reopen.isPending}>
+                {t.exam.reopen}
+              </Button>
+            )}
           </CardContent>
         </Card>
         <Card className="lg:w-80">
