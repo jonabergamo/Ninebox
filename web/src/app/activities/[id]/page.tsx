@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, ExternalLink, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import AppShell from "@/components/app-shell"
-import { GradeDialog, HandInDialog } from "@/components/activity-dialogs"
+import { GradeDialog, HandInDialog, NewActivityDialog } from "@/components/activity-dialogs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -71,9 +71,12 @@ function TeacherView({ id }: { id: number }) {
     <>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <Header id={id} />
-        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => confirm(t.activity.remove + "?") && remove.mutate()}>
-          <Trash2 className="size-4" /> {t.activity.remove}
-        </Button>
+        <div className="flex gap-1">
+          {act.data && <NewActivityDialog classId={act.data.classroom} activity={act.data} />}
+          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => confirm(t.activity.remove + "?") && remove.mutate()}>
+            <Trash2 className="size-4" /> {t.activity.remove}
+          </Button>
+        </div>
       </div>
       <Card>
         <CardHeader className="pb-2">
@@ -107,7 +110,15 @@ function TeacherView({ id }: { id: number }) {
                     )}
                   </TableCell>
                   <TableCell className="font-mono">{s.final_grade ?? "–"}</TableCell>
-                  <TableCell className="text-right">{act.data && s.submitted_at && <GradeDialog submission={s} activity={act.data} />}</TableCell>
+                  <TableCell className="text-right">
+                    {act.data && s.submitted_at && (
+                      <GradeDialog
+                        submission={s}
+                        activity={act.data}
+                        onNext={() => (subs.data ?? []).find((x) => x.id !== s.id && x.submitted_at && !x.graded_at)}
+                      />
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

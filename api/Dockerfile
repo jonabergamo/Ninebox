@@ -7,4 +7,4 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY . .
 RUN SECRET_KEY=build uv run manage.py collectstatic --noinput
 EXPOSE 8000
-CMD ["sh", "-c", "uv run manage.py migrate --noinput && ([ \"$SEED_DEMO\" = true ] && uv run manage.py seed_demo || true) && uv run gunicorn core.wsgi -b 0.0.0.0:${PORT:-8000} -w 2"]
+CMD ["sh", "-c", "uv run manage.py migrate --noinput && ([ \"$SEED_DEMO\" = true ] && uv run manage.py seed_demo --reset || true) && uv run uvicorn core.asgi:application --host 0.0.0.0 --port ${PORT:-8000}"]

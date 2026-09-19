@@ -3,7 +3,10 @@ import { ReactNode, useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Grid3x3, LayoutDashboard, ListChecks, LogOut, Plus, Users } from "lucide-react"
+import { LayoutDashboard, ListChecks, LogOut, Plus, Settings, Timer, Users } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+import { activities } from "@/lib/api"
+import { Logo } from "./logo"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,18 +38,20 @@ export default function AppShell({ children, title }: { children: ReactNode; tit
     ? [
         { href: "/", label: t.nav.home, icon: LayoutDashboard },
         { href: "/activities", label: t.nav.activities, icon: ListChecks },
+        { href: "/exams", label: t.nav.exams, icon: Timer },
         { href: "/students", label: t.nav.students, icon: Users },
       ]
     : [
         { href: "/", label: t.nav.home, icon: LayoutDashboard },
         { href: "/activities", label: t.nav.activities, icon: ListChecks },
+        { href: "/exams", label: t.nav.exams, icon: Timer },
       ]
 
   return (
     <div className="flex min-h-screen">
       <aside className="bg-card hidden w-56 shrink-0 flex-col border-r md:flex">
         <Link href="/" className="flex h-14 items-center gap-2 border-b px-4 font-semibold">
-          <Grid3x3 className="size-5" /> {t.app}
+          <Logo size={22} /> {t.app}
         </Link>
         <nav className="flex flex-col gap-1 p-3">
           {nav.map((n) => (
@@ -59,8 +64,12 @@ export default function AppShell({ children, title }: { children: ReactNode; tit
               )}
             >
               <n.icon className="size-4" /> {n.label}
+              {n.href === "/activities" && teacher && <WaitingBadge />}
             </Link>
           ))}
+          <Link href="/settings" className={cn("flex items-center gap-2 rounded-md px-3 py-2 text-sm", pathname === "/settings" ? "bg-primary text-primary-foreground" : "hover:bg-muted")}>
+            <Settings className="size-4" /> {t.nav.settings}
+          </Link>
         </nav>
         <div className="mt-auto">
           <Credit compact />
@@ -69,11 +78,11 @@ export default function AppShell({ children, title }: { children: ReactNode; tit
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="bg-card/80 sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b px-4 py-2 backdrop-blur md:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold md:hidden">
-            <Grid3x3 className="size-5" />
+            <Logo size={22} />
           </Link>
           <ClassSwitcher />
           <span className="flex-1" />
-          <span className="text-muted-foreground hidden text-sm sm:block">{user.name}</span>
+          <Link href="/settings" className="text-muted-foreground hidden text-sm hover:underline sm:block">{user.name}</Link>
           <LangToggle />
           <ThemeToggle />
           <Button variant="outline" size="icon" title={t.nav.signOut} onClick={() => { logout(); router.replace("/login") }}>
@@ -95,6 +104,15 @@ export default function AppShell({ children, title }: { children: ReactNode; tit
       </div>
     </div>
   )
+}
+
+// how many handed in submissions still wait for a grade in the current class
+function WaitingBadge() {
+  const { current } = useClassroom()
+  const q = useQuery({ queryKey: ["activities", current?.id], queryFn: () => activities.list(current!.id), enabled: !!current })
+  const n = (q.data ?? []).reduce((sum, a) => sum + (a.submitted - a.graded), 0)
+  if (!n) return null
+  return <span className="ml-auto rounded-full bg-amber-500 px-1.5 text-[10px] font-semibold text-white">{n}</span>
 }
 
 function ClassSwitcher() {

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Copy } from "lucide-react"
 import { toast } from "sonner"
 import AppShell, { JoinDialog } from "@/components/app-shell"
+import Landing from "@/components/landing"
 import Heatmap from "@/components/heatmap"
 import NineBoxGrid from "@/components/nine-box-grid"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import { useT } from "@/lib/i18n"
 
 export default function Home() {
   const { user } = useAuth()
+  if (user === null) return <Landing />
   return <AppShell>{user?.role === "teacher" ? <TeacherHome /> : <StudentHome />}</AppShell>
 }
 
@@ -109,8 +111,9 @@ function StudentHome() {
                   {t.dash.level(p.level)} · {t.cells[`${p.x},${p.y}`]}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col items-center gap-3">
                 <NineBoxGrid x={p.x} y={p.y} />
+                <Link href={`/me?grid=${p.grid}`} className="text-sm font-medium underline-offset-4 hover:underline">{t.progression}</Link>
               </CardContent>
             </Card>
           ))}

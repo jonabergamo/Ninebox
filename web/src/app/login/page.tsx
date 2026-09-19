@@ -2,7 +2,7 @@
 import { FormEvent, useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Grid3x3 } from "lucide-react"
+import { Logo } from "@/components/logo"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,7 +46,7 @@ export default function Login() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="bg-primary text-primary-foreground hidden flex-col justify-between p-12 lg:flex">
         <div className="flex items-center gap-2 text-xl font-semibold">
-          <Grid3x3 className="size-7" /> {t.app}
+          <Logo size={30} className="[&_rect:first-child]:fill-white/20" /> {t.app}
         </div>
         <div className="max-w-md space-y-3">
           <h2 className="text-3xl font-semibold leading-tight">{t.auth.tagline}</h2>

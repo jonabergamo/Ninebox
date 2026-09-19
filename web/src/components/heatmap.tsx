@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { classes, Heatmap as HeatmapData } from "@/lib/api"
 import { useT } from "@/lib/i18n"
 import NineBoxGrid from "./nine-box-grid"
+import { CELLS, cellTone } from "@/lib/grid"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 const initials = (name: string) =>
@@ -21,6 +22,7 @@ export default function Heatmap({ classId, linkStudents = true }: { classId: num
   const data: HeatmapData = q.data ?? []
   if (q.isSuccess && data.length === 0) return <p className="text-muted-foreground text-sm">{t.klass.gridsHint}</p>
   return (
+    <div className="space-y-3">
     <div className="grid gap-4 lg:grid-cols-2">
       {data.map(({ grid, placements }) => (
         <Card key={grid.id}>
@@ -43,9 +45,10 @@ export default function Heatmap({ classId, linkStudents = true }: { classId: num
                             key={p.id}
                             href={`/students/${p.student.id}?grid=${grid.id}`}
                             title={`${p.student.name} · ${t.dash.level(p.level)}`}
-                            className="bg-background/90 text-foreground hover:bg-background flex size-6 items-center justify-center rounded-full text-[10px] font-semibold shadow"
+                            className="bg-background/90 text-foreground hover:bg-background relative flex size-6 items-center justify-center rounded-full text-[10px] font-semibold shadow"
                           >
                             {initials(p.student.name)}
+                            {p.level > 0 && <span className="bg-foreground text-background absolute -top-1 -right-1 flex size-3.5 items-center justify-center rounded-full text-[8px]">{p.level}</span>}
                           </Link>
                         ) : (
                           <span key={p.id} title={p.student.name} className="bg-background/90 text-foreground flex size-6 items-center justify-center rounded-full text-[10px] font-semibold shadow">
@@ -62,5 +65,25 @@ export default function Heatmap({ classId, linkStudents = true }: { classId: num
         </Card>
       ))}
     </div>
+    <Legend />
+    </div>
+  )
+}
+
+function Legend() {
+  const { t } = useT()
+  return (
+    <details className="text-muted-foreground text-xs">
+      <summary className="cursor-pointer select-none">{t.legend}</summary>
+      <ul className="mt-2 grid gap-1 sm:grid-cols-3">
+        {[...CELLS].reverse().map(([x, y]) => (
+          <li key={`${x}-${y}`} className="flex items-center gap-2">
+            <span className={`inline-block size-3 rounded-sm ${cellTone(x, y)}`} />
+            <span>{t.cells[`${x},${y}`]}</span>
+            <span className="opacity-60">· {t.axis.x} {x}, {t.axis.y} {y}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }

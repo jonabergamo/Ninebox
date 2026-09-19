@@ -40,7 +40,7 @@ export type Submission = {
 }
 export type Placement = { id: number; grid: number; grid_name: string; classroom: number; student: User; level: number; x: number; y: number; fail_streak: number }
 export type Heatmap = { grid: Grid; placements: Placement[] }[]
-export type History = { level: number; x: number; y: number; grade: number; at: string; activity: string }
+export type History = { level: number; x: number; y: number; grade: number; at: string; activity: string; kind: "activity" | "exam" }
 
 const KEY = "nb.tokens"
 export const tokens = {
@@ -149,6 +149,7 @@ export const activities = {
   list: (classroom: number) => api<Activity[]>(`/activities/?classroom=${classroom}`),
   one: (id: number) => api<Activity>(`/activities/${id}/`),
   create: (body: ActivityInput) => api<Activity>("/activities/", { method: "POST", json: body }),
+  update: (id: number, body: Partial<ActivityInput>) => api<Activity>(`/activities/${id}/`, { method: "PATCH", json: body }),
   remove: (id: number) => api<void>(`/activities/${id}/`, { method: "DELETE" }),
   submissions: (id: number) => api<Submission[]>(`/activities/${id}/submissions/`),
 }
@@ -166,4 +167,49 @@ export const placements = {
     return api<Placement[]>(`/placements/?${q}`)
   },
   timeline: (studentId: number, grid: number) => api<{ placement: Placement; history: History[] }>(`/students/${studentId}/timeline?grid=${grid}`),
+}
+
+// ---- exams
+
+export type ExamStatus = "draft" | "open" | "closed"
+export type Choice = { id: number; text: string; is_correct?: boolean }
+export type Question = { id: number; text: string; points: number; order: number; choices: Choice[] }
+export type Attempt = { id: number; student: User; started_at: string; submitted_at: string | null; answers: Record<string, number>; score: number | null }
+export type Exam = {
+  id: number
+  classroom: number
+  title: string
+  instructions: string
+  duration_minutes: number
+  level: number
+  grids: number[]
+  status: ExamStatus
+  opened_at: string | null
+  ends_at: string | null
+  created_at: string
+  questions: Question[]
+  question_count: number
+  my_attempt: Attempt | null
+}
+export type ExamInput = Pick<Exam, "classroom" | "title" | "instructions" | "duration_minutes" | "level" | "grids"> & {
+  questions: { text: string; points: number; choices: { text: string; is_correct: boolean }[] }[]
+}
+
+export const exams = {
+  list: (classroom: number) => api<Exam[]>(`/exams/?classroom=${classroom}`),
+  one: (id: number) => api<Exam>(`/exams/${id}/`),
+  create: (body: ExamInput) => api<Exam>("/exams/", { method: "POST", json: body }),
+  update: (id: number, body: Partial<ExamInput>) => api<Exam>(`/exams/${id}/`, { method: "PATCH", json: body }),
+  remove: (id: number) => api<void>(`/exams/${id}/`, { method: "DELETE" }),
+  open: (id: number) => api<Exam>(`/exams/${id}/open/`, { method: "POST" }),
+  close: (id: number) => api<Exam>(`/exams/${id}/close/`, { method: "POST" }),
+  results: (id: number) => api<Attempt[]>(`/exams/${id}/results/`),
+  start: (id: number) => api<Attempt>(`/exams/${id}/start/`, { method: "POST" }),
+  answer: (id: number, question: number, choice: number) => api<Attempt>(`/exams/${id}/answer/`, { method: "POST", json: { question, choice } }),
+  submit: (id: number) => api<Attempt>(`/exams/${id}/submit/`, { method: "POST" }),
+}
+
+export const account = {
+  rename: (name: string) => api<User>("/auth/me", { method: "PATCH", json: { name } }),
+  password: (current: string, next: string) => api<void>("/auth/password", { method: "POST", json: { current, new: next } }),
 }

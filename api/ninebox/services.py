@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .grading import Position, final_grade, next_position
-from .models import Class, Enrollment, Grid, Mark, Placement, PlacementHistory, Submission, User
+from .models import Attempt, Class, Enrollment, Exam, Grid, Mark, Placement, PlacementHistory, Submission, User
 
 
 def enroll(student: User, class_: Class):
@@ -45,35 +45,82 @@ def grade(submission: Submission, marks: list[dict]):
     submission.graded_at = timezone.now()
     submission.save()
 
-    for grid in activity.grids.all():
-        placement, _ = Placement.objects.get_or_create(student=submission.student, grid=grid)
-        pos = next_position(
-            Position(placement.level, placement.x, placement.y, placement.fail_streak),
-            submission.final_grade,
-            activity.level,
-        )
+    apply_grade(
+        submission.student, activity.grids.all(), submission.final_grade, activity.level, submission.graded_at, submission=submission, label=activity.name
+    )
+    return submission
+
+
+def apply_grade(student, grids, grade, level, when, submission=None, attempt=None, label=""):
+    """move the student on every grid and keep the trail. activities and exams both end up here"""
+    for grid in grids:
+        placement, _ = Placement.objects.get_or_create(student=student, grid=grid)
+        pos = next_position(Position(placement.level, placement.x, placement.y, placement.fail_streak), grade, level)
         placement.level, placement.x, placement.y, placement.fail_streak = pos.level, pos.x, pos.y, pos.fail_streak
         placement.save()
         PlacementHistory.objects.create(
-            placement=placement,
-            submission=submission,
-            level=pos.level,
-            x=pos.x,
-            y=pos.y,
-            grade=submission.final_grade,
-            at=submission.graded_at,
+            placement=placement, submission=submission, attempt=attempt, label=label, level=pos.level, x=pos.x, y=pos.y, grade=grade, at=when
         )
-    return submission
+
+
+# ---- exams
+
+
+def open_exam(exam: Exam, now=None):
+    now = now or timezone.now()
+    exam.status = Exam.Status.OPEN
+    exam.opened_at = now
+    exam.ends_at = now + timezone.timedelta(minutes=exam.duration_minutes)
+    exam.save()
+    return exam
+
+
+def score_attempt(attempt: Attempt) -> float:
+    total = 0
+    got = 0
+    for q in attempt.exam.questions.prefetch_related("choices"):
+        total += q.points
+        picked = attempt.answers.get(str(q.id))
+        if picked and any(c.id == int(picked) and c.is_correct for c in q.choices.all()):
+            got += q.points
+    return round(got * 100 / total, 2) if total else 0.0
+
+
+@transaction.atomic
+def submit_attempt(attempt: Attempt, when=None):
+    if attempt.submitted_at:
+        return attempt
+    attempt.submitted_at = when or timezone.now()
+    attempt.score = score_attempt(attempt)
+    attempt.save()
+    exam = attempt.exam
+    apply_grade(attempt.student, exam.grids.all(), attempt.score, exam.level, attempt.submitted_at, attempt=attempt, label=exam.title)
+    return attempt
+
+
+@transaction.atomic
+def close_exam(exam: Exam):
+    """time is up or the teacher stopped it. whatever a student answered so far counts"""
+    if exam.status == Exam.Status.CLOSED:
+        return exam
+    when = min(timezone.now(), exam.ends_at) if exam.ends_at else timezone.now()
+    for attempt in exam.attempts.filter(submitted_at__isnull=True):
+        submit_attempt(attempt, when)
+    exam.status = Exam.Status.CLOSED
+    exam.save()
+    return exam
 
 
 def grades_csv(class_: Class) -> str:
     activities = list(class_.activities.order_by("created_at"))
+    exams = list(class_.exams.filter(status=Exam.Status.CLOSED).order_by("created_at"))
     out = StringIO()
     w = csv.writer(out)
-    w.writerow(["student", "email", *[a.name for a in activities], "average"])
+    w.writerow(["student", "email", *[a.name for a in activities], *[f"exam: {e.title}" for e in exams], "average"])
     subs = {(s.student_id, s.activity_id): s.final_grade for s in Submission.objects.filter(activity__in=activities)}
+    tries = {(a.student_id, a.exam_id): a.score for a in Attempt.objects.filter(exam__in=exams)}
     for student in class_.students.order_by("name"):
-        row = [subs.get((student.id, a.id)) for a in activities]
+        row = [subs.get((student.id, a.id)) for a in activities] + [tries.get((student.id, e.id)) for e in exams]
         graded = [g for g in row if g is not None]
         avg = round(sum(graded) / len(graded), 2) if graded else ""
         w.writerow([student.name, student.email, *["" if g is None else g for g in row], avg])

@@ -159,7 +159,9 @@ class Placement(models.Model):
 
 class PlacementHistory(models.Model):
     placement = models.ForeignKey(Placement, on_delete=models.CASCADE, related_name="history")
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="+")
+    submission = models.ForeignKey(Submission, null=True, blank=True, on_delete=models.CASCADE, related_name="+")
+    attempt = models.ForeignKey("Attempt", null=True, blank=True, on_delete=models.CASCADE, related_name="+")
+    label = models.CharField(max_length=140, blank=True)
     level = models.PositiveSmallIntegerField()
     x = models.PositiveSmallIntegerField()
     y = models.PositiveSmallIntegerField()
@@ -168,3 +170,57 @@ class PlacementHistory(models.Model):
 
     class Meta:
         ordering = ["at"]
+
+
+# a timed multiple choice test. the server owns the clock, students only render it
+class Exam(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = "draft"
+        OPEN = "open"
+        CLOSED = "closed"
+
+    classroom = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="exams", db_column="class_id")
+    title = models.CharField(max_length=140)
+    instructions = models.TextField(blank=True)
+    duration_minutes = models.PositiveSmallIntegerField(default=30)
+    level = models.PositiveSmallIntegerField(default=0)
+    grids = models.ManyToManyField(Grid, related_name="exams")
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    ends_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title
+
+
+class Question(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name="questions")
+    text = models.TextField()
+    points = models.PositiveSmallIntegerField(default=1)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
+    text = models.CharField(max_length=300)
+    is_correct = models.BooleanField(default=False)
+
+
+class Attempt(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name="attempts")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attempts")
+    started_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    answers = models.JSONField(default=dict)  # {question_id: choice_id}
+    score = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("exam", "student")

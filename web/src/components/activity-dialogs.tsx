@@ -1,7 +1,7 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Plus, Trash2 } from "lucide-react"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,29 +14,28 @@ import { cn } from "@/lib/utils"
 
 const LETTERS: Letter[] = ["E", "G", "A", "P"]
 
-export function NewActivityDialog({ classId }: { classId: number }) {
+export function NewActivityDialog({ classId, activity }: { classId: number; activity?: Activity }) {
   const { t } = useT()
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const subj = useQuery({ queryKey: ["subjects", classId], queryFn: () => subjects.list(classId), enabled: open })
   const grd = useQuery({ queryKey: ["grids", classId], queryFn: () => grids.list(classId), enabled: open })
-  const blank = (): ActivityInput => ({
-    classroom: classId,
-    name: "",
-    description: "",
-    level: 0,
-    due_at: null,
-    subjects: [],
-    grids: [],
-    criteria: [{ description: "", weight: 1 }],
-  })
+  const blank = (): ActivityInput =>
+    activity
+      ? { classroom: classId, name: activity.name, description: activity.description, level: activity.level, due_at: activity.due_at, subjects: activity.subjects, grids: activity.grids, criteria: activity.criteria.map(({ description, weight }) => ({ description, weight })) }
+      : { classroom: classId, name: "", description: "", level: 0, due_at: null, subjects: [], grids: [], criteria: [{ description: "", weight: 1 }] }
   const [form, setForm] = useState<ActivityInput>(blank)
+  const locked = !!activity && activity.graded > 0 // criteria can't change once someone was graded
 
   const create = useMutation({
-    mutationFn: () => activities.create({ ...form, criteria: form.criteria.filter((c) => c.description.trim()) }),
+    mutationFn: () => {
+      const body = { ...form, criteria: form.criteria.filter((c) => c.description.trim()) }
+      return activity ? activities.update(activity.id, body) : activities.create(body)
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["activities", classId] })
-      toast.success(t.activity.created)
+      qc.invalidateQueries({ queryKey: ["activities"] })
+      qc.invalidateQueries({ queryKey: ["activity"] })
+      toast.success(activity ? t.activity.updated : t.activity.created)
       setOpen(false)
       setForm(blank())
     },
@@ -49,12 +48,12 @@ export function NewActivityDialog({ classId }: { classId: number }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>
-        <Plus className="size-4" /> {t.activity.new}
+      <DialogTrigger render={<Button variant={activity ? "outline" : "default"} size={activity ? "sm" : "default"} />}>
+        {activity ? <Pencil className="size-4" /> : <Plus className="size-4" />} {activity ? t.activity.edit : t.activity.new}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t.activity.new}</DialogTitle>
+          <DialogTitle>{activity ? t.activity.edit : t.activity.new}</DialogTitle>
           <DialogDescription>{t.activity.levelHint}</DialogDescription>
         </DialogHeader>
         <form
@@ -84,7 +83,7 @@ export function NewActivityDialog({ classId }: { classId: number }) {
           </div>
           <Picker label={t.activity.subjects} items={subj.data ?? []} selected={form.subjects} onToggle={(id) => toggle("subjects", id)} />
           <Picker label={t.activity.grids} items={grd.data ?? []} selected={form.grids} onToggle={(id) => toggle("grids", id)} required />
-          <div className="space-y-2">
+          <div className={cn("space-y-2", locked && "pointer-events-none opacity-60")}>
             <Label>{t.activity.criteria}</Label>
             {form.criteria.map((c, i) => (
               <div key={i} className="flex gap-2">
@@ -113,7 +112,7 @@ export function NewActivityDialog({ classId }: { classId: number }) {
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{t.common.cancel}</Button>
-            <Button type="submit" disabled={!ok || create.isPending}>{t.activity.create}</Button>
+            <Button type="submit" disabled={!ok || create.isPending}>{activity ? t.common.save : t.activity.create}</Button>
           </div>
         </form>
       </DialogContent>
@@ -146,17 +145,45 @@ function Picker({ label, items, selected, onToggle, required }: { label: string;
 }
 
 // the teacher marks each criterion with a letter and, if they want, a line of feedback
-export function GradeDialog({ submission, activity, onDone }: { submission: Submission; activity: Activity; onDone?: () => void }) {
+type GradeProps = { submission: Submission; activity: Activity; onDone?: () => void; onNext?: () => Submission | undefined }
+
+export function GradeDialog({ submission: initial, activity, onDone, onNext }: GradeProps) {
   const { t } = useT()
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [marks, setMarks] = useState<Record<number, { grade?: Letter; feedback: string }>>(() =>
-    Object.fromEntries(activity.criteria.map((c) => {
-      const m = submission.marks.find((x) => x.criterion === c.id)
-      return [c.id, { grade: m?.grade, feedback: m?.feedback ?? "" }]
-    })),
-  )
+  const [submission, setSubmission] = useState(initial)
+  const fromSubmission = (s: Submission) =>
+    Object.fromEntries(
+      activity.criteria.map((c) => {
+        const m = s.marks.find((x) => x.criterion === c.id)
+        return [c.id, { grade: m?.grade, feedback: m?.feedback ?? "" }]
+      }),
+    ) as Record<number, { grade?: Letter; feedback: string }>
+  const [marks, setMarks] = useState(() => fromSubmission(initial))
+  const [focus, setFocus] = useState(0)
   const complete = activity.criteria.every((c) => marks[c.id]?.grade)
+
+  // e, g, a, p on the keyboard mark the highlighted criterion and move down
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      const l = e.key.toUpperCase() as Letter
+      if (!LETTERS.includes(l)) return
+      const c = activity.criteria[focus]
+      if (!c) return
+      setMarks((m) => ({ ...m, [c.id]: { ...m[c.id], grade: l } }))
+      setFocus((f) => Math.min(f + 1, activity.criteria.length - 1))
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [open, focus, activity.criteria])
+
+  const load = (s: Submission) => {
+    setSubmission(s)
+    setMarks(fromSubmission(s))
+    setFocus(0)
+  }
 
   const save = useMutation({
     mutationFn: () => submissions.grade(submission.id, activity.criteria.map((c) => ({ criterion_id: c.id, grade: marks[c.id].grade!, feedback: marks[c.id].feedback }))),
@@ -166,16 +193,26 @@ export function GradeDialog({ submission, activity, onDone }: { submission: Subm
       qc.invalidateQueries({ queryKey: ["heatmap"] })
       qc.invalidateQueries({ queryKey: ["timeline"] })
       toast.success(t.activity.saved(s.final_grade ?? 0))
-      setOpen(false)
       onDone?.()
+      const next = advance ? onNext?.() : undefined
+      if (next) load(next)
+      else setOpen(false)
     },
     onError: () => toast.error(t.common.failed),
   })
 
+  const [advance, setAdvance] = useState(false)
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" variant={submission.graded_at ? "outline" : "default"} />}>
-        {submission.graded_at ? t.activity.regrade : t.activity.grade}
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o)
+        if (o) load(initial)
+      }}
+    >
+      <DialogTrigger render={<Button size="sm" variant={initial.graded_at ? "outline" : "default"} />}>
+        {initial.graded_at ? t.activity.regrade : t.activity.grade}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
@@ -190,8 +227,8 @@ export function GradeDialog({ submission, activity, onDone }: { submission: Subm
           </a>
         )}
         <div className="space-y-4">
-          {activity.criteria.map((c) => (
-            <div key={c.id} className="space-y-2 rounded-lg border p-3">
+          {activity.criteria.map((c, i) => (
+            <div key={c.id} className={cn("space-y-2 rounded-lg border p-3", i === focus && "ring-primary ring-2")} onClick={() => setFocus(i)}>
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium">{c.description}</span>
                 <span className="text-muted-foreground text-xs">
@@ -215,11 +252,16 @@ export function GradeDialog({ submission, activity, onDone }: { submission: Subm
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          {!complete && <span className="text-muted-foreground text-xs">{t.activity.allMarks}</span>}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-muted-foreground text-xs">{complete ? t.activity.keysHint : t.activity.allMarks}</span>
           <span className="flex-1" />
           <Button variant="ghost" onClick={() => setOpen(false)}>{t.common.cancel}</Button>
-          <Button disabled={!complete || save.isPending} onClick={() => save.mutate()}>{t.activity.save}</Button>
+          {onNext && (
+            <Button variant="outline" disabled={!complete || save.isPending} onClick={() => { setAdvance(true); save.mutate() }}>
+              {t.activity.nextStudent}
+            </Button>
+          )}
+          <Button disabled={!complete || save.isPending} onClick={() => { setAdvance(false); save.mutate() }}>{t.activity.save}</Button>
         </div>
       </DialogContent>
     </Dialog>

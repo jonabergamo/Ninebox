@@ -162,11 +162,15 @@ class PlacementSerializer(serializers.ModelSerializer):
 
 
 class HistorySerializer(serializers.ModelSerializer):
-    activity = serializers.CharField(source="submission.activity.name", read_only=True)
+    activity = serializers.CharField(source="label", read_only=True)
+    kind = serializers.SerializerMethodField()
 
     class Meta:
         model = PlacementHistory
-        fields = ["level", "x", "y", "grade", "at", "activity"]
+        fields = ["level", "x", "y", "grade", "at", "activity", "kind"]
+
+    def get_kind(self, h):
+        return "exam" if h.attempt_id else "activity"
 
 
 # ---- helpers
@@ -200,6 +204,26 @@ class RegisterView(APIView):
 class MeView(APIView):
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+    def patch(self, request):
+        name = str(request.data.get("name", "")).strip()
+        if not name:
+            raise ValidationError({"name": "required"})
+        request.user.name = name[:100]
+        request.user.save(update_fields=["name"])
+        return Response(UserSerializer(request.user).data)
+
+
+class PasswordView(APIView):
+    def post(self, request):
+        current, new = request.data.get("current", ""), request.data.get("new", "")
+        if not request.user.check_password(current):
+            raise ValidationError({"current": "wrong password"})
+        if len(new) < 8:
+            raise ValidationError({"new": "at least 8 characters"})
+        request.user.set_password(new)
+        request.user.save()
+        return Response(status=204)
 
 
 # ---- classes
@@ -373,6 +397,6 @@ class TimelineView(APIView):
         return Response(
             {
                 "placement": PlacementSerializer(placement).data,
-                "history": HistorySerializer(placement.history.select_related("submission__activity"), many=True).data,
+                "history": HistorySerializer(placement.history.all(), many=True).data,
             }
         )
