@@ -15,7 +15,7 @@ services:
       - key: ALLOWED_HOSTS
         value: ninebox-api.onrender.com
       - key: CORS_ORIGINS
-        value: https://ninebox.vercel.app
+        value: https://ninebox-seven.vercel.app,https://ninebox.vercel.app
       - key: SEED_DEMO
         value: "true"
       - key: DATABASE_URL

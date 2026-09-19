@@ -4,7 +4,7 @@ A school platform built around the 9 box grid. Teachers create classes, hand out
 
 I built the first version in 2023 with a friend's school in mind. In 2026 I folded the two repos into one, rewrote both halves and put it online with a demo school so anyone can walk through it.
 
-Demo at https://ninebox.vercel.app. The sign in page has one click logins for the teacher and for a student. The API sleeps when nobody visits and takes about a minute to wake, so the first login can be slow.
+Demo at https://ninebox-seven.vercel.app. The sign in page has one click logins for the teacher and for a student. The API sleeps when nobody visits and takes about a minute to wake, so the first login can be slow.
 
 ## How the grid moves
 
