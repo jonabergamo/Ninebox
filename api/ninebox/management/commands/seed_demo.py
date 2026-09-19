@@ -312,7 +312,7 @@ class Command(BaseCommand):
             created_by=teacher,
         )
         upcoming.grids.set([grids["Academic"]])
-        self.questions(upcoming, EXAM_QUESTIONS[:2] + [EXAM_QUESTIONS[5], EXAM_QUESTIONS[1], EXAM_QUESTIONS[0]])
+        self.questions(upcoming, [EXAM_QUESTIONS[0], EXAM_QUESTIONS[1], EXAM_QUESTIONS[5], EXAM_QUESTIONS[2], EXAM_QUESTIONS[6]])
 
     def questions(self, exam, bank=EXAM_QUESTIONS):
         for i, (text, points, options) in enumerate(bank):
