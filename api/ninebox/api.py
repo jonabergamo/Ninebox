@@ -153,11 +153,12 @@ class GradeInput(serializers.Serializer):
 
 class PlacementSerializer(serializers.ModelSerializer):
     grid_name = serializers.CharField(source="grid.name", read_only=True)
+    classroom = serializers.IntegerField(source="grid.classroom_id", read_only=True)
     student = UserSerializer(read_only=True)
 
     class Meta:
         model = Placement
-        fields = ["id", "grid", "grid_name", "student", "level", "x", "y", "fail_streak"]
+        fields = ["id", "grid", "grid_name", "classroom", "student", "level", "x", "y", "fail_streak"]
 
 
 class HistorySerializer(serializers.ModelSerializer):

@@ -38,7 +38,7 @@ export type Submission = {
   final_grade: number | null
   marks: Mark[]
 }
-export type Placement = { id: number; grid: number; grid_name: string; student: User; level: number; x: number; y: number; fail_streak: number }
+export type Placement = { id: number; grid: number; grid_name: string; classroom: number; student: User; level: number; x: number; y: number; fail_streak: number }
 export type Heatmap = { grid: Grid; placements: Placement[] }[]
 export type History = { level: number; x: number; y: number; grade: number; at: string; activity: string }
 
